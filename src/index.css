@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: 'Raleway', system-ui, sans-serif;
+    color: #E8E4D2;
+    background: #05060A;
+    overscroll-behavior: contain;
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+  button, [role='button'], a, input, textarea, select, summary {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  button, [role='button'] {
+    cursor: pointer;
+  }
+  input, textarea {
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+  [role='button'], [tabindex='0'] {
+    cursor: pointer;
+  }
+  /* Visible focus ring on keyboard navigation */
+  :focus-visible {
+    outline: 2px solid #F4EFD9;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
+@layer components {
+  .soma-card {
+    @apply bg-soma-slate/60 backdrop-blur-sm border border-white/5 rounded-2xl;
+  }
+  .soma-btn-primary {
+    @apply bg-soma-glow text-soma-ink font-medium rounded-full px-6 py-3 min-h-[44px] whitespace-nowrap active:scale-[0.98] transition-transform hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .soma-btn-ghost {
+    @apply border border-white/15 text-soma-moon font-medium rounded-full px-6 py-3 min-h-[44px] whitespace-nowrap active:scale-[0.98] transition-transform hover:border-white/30 hover:bg-white/5;
+  }
+  .display-serif {
+    font-family: 'Lora', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Respect reduced-motion users — disable all Soma animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbars inside the phone frame for a native feel */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }

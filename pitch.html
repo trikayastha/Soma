@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Soma — Moon for Mental Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:    '#0B0B0F',
+          paper:  '#F6F3EC',
+          moon:   '#E8E2D2',
+          ochre:  '#B8651B',
+          dim:    '#6B6A66',
+        },
+        fontFamily: {
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans:  ['Inter', 'system-ui', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html, body { height:100%; margin:0; }
+  body {
+    background:#0B0B0F;
+    color:#F6F3EC;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow:hidden;
+  }
+  .slide {
+    width:100vw; height:100vh;
+    display:none;
+    position:relative;
+    padding: clamp(36px, 5vw, 88px);
+    overflow:hidden;
+  }
+  .slide.active { display:flex; }
+  .slide.paper { background:#F6F3EC; color:#0B0B0F; }
+  .slide.ink   { background:#0B0B0F; color:#F6F3EC; }
+  h1,h2,h3,.serif { font-family: 'Fraunces', Georgia, serif; font-weight:400; letter-spacing:-0.015em; }
+  .display { font-family:'Fraunces', Georgia, serif; font-weight:300; line-height:1.0; letter-spacing:-0.03em; }
+  .eyebrow {
+    font-family:'Inter', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.24em;
+    font-size:11px;
+    font-weight:500;
+  }
+  .stat { font-family:'Fraunces', Georgia, serif; font-weight:300; line-height:.9; letter-spacing:-0.04em; }
+  .quote { font-family:'Fraunces', Georgia, serif; font-weight:300; font-style:italic; line-height:1.12; }
+
+  /* Moon background */
+  .moon-bg {
+    position:absolute; right:-14vw; top:50%; transform:translateY(-50%);
+    width:84vh; height:84vh; border-radius:50%;
+    background: radial-gradient(circle at 35% 35%, #2A2C44 0%, #15162A 45%, #0B0B0F 78%);
+    box-shadow: inset -50px -50px 140px rgba(0,0,0,.7), 0 0 200px rgba(30,33,64,.35);
+  }
+  .crater { position:absolute; border-radius:50%; background:rgba(0,0,0,.22); }
+  .grid-bg {
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events:none;
+  }
+  .slide.paper .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(0,0,0,.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,.045) 1px, transparent 1px);
+  }
+
+  .footernav {
+    position:fixed; left:0; right:0; bottom:0;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 24px; font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    color: rgba(246,243,236,0.45); pointer-events:none; z-index:50;
+  }
+  .progress {
+    position:fixed; top:0; left:0; height:2px; background:#B8651B; z-index:60; transition: width .35s ease;
+  }
+
+  .slide.active .anim { animation: rise .65s ease both; }
+  .slide.active .anim:nth-child(2) { animation-delay:.08s }
+  .slide.active .anim:nth-child(3) { animation-delay:.16s }
+  .slide.active .anim:nth-child(4) { animation-delay:.24s }
+  @keyframes rise { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:none; } }
+
+  ::selection { background:#B8651B; color:#F6F3EC; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- ============ SLIDE 1 — COVER ============ -->
+<section class="slide ink active" data-title="Soma">
+  <div class="moon-bg" aria-hidden="true">
+    <div class="crater" style="width:84px;height:84px;left:24%;top:30%"></div>
+    <div class="crater" style="width:34px;height:34px;left:52%;top:22%"></div>
+    <div class="crater" style="width:62px;height:62px;left:60%;top:58%"></div>
+    <div class="crater" style="width:22px;height:22px;left:38%;top:64%"></div>
+  </div>
+  <div class="grid-bg"></div>
+  <div class="relative z-10 flex flex-col h-full w-full justify-between">
+    <header class="flex items-center gap-3 anim">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="#F6F3EC" stroke-width="1.2"/>
+        <path d="M22 16a6 6 0 1 1-6-6 5 5 0 0 0 6 6Z" fill="#F6F3EC"/>
+      </svg>
+      <span class="serif text-2xl">Soma</span>
+    </header>
+
+    <div class="max-w-5xl anim">
+      <div class="eyebrow text-ochre mb-8">Moon for Mental Performance</div>
+      <h1 class="display text-[clamp(64px,9vw,148px)]">
+        Fast with<br/>the moon.
+      </h1>
+    </div>
+
+    <footer class="anim">
+      <div class="text-xs uppercase tracking-[0.24em] text-moon/45">Ancient rhythm. Modern mind.</div>
+    </footer>
+  </div>
+</section>
+
+<!-- ============ SLIDE 2 — CONTEXT ============ -->
+<section class="slide paper" data-title="Context">
+  <div class="grid-bg"></div>
+  <div class="relative z-10 grid grid-cols-12 gap-12 w-full h-full">
+    <div class="col-span-5 flex flex-col justify-center anim">
+      <div class="eyebrow text-ochre">Context</div>
+      <h2 class="display text-[clamp(48px,6vw,92px)] mt-6">
+        The mind has<br/>a calendar.
+      </h2>
+      <p class="mt-8 text-lg max-w-md text-ink/70 leading-relaxed">
+        For more than a thousand years, <span class="italic">Vedic Sanatan Dharma</span> and the <span class="italic">Newari culture of Nepal</span> have prescribed fasting and meditation on specific lunar days as a regulator of the mind.
+      </p>
+    </div>
+
+    <div class="col-span-7 anim flex flex-col justify-center">
+      <div class="eyebrow text-ink/40 mb-4">A single lunar cycle · 29.5 days</div>
+      <svg viewBox="0 0 700 220" class="w-full">
+        <line x1="20" y1="120" x2="680" y2="120" stroke="#0B0B0F" stroke-width="1"/>
+        <g font-family="Inter" font-size="9" fill="#0B0B0F">
+          <g><circle cx="40"  cy="120" r="20" fill="#0B0B0F"/><text x="40"  y="172" text-anchor="middle">New</text></g>
+          <g><circle cx="125" cy="120" r="20" fill="#0B0B0F"/><circle cx="132" cy="120" r="14" fill="#F6F3EC"/></g>
+          <g><circle cx="210" cy="120" r="20" fill="#0B0B0F"/><circle cx="220" cy="120" r="20" fill="#F6F3EC"/></g>
+          <g><circle cx="295" cy="120" r="20" fill="#0B0B0F"/><circle cx="306" cy="120" r="22" fill="#F6F3EC"/></g>
+          <g><circle cx="380" cy="120" r="22" fill="#F6F3EC" stroke="#0B0B0F" stroke-width="1"/><text x="380" y="172" text-anchor="middle">Full</text></g>
+          <g><circle cx="465" cy="120" r="20" fill="#0B0B0F"/><circle cx="454" cy="120" r="22" fill="#F6F3EC"/></g>
+          <g><circle cx="550" cy="120" r="20" fill="#0B0B0F"/><circle cx="542" cy="120" r="20" fill="#F6F3EC"/></g>
+          <g><circle cx="635" cy="120" r="20" fill="#0B0B0F"/><circle cx="628" cy="120" r="14" fill="#F6F3EC"/></g>
+        </g>
+        <g>
+          <line x1="295" y1="58" x2="295" y2="98" stroke="#B8651B" stroke-width="2"/>
+          <text x="295" y="46" text-anchor="middle" font-size="10" fill="#B8651B" font-weight="600" letter-spacing="1">EKADASHI</text>
+          <line x1="380" y1="58" x2="380" y2="98" stroke="#B8651B" stroke-width="2"/>
+          <text x="380" y="46" text-anchor="middle" font-size="10" fill="#B8651B" font-weight="600" letter-spacing="1">PURNIMA</text>
+          <line x1="465" y1="58" x2="465" y2="98" stroke="#B8651B" stroke-width="2"/>
+          <text x="465" y="46" text-anchor="middle" font-size="10" fill="#B8651B" font-weight="600" letter-spacing="1">EKADASHI</text>
+        </g>
+      </svg>
+
+      <div class="mt-12 grid grid-cols-3 gap-8">
+        <div>
+          <div class="stat text-6xl">1,000<span class="text-2xl">+ yrs</span></div>
+          <div class="text-sm text-ink/60 mt-3">Documented lunar fasting practice.</div>
+        </div>
+        <div>
+          <div class="stat text-6xl">~6</div>
+          <div class="text-sm text-ink/60 mt-3">Prescribed fast days each cycle.</div>
+        </div>
+        <div>
+          <div class="stat text-6xl">29.5d</div>
+          <div class="text-sm text-ink/60 mt-3">A natural rhythm the body already follows.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3 — PROBLEM ============ -->
+<section class="slide ink" data-title="Problem">
+  <div class="grid-bg"></div>
+  <div class="relative z-10 w-full h-full flex flex-col">
+    <header class="anim">
+      <div class="eyebrow text-ochre">The problem</div>
+      <h2 class="display text-[clamp(52px,6.4vw,100px)] mt-6 max-w-5xl">
+        An ancient practice<br/>for a global mind.
+      </h2>
+    </header>
+
+    <p class="anim mt-8 text-lg text-moon/70 max-w-3xl leading-relaxed">
+      A thousand-year-old practice for the mind — verified by tradition, supported by modern science — meeting a need that is no longer regional.
+    </p>
+
+    <div class="anim mt-12 grid grid-cols-2 gap-16 flex-1">
+      <!-- The practice -->
+      <div class="border-l border-moon/20 pl-8">
+        <div class="eyebrow text-moon/45">The practice</div>
+        <div class="mt-7 space-y-7">
+          <div class="flex gap-6 items-baseline">
+            <div class="serif text-4xl text-ochre w-20">1k+</div>
+            <div class="text-sm text-moon/75 leading-relaxed">years of documented <span class="italic">Vedic Sanatan Dharma</span> and <span class="italic">Newari</span> lunar fasting practice — ~6 prescribed fast days each cycle.</div>
+          </div>
+          <div class="flex gap-6 items-baseline">
+            <div class="serif text-4xl text-ochre w-20">2013</div>
+            <div class="text-sm text-moon/75 leading-relaxed">Cajochen et al., <span class="italic">Current Biology</span> — full moon disrupts sleep even in light-shielded labs. Modern science quietly confirming the lineage.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The need -->
+      <div class="border-l border-ochre pl-8">
+        <div class="eyebrow text-ochre">The need</div>
+        <div class="mt-7 space-y-7">
+          <div class="flex gap-6 items-baseline">
+            <div class="serif text-4xl text-moon w-20">77%</div>
+            <div class="text-sm text-moon/75 leading-relaxed">of professionals report experiencing burnout at their current job. <span class="text-moon/45">(Deloitte)</span></div>
+          </div>
+          <div class="flex gap-6 items-baseline">
+            <div class="serif text-4xl text-moon w-20">+25%</div>
+            <div class="text-sm text-moon/75 leading-relaxed">global rise in anxiety and depression since 2020 <span class="text-moon/45">(WHO)</span> — willingness to pay is settled: <span class="text-moon">$300M+</span> Calm + Headspace ARR.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4 — SOLUTION ============ -->
+<section class="slide paper" data-title="Solution">
+  <div class="grid-bg"></div>
+  <div class="relative z-10 grid grid-cols-12 gap-12 w-full h-full">
+    <div class="col-span-7 flex flex-col justify-center anim">
+      <div class="eyebrow text-ochre">The Soma protocol</div>
+      <h2 class="display text-[clamp(48px,6vw,88px)] mt-6">
+        Schedule.<br/>Pair.<br/>Measure.
+      </h2>
+      <p class="mt-8 text-lg text-ink/70 max-w-xl leading-relaxed">
+        A lunar-aligned fast that schedules itself, paired with a 10-minute meditation, measured against your focus, sleep, and HRV.
+      </p>
+
+      <div class="mt-12 space-y-6 max-w-xl">
+        <div class="flex gap-6 items-baseline">
+          <div class="stat text-4xl text-ochre w-14">01</div>
+          <div>
+            <div class="serif text-2xl">Schedule</div>
+            <div class="text-sm text-ink/60 mt-1">~6 fasts each lunar cycle, prescribed for your timezone.</div>
+          </div>
+        </div>
+        <div class="flex gap-6 items-baseline">
+          <div class="stat text-4xl text-ochre w-14">02</div>
+          <div>
+            <div class="serif text-2xl">Pair</div>
+            <div class="text-sm text-ink/60 mt-1">A 10-minute meditation with every fast — short on fast days, deeper on feed days.</div>
+          </div>
+        </div>
+        <div class="flex gap-6 items-baseline">
+          <div class="stat text-4xl text-ochre w-14">03</div>
+          <div>
+            <div class="serif text-2xl">Measure</div>
+            <div class="text-sm text-ink/60 mt-1">Your Soma days vs. your non-Soma days. Judged by data, not belief.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-span-5 flex items-center justify-center anim">
+      <div class="relative" style="width:300px;height:600px;">
+        <div class="absolute inset-0 rounded-[48px] border border-ink/15 bg-ink" style="box-shadow: 0 40px 100px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.04);"></div>
+        <div class="absolute inset-3 rounded-[40px] overflow-hidden" style="background:linear-gradient(180deg,#13141F 0%,#0B0B0F 100%);">
+          <div class="px-6 pt-6 text-[10px] uppercase tracking-[.22em] text-moon/40 flex justify-between">
+            <span>9:41</span><span>SOMA</span>
+          </div>
+          <div class="px-6 mt-7">
+            <div class="text-[10px] uppercase tracking-[.2em] text-ochre">Tomorrow</div>
+            <div class="serif text-[30px] leading-tight mt-1 text-moon">A Soma Day.</div>
+            <div class="text-xs text-moon/55 mt-1">Ekadashi · 24h fast from sunset</div>
+          </div>
+          <div class="mt-8 mx-auto relative" style="width:200px;height:200px;">
+            <div class="absolute inset-0 rounded-full" style="background:radial-gradient(circle at 35% 35%,#2A2C44,#0B0B0F 70%);box-shadow:inset -22px -22px 70px rgba(0,0,0,.75);"></div>
+            <div class="absolute inset-0 rounded-full" style="background:radial-gradient(circle at 62% 50%,rgba(232,226,210,.85),transparent 55%);"></div>
+          </div>
+          <div class="px-6 mt-6 text-center">
+            <div class="text-[10px] text-moon/45 tracking-[.22em] uppercase">Waxing gibbous · 87%</div>
+          </div>
+          <div class="px-6 mt-6 space-y-2">
+            <div class="border border-moon/15 rounded-md px-3 py-2.5 flex justify-between text-xs text-moon">
+              <span class="text-moon/65">Begin fast</span><span class="text-ochre">18:42</span>
+            </div>
+            <div class="border border-moon/15 rounded-md px-3 py-2.5 flex justify-between text-xs text-moon">
+              <span class="text-moon/65">Paired meditation</span><span>10 min</span>
+            </div>
+            <div class="border border-moon/15 rounded-md px-3 py-2.5 flex justify-between text-xs text-moon">
+              <span class="text-moon/65">Why this day?</span><span>↗</span>
+            </div>
+          </div>
+          <div class="px-6 mt-6">
+            <div class="bg-ochre text-ink text-center text-xs font-medium rounded-md py-3 tracking-[.1em] uppercase">Begin Fast</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5 — SYNTHESIS / CLOSE ============ -->
+<section class="slide ink" data-title="Soma">
+  <div class="grid-bg"></div>
+  <div class="relative z-10 w-full h-full flex flex-col justify-between">
+    <header class="anim">
+      <div class="eyebrow text-ochre">Soma</div>
+      <h2 class="display text-[clamp(46px,5.8vw,86px)] mt-6 max-w-5xl">
+        Where ancient rhythm<br/>meets the modern mind.
+      </h2>
+    </header>
+
+    <div class="anim flex items-center justify-center flex-1 -mt-6">
+      <svg viewBox="0 0 820 360" class="w-full max-w-5xl">
+        <defs>
+          <radialGradient id="full" cx="36%" cy="34%">
+            <stop offset="0%" stop-color="#F6F3EC"/>
+            <stop offset="55%" stop-color="#E8E2D2"/>
+            <stop offset="100%" stop-color="#A89E80"/>
+          </radialGradient>
+        </defs>
+
+        <!-- LEFT — East: 1,000 years -->
+        <g transform="translate(170,180)">
+          <circle r="92" fill="none" stroke="#F6F3EC" stroke-opacity=".22" stroke-dasharray="2 4"/>
+          <path d="M 0 -90 A 90 90 0 0 0 0 90 Z" fill="#1E2140"/>
+          <text y="138" text-anchor="middle" font-family="Inter" font-size="10" letter-spacing="2.5" fill="#B8651B">THE EAST</text>
+          <text y="160" text-anchor="middle" font-family="Fraunces" font-size="17" fill="#F6F3EC">1,000 years of practice</text>
+          <text y="180" text-anchor="middle" font-family="Inter" font-size="11" fill="#F6F3EC" opacity=".55">Vedic Sanatan Dharma · Newari lineage</text>
+        </g>
+
+        <!-- CENTER — Soma full moon -->
+        <g transform="translate(410,180)">
+          <circle r="128" fill="none" stroke="#B8651B" stroke-opacity=".25" stroke-dasharray="3 5"/>
+          <circle r="118" fill="url(#full)" stroke="#B8651B" stroke-width="1.5"/>
+          <text y="-4" text-anchor="middle" font-family="Fraunces" font-size="46" font-weight="400" fill="#0B0B0F" letter-spacing="-1">Soma</text>
+          <text y="22" text-anchor="middle" font-family="Inter" font-size="9" letter-spacing="2.5" fill="#0B0B0F" opacity=".7">MOON FOR MENTAL PERFORMANCE</text>
+        </g>
+
+        <!-- RIGHT — West: modern need -->
+        <g transform="translate(650,180)">
+          <circle r="92" fill="none" stroke="#F6F3EC" stroke-opacity=".22" stroke-dasharray="2 4"/>
+          <path d="M 0 -90 A 90 90 0 0 1 0 90 Z" fill="#B8651B" fill-opacity=".78"/>
+          <text y="138" text-anchor="middle" font-family="Inter" font-size="10" letter-spacing="2.5" fill="#B8651B">THE WEST</text>
+          <text y="160" text-anchor="middle" font-family="Fraunces" font-size="17" fill="#F6F3EC">A modern need for the mind</text>
+          <text y="180" text-anchor="middle" font-family="Inter" font-size="11" fill="#F6F3EC" opacity=".55">1 in 5 · 77% burnout · +25% anxiety</text>
+        </g>
+
+        <!-- subtle convergence arrows -->
+        <path d="M 270 180 Q 320 180 305 180" stroke="#B8651B" stroke-width="1.2" fill="none" opacity=".55"/>
+        <path d="M 550 180 Q 500 180 515 180" stroke="#B8651B" stroke-width="1.2" fill="none" opacity=".55"/>
+      </svg>
+    </div>
+
+    <footer class="anim flex items-end justify-between gap-10">
+      <div class="serif text-xl text-moon/85 leading-snug max-w-3xl">
+        A thousand-year-old operating system for the mind — translated for a phone, measured by the body that lives with it, delivered to the people who need it most.
+      </div>
+      <div class="text-xs text-moon/40 uppercase tracking-[.24em] whitespace-nowrap pb-1">Ancient rhythm. Modern mind.</div>
+    </footer>
+  </div>
+</section>
+
+<!-- ============ NAV ============ -->
+<div class="footernav">
+  <div><span id="slideTitle"></span></div>
+  <div><span id="slideNum">1</span> / <span id="slideTot">5</span></div>
+</div>
+
+<script>
+(() => {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let i = 0;
+  const total = slides.length;
+  document.getElementById('slideTot').textContent = total;
+  const progress = document.getElementById('progress');
+
+  function show(n) {
+    i = Math.max(0, Math.min(total - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    document.getElementById('slideNum').textContent = i + 1;
+    document.getElementById('slideTitle').textContent = slides[i].dataset.title || '';
+    progress.style.width = ((i + 1) / total * 100) + '%';
+    document.body.style.background = slides[i].classList.contains('paper') ? '#F6F3EC' : '#0B0B0F';
+  }
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(total - 1);
+    else if (/^[1-9]$/.test(e.key)) show(parseInt(e.key,10) - 1);
+  });
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, kbd')) return;
+    show(i + 1);
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
