@@ -24,6 +24,7 @@ const sampleProfile: UserProfile = {
     diabetes: false,
     under18: false,
   },
+  reminders: { dayOfTime: '17:00', leadMinutes: 30, liveNotifications: false },
 };
 
 const sampleDay: SomaDay = {

@@ -3,7 +3,7 @@ import { MoonPhase } from '../components/MoonPhase';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { evaluateSafety, emptySafetyFlags } from '../lib/safety';
 import { generateSchedule } from '../lib/lunar';
-import type { Intensity, SafetyFlags, UserProfile } from '../lib/types';
+import { defaultRemindersPrefs, type Intensity, type SafetyFlags, type UserProfile } from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
 
 const STEPS = ['welcome', 'you', 'experience', 'safety', 'intensity'] as const;
@@ -40,6 +40,7 @@ export function Onboarding() {
       defaultIntensity: intensity,
       onboardedAt: new Date().toISOString(),
       safetyFlags: safety,
+      reminders: defaultRemindersPrefs(),
     };
     const schedule = generateSchedule(new Date(), 60, intensity);
     setProfile(profile);

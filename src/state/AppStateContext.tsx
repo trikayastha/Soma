@@ -17,6 +17,7 @@ import {
   withSchedule,
   withSession,
 } from '../lib/storage';
+import { scheduleLiveReminders } from '../lib/reminders';
 
 interface AppStateContextValue {
   state: AppState;
@@ -41,6 +42,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveState(state);
   }, [state]);
+
+  // Keep in-session browser notifications in sync with the current schedule
+  // and preferences. No-op when permission is not granted or when live
+  // notifications are disabled.
+  useEffect(() => {
+    if (!state.profile) return;
+    const handle = scheduleLiveReminders(state.profile, state.schedule);
+    return () => handle.clear();
+  }, [state.profile, state.schedule]);
 
   const setProfile = useCallback(
     (profile: UserProfile) => setState((s) => withProfile(s, profile)),

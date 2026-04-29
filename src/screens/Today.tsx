@@ -10,6 +10,7 @@ import {
   phaseNameToLabel,
   toISODate,
 } from '../lib/lunar';
+import { computeTithi, tithiLabel } from '../lib/tithi';
 import { getWhyCopy } from '../lib/whyThisDay';
 import type { SomaDay } from '../lib/types';
 import { findActiveSession } from '../lib/scheduler';
@@ -43,6 +44,7 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
   );
   const phaseName = elongationToPhaseName(elongation);
   const waxing = elongation < 180;
+  const tithi = useMemo(() => computeTithi(selectedDateNoonUtc), [selectedDateNoonUtc]);
 
   const scheduleByDate = useMemo(() => {
     const m = new Map<string, SomaDay>();
@@ -85,6 +87,9 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
           </h1>
           <p className="text-soma-mist text-xs mt-1">
             {Math.round(illum * 100)}% illuminated · {waxing ? 'waxing' : 'waning'}
+          </p>
+          <p className="text-soma-mist text-[11px] mt-0.5">
+            Tithi {tithi.index} · {tithiLabel(tithi)}
           </p>
         </header>
 

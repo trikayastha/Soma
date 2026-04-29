@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type TabId = 'today' | 'trends' | 'learn' | 'settings';
+export type TabId = 'today' | 'calendar' | 'trends' | 'learn' | 'settings';
 
 interface BottomNavProps {
   active: TabId;
@@ -10,6 +10,7 @@ interface BottomNavProps {
 export function BottomNav({ active, onChange }: BottomNavProps) {
   const tabs: Array<{ id: TabId; label: string; icon: ReactNode }> = [
     { id: 'today', label: 'Today', icon: <MoonIcon /> },
+    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon /> },
     { id: 'trends', label: 'Trends', icon: <ChartIcon /> },
     { id: 'learn', label: 'Learn', icon: <BookIcon /> },
     { id: 'settings', label: 'Settings', icon: <GearIcon /> },
@@ -49,6 +50,16 @@ function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
       <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
     </svg>
   );
 }

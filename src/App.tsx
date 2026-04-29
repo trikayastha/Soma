@@ -7,6 +7,7 @@ import { Today } from './screens/Today';
 import { FastTimer } from './screens/FastTimer';
 import { LogForm } from './screens/LogForm';
 import { Meditation } from './screens/Meditation';
+import { CalendarScreen } from './screens/Calendar';
 import { Trends } from './screens/Trends';
 import { Learn } from './screens/Learn';
 import { Settings } from './screens/Settings';
@@ -109,6 +110,7 @@ function Shell() {
         {tab === 'today' && (
           <Today onStartFast={handleStartFast} onResumeActive={handleOpenTimer} />
         )}
+        {tab === 'calendar' && <CalendarScreen onStartFast={handleStartFast} />}
         {tab === 'trends' && <Trends />}
         {tab === 'learn' && <Learn />}
         {tab === 'settings' && <Settings />}

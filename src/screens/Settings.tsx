@@ -1,4 +1,5 @@
 import { AmbientBackground } from '../components/AmbientBackground';
+import { ReminderSettings } from '../components/ReminderSettings';
 import { generateSchedule } from '../lib/lunar';
 import type { Intensity } from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
@@ -25,17 +26,6 @@ export function Settings() {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  }
-
-  async function enableNotifications() {
-    if (!('Notification' in window)) {
-      alert('Notifications are not supported in this browser.');
-      return;
-    }
-    const res = await Notification.requestPermission();
-    if (res === 'granted') {
-      new Notification('Soma', { body: 'Reminders are on. See you on the next Soma day.' });
-    }
   }
 
   function handleReset() {
@@ -83,17 +73,7 @@ export function Settings() {
           </p>
         </section>
 
-        <section className="soma-card p-5 mt-4">
-          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
-            Notifications
-          </div>
-          <p className="text-soma-moon text-sm mt-1">
-            Gentle reminders before each fast.
-          </p>
-          <button className="soma-btn-ghost w-full mt-3" onClick={enableNotifications}>
-            Enable notifications
-          </button>
-        </section>
+        <ReminderSettings />
 
         <section className="soma-card p-5 mt-4">
           <div className="text-[10px] uppercase tracking-wider text-soma-mist">Data</div>

@@ -104,6 +104,7 @@ describe('Regression: full P0 flow', () => {
           diabetes: false,
           under18: false,
         },
+        reminders: { dayOfTime: '17:00', leadMinutes: 30, liveNotifications: false },
       },
       schedule: [
         {
@@ -135,6 +136,10 @@ describe('Regression: full P0 flow', () => {
     await user.click(within(nav).getByRole('button', { name: /Settings/i }));
     expect(screen.getByText(/Default intensity/i)).toBeInTheDocument();
     expect(screen.getByText(/Export my data/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reminders/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Download calendar/i }),
+    ).toBeInTheDocument();
 
     await user.click(within(nav).getByRole('button', { name: /Today/i }));
     expect(screen.getByText(/Shukla Ekadashi/i)).toBeInTheDocument();
@@ -157,6 +162,7 @@ describe('Regression: full P0 flow', () => {
           diabetes: false,
           under18: false,
         },
+        reminders: { dayOfTime: '17:00', leadMinutes: 30, liveNotifications: false },
       },
       schedule: [
         {
@@ -208,6 +214,7 @@ describe('Regression: full P0 flow', () => {
           diabetes: false,
           under18: false,
         },
+        reminders: { dayOfTime: '17:00', leadMinutes: 30, liveNotifications: false },
       },
       schedule: [
         {

@@ -1,5 +1,6 @@
 import { MoonPhase, SearchMoonPhase } from 'astronomy-engine';
 import type { LunarPhaseName, SomaDay, SomaDayKind, Intensity } from './types';
+import { computeTithi } from './tithi';
 
 /** Convert a Date to a yyyy-mm-dd string in UTC. */
 export function toISODate(d: Date): string {
@@ -97,12 +98,19 @@ export function generateSchedule(
       if (!t) break;
       const eventDate = t.date;
       if (eventDate >= end) break;
+      const tithi = computeTithi(eventDate);
       results.push({
         date: toISODate(eventDate),
         kind: target.kind,
         intensityHours: hours,
         title: target.title,
         tradition: target.tradition,
+        tithi: {
+          index: tithi.index,
+          indexInPaksha: tithi.indexInPaksha,
+          paksha: tithi.paksha,
+          name: tithi.name,
+        },
       });
       cursor = addDays(eventDate, 1);
     }

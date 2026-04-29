@@ -18,6 +18,13 @@ export interface SomaDay {
   intensityHours: number;
   title: string;
   tradition: 'vedic' | 'newa-buddhist';
+  /** Optional Vedic tithi metadata for the day. */
+  tithi?: {
+    index: number;
+    indexInPaksha: number;
+    paksha: 'shukla' | 'krishna';
+    name: string;
+  };
 }
 
 export interface FastSession {
@@ -47,6 +54,20 @@ export interface UserProfile {
   defaultIntensity: Intensity;
   onboardedAt: string;
   safetyFlags: SafetyFlags;
+  reminders: RemindersPrefs;
+}
+
+export interface RemindersPrefs {
+  /** Local time HH:mm when the fast begins on the day. */
+  dayOfTime: string;
+  /** Minutes before dayOfTime for the "get ready" reminder. */
+  leadMinutes: number;
+  /** Whether the in-session Notification scheduler is active. */
+  liveNotifications: boolean;
+}
+
+export function defaultRemindersPrefs(): RemindersPrefs {
+  return { dayOfTime: '17:00', leadMinutes: 30, liveNotifications: false };
 }
 
 export interface SafetyFlags {

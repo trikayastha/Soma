@@ -1,0 +1,197 @@
+import { useMemo } from 'react';
+import { addDays, toISODate } from '../lib/lunar';
+import { computeTithi, tithiShort } from '../lib/tithi';
+import type { FastSession, SomaDay } from '../lib/types';
+
+interface CalendarProps {
+  /** Any date within the month to display. */
+  month: Date;
+  todayIso: string;
+  selectedIso: string;
+  scheduleByDate: Map<string, SomaDay>;
+  sessions: FastSession[];
+  onSelect: (iso: string) => void;
+  onMonthChange: (next: Date) => void;
+}
+
+interface CellData {
+  iso: string;
+  dayOfMonth: number;
+  inMonth: boolean;
+  tithiText: string;
+  isShukla: boolean;
+  somaDay: SomaDay | null;
+  hasSession: boolean;
+}
+
+const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
+
+/**
+ * Month-grid calendar. Each cell shows day-of-month, a compact tithi label,
+ * highlights Soma days and dates with logged sessions, and is a tappable tab.
+ */
+export function Calendar({
+  month,
+  todayIso,
+  selectedIso,
+  scheduleByDate,
+  sessions,
+  onSelect,
+  onMonthChange,
+}: CalendarProps) {
+  const monthLabel = useMemo(
+    () =>
+      month.toLocaleDateString([], {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC',
+      }),
+    [month],
+  );
+
+  const sessionDates = useMemo(() => {
+    const set = new Set<string>();
+    for (const s of sessions) set.add(s.dayDate);
+    return set;
+  }, [sessions]);
+
+  const cells = useMemo<CellData[]>(() => {
+    const year = month.getUTCFullYear();
+    const m = month.getUTCMonth();
+    const firstOfMonth = new Date(Date.UTC(year, m, 1));
+    const startWeekday = firstOfMonth.getUTCDay(); // 0=Sun
+    const gridStart = addDays(firstOfMonth, -startWeekday);
+    const total = 42; // 6 rows × 7 cols
+
+    return Array.from({ length: total }, (_, i) => {
+      const d = addDays(gridStart, i);
+      const iso = toISODate(d);
+      const noonUtc = new Date(iso + 'T12:00:00Z');
+      const t = computeTithi(noonUtc);
+      const somaDay = scheduleByDate.get(iso) ?? null;
+      return {
+        iso,
+        dayOfMonth: d.getUTCDate(),
+        inMonth: d.getUTCMonth() === m,
+        tithiText: tithiShort(t),
+        isShukla: t.paksha === 'shukla',
+        somaDay,
+        hasSession: sessionDates.has(iso),
+      };
+    });
+  }, [month, scheduleByDate, sessionDates]);
+
+  function step(delta: number) {
+    const next = new Date(
+      Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + delta, 1),
+    );
+    onMonthChange(next);
+  }
+
+  return (
+    <div className="px-6 pt-4 pb-2" aria-label="Calendar">
+      <div className="flex items-center justify-between mb-3">
+        <button
+          type="button"
+          onClick={() => step(-1)}
+          aria-label="Previous month"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center text-soma-mist hover:text-soma-glow rounded-lg transition-colors"
+        >
+          <Chevron dir="left" />
+        </button>
+        <h2 className="display-serif text-lg text-soma-glow" aria-live="polite">
+          {monthLabel}
+        </h2>
+        <button
+          type="button"
+          onClick={() => step(1)}
+          aria-label="Next month"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center text-soma-mist hover:text-soma-glow rounded-lg transition-colors"
+        >
+          <Chevron dir="right" />
+        </button>
+      </div>
+
+      <div
+        className="grid grid-cols-7 gap-1 text-[10px] uppercase tracking-wider text-soma-mist mb-1"
+        aria-hidden="true"
+      >
+        {WEEKDAYS.map((w, i) => (
+          <div key={i} className="text-center">
+            {w}
+          </div>
+        ))}
+      </div>
+
+      <div role="grid" className="grid grid-cols-7 gap-1">
+        {cells.map((c) => {
+          const isSelected = c.iso === selectedIso;
+          const isToday = c.iso === todayIso;
+          return (
+            <button
+              key={c.iso}
+              type="button"
+              role="gridcell"
+              aria-selected={isSelected}
+              aria-current={isToday ? 'date' : undefined}
+              aria-label={`${c.iso}${c.somaDay ? ' — ' + c.somaDay.title : ''}`}
+              onClick={() => onSelect(c.iso)}
+              className={`relative aspect-square rounded-xl border flex flex-col items-center justify-center transition-colors duration-200 min-h-[44px] ${
+                isSelected
+                  ? 'bg-soma-glow/15 border-soma-glow/60'
+                  : c.somaDay
+                  ? 'bg-soma-accent/10 border-soma-accent/40 hover:border-soma-accent/70'
+                  : 'bg-white/5 border-white/10 hover:border-white/25'
+              } ${c.inMonth ? '' : 'opacity-35'}`}
+            >
+              <span
+                className={`display-serif text-base leading-none ${
+                  isSelected ? 'text-soma-glow' : 'text-soma-moon'
+                }`}
+              >
+                {c.dayOfMonth}
+              </span>
+              <span
+                className={`text-[8px] mt-0.5 tracking-wider ${
+                  c.isShukla ? 'text-soma-glow/70' : 'text-soma-mist/70'
+                }`}
+              >
+                {c.tithiText}
+              </span>
+              {isToday && (
+                <span
+                  className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-soma-glow"
+                  aria-hidden="true"
+                />
+              )}
+              {c.hasSession && (
+                <span
+                  className="absolute bottom-1 h-1 w-1 rounded-full bg-soma-accent"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {dir === 'left' ? <path d="M10 3l-5 5 5 5" /> : <path d="M6 3l5 5-5 5" />}
+    </svg>
+  );
+}

@@ -38,6 +38,7 @@ bottom nav across Trends/Learn/Settings).
 | F9 Notifications (opt-in) | `src/screens/Settings.tsx` |
 | F10 Safety gates | `src/lib/safety.ts` + onboarding |
 | F15 Auth + export + reset | Local profile + JSON export in Settings |
+| Reminders (calendar + alarm + live) | `src/lib/ics.ts`, `src/lib/reminders.ts`, `src/components/ReminderSettings.tsx` — download a 60-day `.ics` with VALARM triggers for every Soma day, plus opt-in in-session browser notifications |
 
 ## Architecture
 
