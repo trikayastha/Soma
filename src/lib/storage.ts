@@ -1,9 +1,11 @@
 import {
   APP_STATE_VERSION,
+  defaultMandalaAnchor,
   defaultPreferences,
   type AppState,
   type FastSession,
   type Location,
+  type MandalaAnchor,
   type Preferences,
   type SomaDay,
   type UserProfile,
@@ -43,6 +45,7 @@ export function emptyState(): AppState {
     sessions: [],
     onboardingComplete: false,
     preferences: defaultPreferences(),
+    mandalaAnchor: defaultMandalaAnchor(),
     version: APP_STATE_VERSION,
   };
 }
@@ -77,14 +80,54 @@ export function migrateToCurrent(raw: UnknownState): AppState {
 
   const preferences = mergePreferences(raw.preferences);
 
+  // S3: derive mandalaAnchor.firstObservedFastDate from earliest credited
+  // session if not already persisted. Idempotent on a v3 state because the
+  // existing anchor value is preserved when present.
+  const mandalaAnchor = sanitizeMandalaAnchor(
+    (raw as { mandalaAnchor?: unknown }).mandalaAnchor,
+    sessions,
+  );
+
   return {
     profile,
     schedule,
     sessions,
     onboardingComplete,
     preferences,
+    mandalaAnchor,
     version: APP_STATE_VERSION,
   };
+}
+
+/** Derive the anchor when the persisted state has none (v1/v2 → v3). */
+function sanitizeMandalaAnchor(
+  raw: unknown,
+  sessions: FastSession[],
+): MandalaAnchor {
+  const earliestCompleted = earliestCompletedDate(sessions);
+  if (!raw || typeof raw !== 'object') {
+    return {
+      firstObservedFastDate: earliestCompleted,
+      manualResetDate: null,
+    };
+  }
+  const a = raw as Partial<MandalaAnchor>;
+  const firstObservedFastDate =
+    typeof a.firstObservedFastDate === 'string'
+      ? a.firstObservedFastDate
+      : earliestCompleted;
+  const manualResetDate =
+    typeof a.manualResetDate === 'string' ? a.manualResetDate : null;
+  return { firstObservedFastDate, manualResetDate };
+}
+
+function earliestCompletedDate(sessions: FastSession[]): string | null {
+  let earliest: string | null = null;
+  for (const s of sessions) {
+    if (s.status !== 'completed' && s.status !== 'late-completed') continue;
+    if (earliest === null || s.dayDate < earliest) earliest = s.dayDate;
+  }
+  return earliest;
 }
 
 function sanitizeProfile(raw: unknown): UserProfile | null {
@@ -247,4 +290,12 @@ export function withLocation(
     ...state,
     profile: { ...state.profile, location },
   };
+}
+
+/** Replace the mandala anchor wholesale (immutable). */
+export function withMandalaAnchor(
+  state: AppState,
+  mandalaAnchor: MandalaAnchor,
+): AppState {
+  return { ...state, mandalaAnchor };
 }

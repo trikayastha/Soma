@@ -145,20 +145,28 @@ describe('reminders / scheduleLiveReminders', () => {
     expect(handle.timers).toHaveLength(0);
   });
 
-  it('schedules lead + day-of timers when within the 24h horizon', () => {
+  it('schedules lead + day-of timers under standard philosophy', () => {
     installFakeNotification('granted');
     const now = new Date('2025-04-15T08:00:00'); // 9h before 17:00
-    const handle = scheduleLiveReminders(profile, [sampleDay], now);
+    const handle = scheduleLiveReminders(profile, [sampleDay], now, 'standard');
     expect(handle.timers.length).toBe(2);
     const labels = handle.timers.map((t) => t.label);
     expect(labels.some((l) => l.includes('in 30 minutes'))).toBe(true);
     expect(labels.some((l) => l.includes('begin fast'))).toBe(true);
   });
 
+  it('quiet philosophy schedules only the day-of for a major fast', () => {
+    installFakeNotification('granted');
+    const now = new Date('2025-04-15T08:00:00');
+    const handle = scheduleLiveReminders(profile, [sampleDay], now, 'quiet');
+    expect(handle.timers.length).toBe(1);
+    expect(handle.timers[0].label).toMatch(/begin fast/);
+  });
+
   it('clear() cancels all timers without throwing', () => {
     installFakeNotification('granted');
     const now = new Date('2025-04-15T08:00:00');
-    const handle = scheduleLiveReminders(profile, [sampleDay], now);
+    const handle = scheduleLiveReminders(profile, [sampleDay], now, 'standard');
     expect(() => handle.clear()).not.toThrow();
     expect(handle.timers.length).toBe(0);
   });

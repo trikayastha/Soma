@@ -49,7 +49,33 @@ export type CopyKey =
   | 'settings.title'
   | 'settings.profile.label'
   | 'settings.intensity.label'
-  | 'settings.data.label';
+  | 'settings.data.label'
+  // Mandala / Rhythm / Notification / Late completion (S3, ~22 keys)
+  | 'mandala.chip.template'
+  | 'mandala.empty.title'
+  | 'mandala.reset.cta'
+  | 'mandala.reset.confirm'
+  | 'rhythm.title'
+  | 'rhythm.subtitle'
+  | 'rhythm.deltas.empty'
+  | 'fast.synced.primary'
+  | 'fast.lateComplete.title'
+  | 'fast.lateComplete.body'
+  | 'fast.lateComplete.cta'
+  | 'fast.endEarly.confirm.gentle'
+  | 'notif.philosophy.title'
+  | 'notif.philosophy.framing'
+  | 'notif.philosophy.quiet'
+  | 'notif.philosophy.standard'
+  | 'notif.philosophy.detailed'
+  | 'notif.ekadashi.morning'
+  | 'notif.prefast'
+  | 'notif.parana'
+  | 'notif.pradosh.evening'
+  | 'notif.sankashti'
+  | 'notif.shivaratri'
+  | 'notif.tithi.sunrise'
+  | 'notif.reflection';
 
 export type CopyCatalog = Record<CopyKey, CopyEntry>;
 
@@ -192,6 +218,133 @@ export const COPY: CopyCatalog = {
     coach: 'Data',
     scientific: 'Data',
     traditional: 'Your records',
+  },
+
+  // Mandala / Rhythm / Notification / Late completion (S3)
+  'mandala.chip.template': {
+    coach: 'Mandala {n} · {days} of 40 days · {observed} of {expected} fasts',
+    scientific: 'Cycle {n} · day {days}/40 · {observed}/{expected} sessions',
+    traditional: 'Mandala {n} · {days} dinas of 40 · {observed} vrats of {expected}',
+  },
+  'mandala.empty.title': {
+    coach: 'Your first mandala starts with your first fast.',
+    scientific: 'No cycle yet — log a session to seed cycle 1.',
+    traditional: 'The mandala awaits your first vrat.',
+  },
+  'mandala.reset.cta': {
+    coach: 'Reset rhythm',
+    scientific: 'Reset cycle anchor',
+    traditional: 'Begin a new mandala',
+  },
+  'mandala.reset.confirm': {
+    coach: 'Start a new mandala from today? Past cycles stay in your history.',
+    scientific: 'Re-anchor cycle 1 to today? Prior cycles are preserved.',
+    traditional: 'Begin a fresh mandala from this day? Past mandalas remain in record.',
+  },
+  'rhythm.title': {
+    coach: 'Your rhythm',
+    scientific: 'Cycle data',
+    traditional: 'Your sadhana',
+  },
+  'rhythm.subtitle': {
+    coach: 'Forty-day mandalas. Patterns from your own data.',
+    scientific: '40-day cycles · personal-delta analytics',
+    traditional: 'Forty-dina mandalas · the rhythm of your sadhana',
+  },
+  'rhythm.deltas.empty': {
+    coach: 'Log a few more pre/post fasts to see your patterns.',
+    scientific: 'Insufficient sample size — log ≥3 paired sessions per context.',
+    traditional: 'Continue the practice. Patterns reveal themselves with time.',
+  },
+  'fast.synced.primary': {
+    coach: "You're synced with {n} people.",
+    scientific: 'Approximately {n} observers in this window.',
+    traditional: '{n} sadhakas observe with you.',
+  },
+  'fast.lateComplete.title': {
+    coach: 'Logged · late completion',
+    scientific: 'Session logged · late completion',
+    traditional: 'Vrat honoured · completed late',
+  },
+  'fast.lateComplete.body': {
+    coach: "Bodies aren't clocks. The rhythm holds.",
+    scientific: 'Late completion is non-punitive. Counts toward cycle.',
+    traditional: 'The body keeps its own time. The vrat is honoured.',
+  },
+  'fast.lateComplete.cta': {
+    coach: 'Continue',
+    scientific: 'Continue',
+    traditional: 'Continue',
+  },
+  'fast.endEarly.confirm.gentle': {
+    coach: "End fast now? Your body knows. We'll log it either way.",
+    scientific: 'End the protocol now? Session will be logged as ended early.',
+    traditional: 'End this vrat now? It will be recorded as ended.',
+  },
+  'notif.philosophy.title': {
+    coach: 'How often should we ping you?',
+    scientific: 'Notification frequency',
+    traditional: 'Choose the cadence of reminders',
+  },
+  'notif.philosophy.framing': {
+    coach: 'Soma is the slow app. Choose how often we should ping you.',
+    scientific: 'Notification volume per month, dependent on selected tier.',
+    traditional: 'The bell sounds gently. Choose how often it should ring.',
+  },
+  'notif.philosophy.quiet': {
+    coach: 'Quiet · ~3 a month',
+    scientific: 'Quiet · ~3/month',
+    traditional: 'Maun · ~3 reminders a month',
+  },
+  'notif.philosophy.standard': {
+    coach: 'Standard · ~7-8 a month',
+    scientific: 'Standard · ~7-8/month',
+    traditional: 'Madhyama · ~7-8 reminders a month',
+  },
+  'notif.philosophy.detailed': {
+    coach: 'Detailed · ~15-19 a month',
+    scientific: 'Detailed · ~15-19/month',
+    traditional: 'Vistara · ~15-19 reminders a month',
+  },
+  'notif.ekadashi.morning': {
+    coach: 'Ekadashi today. {phrase}.',
+    scientific: 'Ekadashi today. {phrase}.',
+    traditional: 'Ekadashi tithi. {phrase}.',
+  },
+  'notif.prefast': {
+    coach: 'Fast begins in {minutes} minutes.',
+    scientific: 'Fasting window opens in {minutes} min.',
+    traditional: 'Vrat begins in {minutes} minutes.',
+  },
+  'notif.parana': {
+    coach: 'Break fast between {start} and {end}.',
+    scientific: 'Parana window: {start}–{end}.',
+    traditional: 'Parana between {start} and {end}.',
+  },
+  'notif.pradosh.evening': {
+    coach: 'Pradosh begins this evening.',
+    scientific: 'Pradosh observance window opens this evening.',
+    traditional: 'Pradosh kaal arrives this evening.',
+  },
+  'notif.sankashti': {
+    coach: 'Sankashti Chaturthi tonight.',
+    scientific: 'Sankashti Chaturthi observance tonight.',
+    traditional: 'Sankashti Chaturthi this night.',
+  },
+  'notif.shivaratri': {
+    coach: 'Shivaratri tonight.',
+    scientific: 'Shivaratri observance tonight.',
+    traditional: 'Shivaratri this night.',
+  },
+  'notif.tithi.sunrise': {
+    coach: 'Sunrise · {tithi} begins.',
+    scientific: 'Sunrise tithi handoff: {tithi}.',
+    traditional: 'Suryodaya · {tithi} arises.',
+  },
+  'notif.reflection': {
+    coach: 'Take a minute to log how this day landed.',
+    scientific: 'Evening reflection: log how this day landed.',
+    traditional: 'A moment to reflect on how this day moved through you.',
   },
 };
 

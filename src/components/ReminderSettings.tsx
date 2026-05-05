@@ -6,7 +6,8 @@ import {
   requestPermission,
   type PermissionState,
 } from '../lib/reminders';
-import type { RemindersPrefs } from '../lib/types';
+import type { NotificationPhilosophy, RemindersPrefs } from '../lib/types';
+import { useVoice } from '../i18n/useVoice';
 
 const TIME_OPTIONS: Array<{ value: string; label: string }> = [
   { value: '06:00', label: '6 AM' },
@@ -23,8 +24,10 @@ const LEAD_OPTIONS: Array<{ value: number; label: string }> = [
 ];
 
 export function ReminderSettings() {
-  const { state, setProfile } = useAppState();
+  const { state, setProfile, setNotificationPhilosophy } = useAppState();
+  const { t } = useVoice();
   const profile = state.profile;
+  const philosophy = state.preferences.notificationPhilosophy;
   const [permission, setPermission] = useState<PermissionState>(() => getPermissionState());
   const [downloadedAt, setDownloadedAt] = useState<Date | null>(null);
   const timePillRef = useRef<HTMLButtonElement>(null);
@@ -87,6 +90,48 @@ export function ReminderSettings() {
       <p className="text-soma-moon text-sm mt-1">
         Never miss a Soma day. Pick what you want.
       </p>
+
+      <fieldset className="mt-4">
+        <legend className="text-[10px] uppercase tracking-wider text-soma-accent">
+          {t('notif.philosophy.title')}
+        </legend>
+        <p className="text-[11px] text-soma-mist mt-1 leading-relaxed">
+          {t('notif.philosophy.framing')}
+        </p>
+        <div className="mt-3 flex flex-col gap-2">
+          {(
+            [
+              { id: 'quiet', labelKey: 'notif.philosophy.quiet' },
+              { id: 'standard', labelKey: 'notif.philosophy.standard' },
+              { id: 'detailed', labelKey: 'notif.philosophy.detailed' },
+            ] as const
+          ).map((opt) => {
+            const selected = philosophy === opt.id;
+            return (
+              <label
+                key={opt.id}
+                className={`soma-card cursor-pointer px-4 py-3 transition-colors ${
+                  selected ? 'border-soma-glow/60 bg-soma-glow/5' : ''
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="notif-philosophy"
+                  value={opt.id}
+                  checked={selected}
+                  onChange={() =>
+                    setNotificationPhilosophy(opt.id as NotificationPhilosophy)
+                  }
+                  className="sr-only"
+                />
+                <div className="text-soma-moon text-sm font-medium">
+                  {t(opt.labelKey)}
+                </div>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <div className="mt-4">
         <div className="text-[10px] uppercase tracking-wider text-soma-mist">

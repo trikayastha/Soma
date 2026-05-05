@@ -1,5 +1,11 @@
-import type { RemindersPrefs, SomaDay, UserProfile } from './types';
+import type {
+  NotificationPhilosophy,
+  RemindersPrefs,
+  SomaDay,
+  UserProfile,
+} from './types';
 import { buildIcs, icsFilename } from './ics';
+import { buildPhilosophySchedule } from './notificationPhilosophy';
 
 /**
  * Reminders facade. Three responsibilities:
@@ -91,15 +97,18 @@ interface ScheduleHandle {
 }
 
 /**
- * Schedule in-session browser Notifications for any upcoming Soma day whose
- * lead or day-of reminder lands within the next 24 hours. Returns a handle
- * with a cleanup function to cancel all pending timers — always call it on
- * re-schedule to avoid duplicates.
+ * Schedule in-session browser Notifications for any upcoming Soma day.
+ *
+ * In S3 the schedule is synthesized from the user's NotificationPhilosophy
+ * (quiet / standard / detailed) instead of raw lead+dayOf timers. The 24h
+ * horizon and the legacy "permission granted + liveNotifications on" gates
+ * are unchanged — call the handle's `clear()` on re-schedule to cancel.
  */
 export function scheduleLiveReminders(
   profile: UserProfile,
   schedule: SomaDay[],
   now: Date = new Date(),
+  philosophy: NotificationPhilosophy = 'quiet',
 ): ScheduleHandle {
   const timers: Timer[] = [];
   const prefs = profile.reminders;
@@ -117,23 +126,21 @@ export function scheduleLiveReminders(
     return { timers, clear: () => {} };
   }
 
-  for (const day of schedule) {
-    const { lead, dayOf } = computeReminderTimes(day, prefs);
-    for (const target of [
-      { when: lead, label: `Soma: ${day.title} in ${prefs.leadMinutes} minutes` },
-      { when: dayOf, label: `Soma: ${day.title} — begin fast` },
-    ]) {
-      const delay = target.when.getTime() - nowMs;
-      if (delay <= 0 || target.when.getTime() > horizonMs) continue;
-      const id = window.setTimeout(() => {
-        try {
-          new Notification('Soma', { body: target.label });
-        } catch {
-          // ignore — user may have revoked permission mid-session
-        }
-      }, delay);
-      timers.push({ id, when: target.when, label: target.label });
-    }
+  const planned = buildPhilosophySchedule(schedule, philosophy, prefs);
+  for (const entry of planned) {
+    const when = new Date(entry.at);
+    const delay = when.getTime() - nowMs;
+    if (delay <= 0 || when.getTime() > horizonMs) continue;
+    const day = schedule.find((d) => d.date === entry.dayDate);
+    const label = formatLabel(entry.kind, day?.title ?? entry.dayDate, prefs);
+    const id = window.setTimeout(() => {
+      try {
+        new Notification('Soma', { body: label });
+      } catch {
+        // ignore — user may have revoked permission mid-session
+      }
+    }, delay);
+    timers.push({ id, when, label });
   }
 
   return {
@@ -145,4 +152,31 @@ export function scheduleLiveReminders(
       timers.length = 0;
     },
   };
+}
+
+function formatLabel(
+  kind: string,
+  title: string,
+  prefs: RemindersPrefs,
+): string {
+  switch (kind) {
+    case 'pre-fast':
+      return `Soma: ${title} in ${prefs.leadMinutes} minutes`;
+    case 'day-of':
+      return `Soma: ${title} — begin fast`;
+    case 'parana':
+      return `Soma: parana — break ${title}`;
+    case 'tithi-sunrise':
+      return `Soma: ${title} begins at sunrise`;
+    case 'pradosh':
+      return `Soma: pradosh begins this evening`;
+    case 'sankashti':
+      return `Soma: sankashti chaturthi tonight`;
+    case 'shivaratri':
+      return `Soma: shivaratri tonight`;
+    case 'reflection':
+      return `Soma: log how today landed`;
+    default:
+      return `Soma: ${title}`;
+  }
 }

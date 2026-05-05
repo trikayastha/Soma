@@ -42,6 +42,24 @@ export function abortSession(
   };
 }
 
+/**
+ * Mark a session as a late completion (S3). Counts toward Mandala progress
+ * just like a regular completion — it is non-punitive. Use this when the
+ * user finishes the fast after the intended window has closed.
+ */
+export function lateCompleteSession(
+  session: FastSession,
+  postLog: SubjectiveLog,
+  now: Date = new Date(),
+): FastSession {
+  return {
+    ...session,
+    status: 'late-completed',
+    endedAt: now.toISOString(),
+    postLog,
+  };
+}
+
 /** Returns 0..1 progress of an active session. Clamped. */
 export function sessionProgress(session: FastSession, now: Date = new Date()): number {
   const start = new Date(session.startedAt).getTime();

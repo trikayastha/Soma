@@ -68,6 +68,7 @@ describe('migrateToCurrent (v3)', () => {
       sessions: [],
       onboardingComplete: false,
       preferences: { ...defaultPreferences(), voice: 'traditional', theme: 'devotional' },
+      mandalaAnchor: { firstObservedFastDate: null, manualResetDate: null },
       version: 2 as 3, // simulate stale version field
     };
     const result = migrateToCurrent(v2 as unknown as Record<string, unknown>);
@@ -176,6 +177,119 @@ describe('loadState — v3 layered fallback', () => {
     saveState(emptyState());
     expect(localStorage.getItem(V1_KEY)).toBe(v1Raw);
     expect(localStorage.getItem(V2_KEY)).toBe(v2Raw);
+  });
+});
+
+describe('migration v3 — mandalaAnchor derivation', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('derives firstObservedFastDate from earliest completed session', () => {
+    const v2 = {
+      profile: sampleProfile,
+      schedule: [],
+      sessions: [
+        {
+          id: 'a',
+          dayDate: '2025-03-15',
+          startedAt: '2025-03-15T08:00:00Z',
+          intensityHours: 16,
+          status: 'completed',
+        },
+        {
+          id: 'b',
+          dayDate: '2025-01-15',
+          startedAt: '2025-01-15T08:00:00Z',
+          intensityHours: 16,
+          status: 'completed',
+        },
+        {
+          id: 'c',
+          dayDate: '2025-02-01',
+          startedAt: '2025-02-01T08:00:00Z',
+          intensityHours: 16,
+          status: 'aborted',
+        },
+      ],
+      onboardingComplete: true,
+      preferences: defaultPreferences(),
+      version: 2,
+    };
+    const result = migrateToCurrent(v2 as unknown as Record<string, unknown>);
+    expect(result.mandalaAnchor.firstObservedFastDate).toBe('2025-01-15');
+    expect(result.mandalaAnchor.manualResetDate).toBeNull();
+  });
+
+  it('derives null anchor when no credited sessions', () => {
+    const v2 = {
+      profile: sampleProfile,
+      schedule: [],
+      sessions: [
+        {
+          id: 'x',
+          dayDate: '2025-03-15',
+          startedAt: '2025-03-15T08:00:00Z',
+          intensityHours: 16,
+          status: 'aborted',
+        },
+      ],
+      onboardingComplete: true,
+      preferences: defaultPreferences(),
+      version: 2,
+    };
+    const result = migrateToCurrent(v2 as unknown as Record<string, unknown>);
+    expect(result.mandalaAnchor.firstObservedFastDate).toBeNull();
+  });
+
+  it('preserves existing mandalaAnchor on a v3 state (idempotent)', () => {
+    const v3State: AppState = {
+      ...emptyState(),
+      mandalaAnchor: {
+        firstObservedFastDate: '2024-12-01',
+        manualResetDate: '2025-04-01T00:00:00Z',
+      },
+    };
+    const result = migrateToCurrent(v3State as unknown as Record<string, unknown>);
+    expect(result.mandalaAnchor.firstObservedFastDate).toBe('2024-12-01');
+    expect(result.mandalaAnchor.manualResetDate).toBe('2025-04-01T00:00:00Z');
+  });
+
+  it('v1 → v2 → v3 chain derives anchor through full migration', () => {
+    const v1 = {
+      profile: sampleProfile,
+      schedule: [],
+      sessions: [
+        {
+          id: 'old',
+          dayDate: '2024-11-20',
+          startedAt: '2024-11-20T08:00:00Z',
+          intensityHours: 16,
+          status: 'completed',
+        },
+      ],
+      onboardingComplete: true,
+    };
+    localStorage.setItem(V1_KEY, JSON.stringify(v1));
+    const loaded = loadState();
+    expect(loaded.version).toBe(APP_STATE_VERSION);
+    expect(loaded.mandalaAnchor.firstObservedFastDate).toBe('2024-11-20');
+  });
+
+  it('counts late-completed as a credited session for anchor derivation', () => {
+    const result = migrateToCurrent({
+      profile: sampleProfile,
+      schedule: [],
+      sessions: [
+        {
+          id: 'l',
+          dayDate: '2025-02-10',
+          startedAt: '2025-02-10T08:00:00Z',
+          intensityHours: 16,
+          status: 'late-completed',
+        },
+      ],
+      onboardingComplete: true,
+    });
+    expect(result.mandalaAnchor.firstObservedFastDate).toBe('2025-02-10');
   });
 });
 

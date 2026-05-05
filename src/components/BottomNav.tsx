@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type TabId = 'today' | 'calendar' | 'trends' | 'learn' | 'settings';
+export type TabId = 'today' | 'calendar' | 'rhythm' | 'learn' | 'settings';
 
 interface BottomNavProps {
   active: TabId;
@@ -11,7 +11,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
   const tabs: Array<{ id: TabId; label: string; icon: ReactNode }> = [
     { id: 'today', label: 'Today', icon: <MoonIcon /> },
     { id: 'calendar', label: 'Calendar', icon: <CalendarIcon /> },
-    { id: 'trends', label: 'Trends', icon: <ChartIcon /> },
+    { id: 'rhythm', label: 'Rhythm', icon: <RhythmIcon /> },
     { id: 'learn', label: 'Learn', icon: <BookIcon /> },
     { id: 'settings', label: 'Settings', icon: <GearIcon /> },
   ];
@@ -63,13 +63,13 @@ function CalendarIcon() {
     </svg>
   );
 }
-function ChartIcon() {
+function RhythmIcon() {
+  // Concentric rings — evokes a 40-day mandala.
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-      <path d="M4 20V10" />
-      <path d="M10 20V4" />
-      <path d="M16 20v-8" />
-      <path d="M22 20H2" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
     </svg>
   );
 }

@@ -11,6 +11,8 @@ import type {
   AppState,
   FastSession,
   Location,
+  MandalaAnchor,
+  NotificationPhilosophy,
   Preferences,
   SomaDay,
   UserProfile,
@@ -20,6 +22,7 @@ import {
   loadState,
   saveState,
   withLocation,
+  withMandalaAnchor,
   withOnboardingComplete,
   withPreferences,
   withProfile,
@@ -36,6 +39,10 @@ interface AppStateContextValue {
   completeOnboarding: () => void;
   setPreferences: (prefs: Partial<Preferences>) => void;
   setLocation: (location: Location | null) => void;
+  setMandalaAnchor: (anchor: MandalaAnchor) => void;
+  setNotificationPhilosophy: (p: NotificationPhilosophy) => void;
+  /** Re-anchor the mandala forward to "now". History is retained. */
+  manualResetMandala: (now?: Date) => void;
   reset: () => void;
 }
 
@@ -56,12 +63,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   // Keep in-session browser notifications in sync with the current schedule
   // and preferences. No-op when permission is not granted or when live
-  // notifications are disabled.
+  // notifications are disabled. The philosophy tier (quiet/standard/detailed)
+  // drives both the volume and the kind of notifications scheduled.
   useEffect(() => {
     if (!state.profile) return;
-    const handle = scheduleLiveReminders(state.profile, state.schedule);
+    const handle = scheduleLiveReminders(
+      state.profile,
+      state.schedule,
+      new Date(),
+      state.preferences.notificationPhilosophy,
+    );
     return () => handle.clear();
-  }, [state.profile, state.schedule]);
+  }, [
+    state.profile,
+    state.schedule,
+    state.preferences.notificationPhilosophy,
+  ]);
 
   const setProfile = useCallback(
     (profile: UserProfile) => setState((s) => withProfile(s, profile)),
@@ -88,6 +105,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     (location: Location | null) => setState((s) => withLocation(s, location)),
     [],
   );
+  const setMandalaAnchor = useCallback(
+    (anchor: MandalaAnchor) => setState((s) => withMandalaAnchor(s, anchor)),
+    [],
+  );
+  const setNotificationPhilosophy = useCallback(
+    (p: NotificationPhilosophy) =>
+      setState((s) => withPreferences(s, { notificationPhilosophy: p })),
+    [],
+  );
+  const manualResetMandala = useCallback(
+    (now: Date = new Date()) =>
+      setState((s) =>
+        withMandalaAnchor(s, {
+          ...s.mandalaAnchor,
+          manualResetDate: now.toISOString(),
+        }),
+      ),
+    [],
+  );
   const reset = useCallback(() => setState(emptyState()), []);
 
   const value = useMemo(
@@ -99,6 +135,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setPreferences,
       setLocation,
+      setMandalaAnchor,
+      setNotificationPhilosophy,
+      manualResetMandala,
       reset,
     }),
     [
@@ -109,6 +148,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setPreferences,
       setLocation,
+      setMandalaAnchor,
+      setNotificationPhilosophy,
+      manualResetMandala,
       reset,
     ],
   );

@@ -99,6 +99,7 @@ interface PhaseTarget {
  */
 const TARGETS: readonly PhaseTarget[] = [
   { lon: 0, kind: 'new-moon', title: 'Amavasya — New Moon', tradition: 'vedic', hourOffset: -6 },
+  { lon: 36, kind: 'chaturthi', title: 'Vinayaka Chaturthi', tradition: 'vedic', hourOffset: 6 },
   { lon: 120, kind: 'ekadashi', title: 'Shukla Ekadashi', tradition: 'vedic', hourOffset: 6 },
   { lon: 144, kind: 'pradosh', title: 'Shukla Pradosh', tradition: 'vedic', hourOffset: 6 },
   { lon: 180, kind: 'full-moon', title: 'Purnima — Full Moon', tradition: 'vedic', hourOffset: -6 },

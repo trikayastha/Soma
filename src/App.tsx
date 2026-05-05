@@ -8,7 +8,7 @@ import { FastTimer } from './screens/FastTimer';
 import { LogForm } from './screens/LogForm';
 import { Meditation } from './screens/Meditation';
 import { CalendarScreen } from './screens/Calendar';
-import { Trends } from './screens/Trends';
+import { Rhythm } from './screens/Rhythm';
 import { Learn } from './screens/Learn';
 import { Settings } from './screens/Settings';
 import type { FastSession, SomaDay, SubjectiveLog } from './lib/types';
@@ -79,7 +79,7 @@ function Shell() {
     const completed = completeSession(session, log);
     upsertSession(completed);
     setOverlay({ kind: 'none' });
-    setTab('trends');
+    setTab('rhythm');
   }
 
   // --- render -----------------------------------------------------------
@@ -130,7 +130,7 @@ function Shell() {
           <Today onStartFast={handleStartFast} onResumeActive={handleOpenTimer} />
         )}
         {tab === 'calendar' && <CalendarScreen onStartFast={handleStartFast} />}
-        {tab === 'trends' && <Trends />}
+        {tab === 'rhythm' && <Rhythm />}
         {tab === 'learn' && <Learn />}
         {tab === 'settings' && <Settings />}
       </div>

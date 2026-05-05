@@ -140,8 +140,12 @@ describe('Regression: full P0 flow', () => {
     expect(await screen.findByText(/Shukla Ekadashi/i)).toBeInTheDocument();
 
     const nav = screen.getByRole('navigation', { name: /Primary/i });
-    await user.click(within(nav).getByRole('button', { name: /Trends/i }));
-    expect(screen.getByText(/Your trends/i)).toBeInTheDocument();
+    await user.click(within(nav).getByRole('button', { name: /Rhythm/i }));
+    // Rhythm screen renders. With no sessions yet, the empty mandala
+    // copy is shown.
+    expect(
+      screen.getByText(/Sessions by paksha/i),
+    ).toBeInTheDocument();
 
     await user.click(within(nav).getByRole('button', { name: /Learn/i }));
     expect(screen.getByText(/Why the moon became the calendar/i)).toBeInTheDocument();

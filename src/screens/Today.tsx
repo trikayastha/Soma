@@ -14,9 +14,12 @@ import { computeTithiAtSunrise, tithiLabel } from '../lib/tithi';
 import { ekadashiNameForDate } from '../lib/ekadashiNames';
 import { paranaWindow } from '../lib/parana';
 import { ComputedAtBanner } from '../components/ComputedAtBanner';
+import { MandalaChip } from '../components/MandalaChip';
+import { SyncedNowPill } from '../components/SyncedNowPill';
 import { getWhyCopy } from '../lib/whyThisDay';
 import type { SomaDay } from '../lib/types';
 import { findActiveSession } from '../lib/scheduler';
+import { currentMandala } from '../lib/mandala';
 
 interface TodayProps {
   onStartFast: (day: SomaDay) => void;
@@ -61,6 +64,7 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
 
   const selectedSomaDay = scheduleByDate.get(selectedIso) ?? null;
   const active = findActiveSession(state.sessions);
+  const mandala = useMemo(() => currentMandala(state, now), [state, now]);
   const [whyOpen, setWhyOpen] = useState(false);
 
   const isSelectedToday = selectedIso === todayIso;
@@ -105,6 +109,16 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
               location={location}
             />
           </div>
+          {mandala && (
+            <div className="mt-2">
+              <MandalaChip mandala={mandala} today={now} />
+            </div>
+          )}
+          {selectedSomaDay && isSelectedToday && (
+            <div className="mt-2">
+              <SyncedNowPill kind={selectedSomaDay.kind} />
+            </div>
+          )}
         </header>
 
         <div className="shrink-0 mt-4 px-0">

@@ -7,6 +7,7 @@ import type { City, Intensity, Location, Theme, Voice } from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
 import { VOICES } from '../i18n/voices';
 import { THEMES } from '../themes/themes';
+import { useVoice } from '../i18n/useVoice';
 
 export function Settings() {
   const {
@@ -16,7 +17,9 @@ export function Settings() {
     setProfile,
     setPreferences,
     setLocation,
+    manualResetMandala,
   } = useAppState();
+  const { t } = useVoice();
   const profile = state.profile;
   const prefs = state.preferences;
   const [locQuery, setLocQuery] = useState('');
@@ -84,6 +87,11 @@ export function Settings() {
       'Reset Soma completely? This deletes all local data, including your voice, theme, and intent.';
     if (!confirm(msg)) return;
     reset();
+  }
+
+  function handleResetRhythm() {
+    if (!confirm(t('mandala.reset.confirm'))) return;
+    manualResetMandala();
   }
 
   return (
@@ -244,6 +252,23 @@ export function Settings() {
         </section>
 
         <ReminderSettings />
+
+        <section className="soma-card p-5 mt-4">
+          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
+            Rhythm
+          </div>
+          <p className="text-[11px] text-soma-mist mt-1">
+            Mandalas grow from your earliest fast. Reset re-anchors a fresh
+            40-day window starting today — past mandalas stay in history.
+          </p>
+          <button
+            type="button"
+            className="soma-btn-ghost w-full mt-3"
+            onClick={handleResetRhythm}
+          >
+            {t('mandala.reset.cta')}
+          </button>
+        </section>
 
         <section className="soma-card p-5 mt-4">
           <div className="text-[10px] uppercase tracking-wider text-soma-mist">Data</div>

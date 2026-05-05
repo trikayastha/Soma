@@ -72,13 +72,24 @@ export interface City {
   population?: number;
 }
 
+/** Lifecycle of a fast session.
+ *  - 'active': in flight
+ *  - 'completed': finished within window, credited
+ *  - 'late-completed': finished after window close but credited (S3, non-punitive)
+ *  - 'aborted': ended before window completion, NOT credited */
+export type FastSessionStatus =
+  | 'active'
+  | 'completed'
+  | 'late-completed'
+  | 'aborted';
+
 export interface FastSession {
   id: string;
   dayDate: string;
   startedAt: string;
   endedAt?: string;
   intensityHours: number;
-  status: 'active' | 'completed' | 'aborted';
+  status: FastSessionStatus;
   preLog?: SubjectiveLog;
   postLog?: SubjectiveLog;
 }
@@ -156,6 +167,75 @@ export function defaultPreferences(): Preferences {
   };
 }
 
+/* -------------------------------------------------------------------------
+ * Mandala Engine (S3)
+ * -----------------------------------------------------------------------*/
+
+/** Anchor that seeds Mandala 1. Either derived from earliest completed
+ *  session (auto) or from a user-initiated reset. */
+export interface MandalaAnchor {
+  /** ISO date (yyyy-mm-dd) of the earliest completed/late-completed session. */
+  firstObservedFastDate: string | null;
+  /** ISO timestamp of the most recent manual reset, if any. Re-anchors
+   *  forward — older mandalas remain in history but a fresh cycle starts. */
+  manualResetDate: string | null;
+}
+
+export function defaultMandalaAnchor(): MandalaAnchor {
+  return { firstObservedFastDate: null, manualResetDate: null };
+}
+
+export interface MandalaConfig {
+  cycleDays: 40;
+  threshold: 0.6;
+  minExpected: 3;
+}
+
+export const MANDALA_CONFIG: MandalaConfig = {
+  cycleDays: 40,
+  threshold: 0.6,
+  minExpected: 3,
+};
+
+/** Status of a single mandala. NEVER 'broken' — missed days reduce rate
+ *  but never reset progress. Carry-forward windows stay 'in-progress'. */
+export type MandalaStatus = 'in-progress' | 'completed' | 'partial';
+
+export interface Mandala {
+  index: number;
+  startDate: string;
+  endDate: string;
+  observed: string[];
+  expected: string[];
+  completionRate: number;
+  status: MandalaStatus;
+}
+
+/* -------------------------------------------------------------------------
+ * Personal Deltas (S3)
+ * -----------------------------------------------------------------------*/
+
+export type DeltaMetric = 'focus' | 'energy' | 'mood' | 'sleep';
+
+export type DeltaContext =
+  | 'shukla-ekadashi'
+  | 'krishna-ekadashi'
+  | 'purnima'
+  | 'amavasya'
+  | 'pradosh'
+  | 'sankashti'
+  | 'shivaratri';
+
+export interface PersonalDelta {
+  key: string;
+  metric: DeltaMetric;
+  context: DeltaContext;
+  delta: number;
+  n: number;
+  se: number;
+  phraseKey: string;
+}
+
 /** Schema version persisted alongside state. Bump on breaking change. */
 export const APP_STATE_VERSION = 3 as const;
 export type AppStateVersion = typeof APP_STATE_VERSION;
@@ -166,5 +246,8 @@ export interface AppState {
   sessions: FastSession[];
   onboardingComplete: boolean;
   preferences: Preferences;
+  /** Anchor for the 40-day Mandala Engine. Derived from earliest completed
+   *  session unless manually reset. Always present in v3 (defaults to nulls). */
+  mandalaAnchor: MandalaAnchor;
   version: AppStateVersion;
 }

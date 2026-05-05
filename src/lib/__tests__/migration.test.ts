@@ -67,6 +67,7 @@ describe('migrateToV2', () => {
       sessions: [],
       onboardingComplete: false,
       preferences: { ...defaultPreferences(), voice: 'traditional' },
+      mandalaAnchor: { firstObservedFastDate: null, manualResetDate: null },
       version: APP_STATE_VERSION,
     };
     const result = migrateToV2(v2 as unknown as Record<string, unknown>);
