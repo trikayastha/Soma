@@ -1,0 +1,55 @@
+/*
+ * Theme tokens
+ * ------------
+ * The :root block doubles as the `performance` theme so any UI rendered
+ * before <html data-theme="..."> is mounted still resolves variables.
+ *
+ * Tokens are consumed from Tailwind via `theme.extend.colors` (see
+ * tailwind.config.js) and from raw CSS in components that need direct
+ * control (font-family, opacity multipliers, etc.).
+ */
+:root,
+[data-theme='performance'] {
+  --surface: #0b1020;
+  --surface-elev: #11182e;
+  --ink: #0a0d18;
+  --moon: #e8e4d2;
+  --glow: #f4efd9;
+  --mist: #8ea3c4;
+  --accent: #7dd3fc;
+  --moon-tint: #bae6fd;
+  --crimson: #f87171;
+  --type-display: 'Inter', system-ui, sans-serif;
+  --type-body: 'Inter', system-ui, sans-serif;
+  --data-emphasis: 1;
+}
+
+[data-theme='devotional'] {
+  --surface: #120907;
+  --surface-elev: #1a0e0a;
+  --ink: #0d0604;
+  --moon: #f0e6d2;
+  --glow: #fff3d6;
+  --mist: #b39a78;
+  --accent: #f5b042;
+  --moon-tint: #f0c060;
+  --crimson: #c0392b;
+  --type-display: 'Cormorant Garamond', 'Lora', Georgia, serif;
+  --type-body: 'Lora', Georgia, serif;
+  --data-emphasis: 0.6;
+}
+
+[data-theme='minimal'] {
+  --surface: #0a0a0a;
+  --surface-elev: #141414;
+  --ink: #000000;
+  --moon: #ffffff;
+  --glow: #ffffff;
+  --mist: #a0a0a0;
+  --accent: #ffffff;
+  --moon-tint: #ffffff;
+  --crimson: #d97757;
+  --type-display: 'Inter', system-ui, sans-serif;
+  --type-body: 'Inter', system-ui, sans-serif;
+  --data-emphasis: 0.3;
+}

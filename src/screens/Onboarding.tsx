@@ -5,13 +5,19 @@ import { evaluateSafety, emptySafetyFlags } from '../lib/safety';
 import { generateSchedule } from '../lib/lunar';
 import { defaultRemindersPrefs, type Intensity, type SafetyFlags, type UserProfile } from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
+import { IntentRouter } from './onboarding/IntentRouter';
 
-const STEPS = ['welcome', 'you', 'experience', 'safety', 'intensity'] as const;
+// Intent step inserted ahead of welcome (S1). Unwinding in reverse is
+// handled by `back()` so flow remains symmetrical.
+const STEPS = ['intent', 'welcome', 'you', 'experience', 'safety', 'intensity'] as const;
 type Step = (typeof STEPS)[number];
 
 export function Onboarding() {
-  const { setProfile, setSchedule, completeOnboarding } = useAppState();
-  const [step, setStep] = useState<Step>('welcome');
+  const { state, setProfile, setSchedule, completeOnboarding } = useAppState();
+  // If the user has already chosen an intent (e.g. resumable session), skip
+  // straight to the existing welcome step. Resuming preserves their pick.
+  const initialStep: Step = state.preferences.intent ? 'welcome' : 'intent';
+  const [step, setStep] = useState<Step>(initialStep);
   const [name, setName] = useState('');
   const [goal, setGoal] = useState<UserProfile['goal']>('focus');
   const [experience, setExperience] = useState<UserProfile['experience']>('some');
@@ -54,6 +60,9 @@ export function Onboarding() {
       <div className="relative flex-1 flex flex-col px-7 pt-10 pb-8 animate-fade-in">
         <Progress current={idx} total={STEPS.length} />
 
+        {step === 'intent' && (
+          <IntentRouter onSelected={next} />
+        )}
         {step === 'welcome' && (
           <WelcomeStep onNext={next} />
         )}

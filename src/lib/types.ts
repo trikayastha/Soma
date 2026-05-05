@@ -77,9 +77,47 @@ export interface SafetyFlags {
   under18: boolean;
 }
 
+/* -------------------------------------------------------------------------
+ * Preferences (S1)
+ * -----------------------------------------------------------------------*/
+
+/** Tone of all user-facing copy. */
+export type Voice = 'scientific' | 'traditional' | 'coach';
+
+/** Visual theme: surface palette + typography family. */
+export type Theme = 'performance' | 'devotional' | 'minimal';
+
+/** User's stated reason for using Soma. Drives default theme + voice. */
+export type Intent = 'optimize' | 'tradition' | 'tired' | 'curious';
+
+/** How loudly Soma reminds the user. */
+export type NotificationPhilosophy = 'quiet' | 'standard' | 'detailed';
+
+export interface Preferences {
+  voice: Voice;
+  theme: Theme;
+  intent: Intent | null;
+  notificationPhilosophy: NotificationPhilosophy;
+}
+
+export function defaultPreferences(): Preferences {
+  return {
+    voice: 'coach',
+    theme: 'performance',
+    intent: null,
+    notificationPhilosophy: 'quiet',
+  };
+}
+
+/** Schema version persisted alongside state. Bump on breaking change. */
+export const APP_STATE_VERSION = 2 as const;
+export type AppStateVersion = typeof APP_STATE_VERSION;
+
 export interface AppState {
   profile: UserProfile | null;
   schedule: SomaDay[];
   sessions: FastSession[];
   onboardingComplete: boolean;
+  preferences: Preferences;
+  version: AppStateVersion;
 }

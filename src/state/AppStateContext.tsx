@@ -7,12 +7,19 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import type { AppState, FastSession, SomaDay, UserProfile } from '../lib/types';
+import type {
+  AppState,
+  FastSession,
+  Preferences,
+  SomaDay,
+  UserProfile,
+} from '../lib/types';
 import {
   emptyState,
   loadState,
   saveState,
   withOnboardingComplete,
+  withPreferences,
   withProfile,
   withSchedule,
   withSession,
@@ -25,6 +32,7 @@ interface AppStateContextValue {
   setSchedule: (schedule: SomaDay[]) => void;
   upsertSession: (session: FastSession) => void;
   completeOnboarding: () => void;
+  setPreferences: (prefs: Partial<Preferences>) => void;
   reset: () => void;
 }
 
@@ -68,11 +76,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => setState((s) => withOnboardingComplete(s, true)),
     [],
   );
+  const setPreferences = useCallback(
+    (prefs: Partial<Preferences>) =>
+      setState((s) => withPreferences(s, prefs)),
+    [],
+  );
   const reset = useCallback(() => setState(emptyState()), []);
 
   const value = useMemo(
-    () => ({ state, setProfile, setSchedule, upsertSession, completeOnboarding, reset }),
-    [state, setProfile, setSchedule, upsertSession, completeOnboarding, reset],
+    () => ({
+      state,
+      setProfile,
+      setSchedule,
+      upsertSession,
+      completeOnboarding,
+      setPreferences,
+      reset,
+    }),
+    [
+      state,
+      setProfile,
+      setSchedule,
+      upsertSession,
+      completeOnboarding,
+      setPreferences,
+      reset,
+    ],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

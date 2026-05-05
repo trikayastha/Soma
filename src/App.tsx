@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PhoneFrame } from './components/PhoneFrame';
 import { BottomNav, type TabId } from './components/BottomNav';
 import { AppStateProvider, useAppState } from './state/AppStateContext';
@@ -13,6 +13,7 @@ import { Learn } from './screens/Learn';
 import { Settings } from './screens/Settings';
 import type { FastSession, SomaDay, SubjectiveLog } from './lib/types';
 import { completeSession, findActiveSession, startSession } from './lib/scheduler';
+import { useTheme } from './themes/useTheme';
 
 type Overlay =
   | { kind: 'none' }
@@ -22,7 +23,25 @@ type Overlay =
   | { kind: 'post-log'; session: FastSession };
 
 function Shell() {
-  const { state, upsertSession } = useAppState();
+  const { state, upsertSession, setPreferences } = useAppState();
+  // Mount the active theme on <html data-theme="..."> so CSS variables
+  // resolve before any themed pixel is painted.
+  useTheme();
+
+  // Deep-link handler: visiting `?reset_intent=1` clears the stored intent
+  // so the IntentRouter shows again on next onboarding entry. We strip
+  // the param after handling so reload doesn't keep firing the reset.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reset_intent') !== '1') return;
+    setPreferences({ intent: null });
+    params.delete('reset_intent');
+    const search = params.toString();
+    const url =
+      window.location.pathname + (search ? `?${search}` : '') + window.location.hash;
+    window.history.replaceState({}, '', url);
+  }, [setPreferences]);
   const [tab, setTab] = useState<TabId>('today');
   const [overlay, setOverlay] = useState<Overlay>({ kind: 'none' });
 

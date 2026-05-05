@@ -15,10 +15,24 @@ export default {
           crimson: '#B85C5C',
           sage: '#7BA38F',
         },
+        // Theme-aware semantic tokens — values resolve from CSS variables
+        // declared in src/themes/themes.css. Per-screen recolor to these
+        // tokens lands incrementally (S2+).
+        surface: 'var(--surface)',
+        'surface-elev': 'var(--surface-elev)',
+        ink: 'var(--ink)',
+        moon: 'var(--moon)',
+        glow: 'var(--glow)',
+        mist: 'var(--mist)',
+        accent: 'var(--accent)',
+        'moon-tint': 'var(--moon-tint)',
+        crimson: 'var(--crimson)',
       },
       fontFamily: {
         display: ['"Lora"', 'Georgia', 'serif'],
         sans: ['"Raleway"', 'system-ui', 'sans-serif'],
+        'theme-display': ['var(--type-display)'],
+        'theme-body': ['var(--type-body)'],
       },
       boxShadow: {
         phone: '0 40px 80px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06)',

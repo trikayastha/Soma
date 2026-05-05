@@ -41,6 +41,10 @@ describe('Regression: full P0 flow', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    // Intent step (S1) — pick "Curious about the moon" → coach voice
+    expect(screen.getByText(/Why are you here/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
+
     // Welcome
     expect(screen.getByText(/Moon for Mental Performance/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Begin/i }));
@@ -74,6 +78,9 @@ describe('Regression: full P0 flow', () => {
   it('blocks high-risk users at the safety gate', async () => {
     const user = userEvent.setup();
     render(<App />);
+
+    // Intent step (S1)
+    await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
 
     await user.click(screen.getByRole('button', { name: /Begin/i }));
     await user.type(screen.getByPlaceholderText(/call you/i), 'Test');
@@ -192,11 +199,67 @@ describe('Regression: full P0 flow', () => {
     // Timer appears
     expect(screen.getByText(/Fasting · 12h/i)).toBeInTheDocument();
 
-    // Directly advance: simulate completion by manipulating localStorage and re-rendering
-    const raw = JSON.parse(localStorage.getItem('soma.state.v1')!);
+    // Directly advance: simulate completion by manipulating localStorage and re-rendering.
+    // After v1→v2 migration, the running app persists to soma.state.v2.
+    const raw = JSON.parse(localStorage.getItem('soma.state.v2')!);
     raw.sessions[0].startedAt = new Date(Date.now() - 13 * 3600 * 1000).toISOString();
-    localStorage.setItem('soma.state.v1', JSON.stringify(raw));
+    localStorage.setItem('soma.state.v2', JSON.stringify(raw));
   });
+
+  it.each([
+    {
+      label: 'Optimize my body',
+      intent: 'optimize',
+      theme: 'performance',
+      voice: 'scientific',
+    },
+    {
+      label: 'Follow tradition',
+      intent: 'tradition',
+      theme: 'devotional',
+      voice: 'traditional',
+    },
+    {
+      label: 'Tired of fasting apps',
+      intent: 'tired',
+      theme: 'minimal',
+      voice: 'coach',
+    },
+  ] as const)(
+    'IntentRouter $label sets prefs $theme + $voice and lands on Today',
+    async ({ label, intent, theme, voice }) => {
+      const user = userEvent.setup();
+      render(<App />);
+
+      // Intent
+      await user.click(screen.getByRole('radio', { name: new RegExp(label, 'i') }));
+
+      // Walk through the rest of onboarding using the minimum viable path.
+      await user.click(screen.getByRole('button', { name: /Begin/i }));
+      await user.type(
+        screen.getByPlaceholderText(/What should we call you/i),
+        'Maya',
+      );
+      await user.click(screen.getByRole('button', { name: /Sharper focus/i }));
+      await user.click(screen.getByRole('button', { name: /Continue/i }));
+      await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
+      await user.click(screen.getByRole('button', { name: /Continue/i }));
+      await user.click(screen.getByRole('button', { name: /Continue/i }));
+      await user.click(screen.getByRole('button', { name: /Enter Soma/i }));
+
+      // Today renders
+      expect(await screen.findByText(/Maya/)).toBeInTheDocument();
+
+      // <html data-theme> matches the selected theme
+      expect(document.documentElement.getAttribute('data-theme')).toBe(theme);
+
+      // Persisted preferences match the chosen card
+      const persisted = JSON.parse(localStorage.getItem('soma.state.v2')!);
+      expect(persisted.preferences.intent).toBe(intent);
+      expect(persisted.preferences.theme).toBe(theme);
+      expect(persisted.preferences.voice).toBe(voice);
+    },
+  );
 
   it('shows the Why-this-day explainer when tapped', async () => {
     const today = new Date().toISOString().slice(0, 10);
