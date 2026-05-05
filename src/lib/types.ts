@@ -10,7 +10,17 @@ export type LunarPhaseName =
   | 'last-quarter'
   | 'waning-crescent';
 
-export type SomaDayKind = 'ekadashi' | 'full-moon' | 'new-moon' | 'chaturthi';
+export type SomaDayKind =
+  | 'ekadashi'
+  | 'full-moon'
+  | 'new-moon'
+  | 'chaturthi'
+  | 'pradosh'
+  | 'sankashti-chaturthi'
+  | 'shivaratri';
+
+/** Provenance of a tithi computation — drives Receipts UI copy. */
+export type TithiAccuracy = 'sunrise' | 'approximate' | 'polar-fallback';
 
 export interface SomaDay {
   date: string; // ISO yyyy-mm-dd
@@ -18,13 +28,48 @@ export interface SomaDay {
   intensityHours: number;
   title: string;
   tradition: 'vedic' | 'newa-buddhist';
+  /** ISO 8601 sunrise instant used to anchor the tithi computation. */
+  sunriseAt?: string | null;
+  /** Optional named Ekadashi like "Putrada", "Vaikuntha". */
+  ekadashiName?: string | null;
+  /** Lunar month index 1..12 (Chaitra=1). Present when location provided. */
+  lunarMonth?: number;
+  /** True if this day falls inside an Adhik (intercalary) month. */
+  adhik?: boolean;
   /** Optional Vedic tithi metadata for the day. */
   tithi?: {
     index: number;
     indexInPaksha: number;
     paksha: 'shukla' | 'krishna';
     name: string;
+    accuracy?: TithiAccuracy;
+    boundaryStart?: string | null;
+    boundaryEnd?: string | null;
   };
+}
+
+/**
+ * Geographic location for sunrise-anchored tithi computation. Persisted in
+ * `UserProfile.location`. `slug` is used in S5 SEO/URL routing.
+ */
+export interface Location {
+  lat: number;
+  lon: number;
+  label: string;
+  slug: string;
+  tz: string;
+  countryCode?: string;
+}
+
+/** Curated city seed entry. */
+export interface City {
+  slug: string;
+  label: string;
+  lat: number;
+  lon: number;
+  tz: string;
+  countryCode: string;
+  population?: number;
 }
 
 export interface FastSession {
@@ -55,6 +100,8 @@ export interface UserProfile {
   onboardedAt: string;
   safetyFlags: SafetyFlags;
   reminders: RemindersPrefs;
+  /** Optional geographic location for sunrise-anchored tithi (S2). */
+  location?: Location | null;
 }
 
 export interface RemindersPrefs {
@@ -110,7 +157,7 @@ export function defaultPreferences(): Preferences {
 }
 
 /** Schema version persisted alongside state. Bump on breaking change. */
-export const APP_STATE_VERSION = 2 as const;
+export const APP_STATE_VERSION = 3 as const;
 export type AppStateVersion = typeof APP_STATE_VERSION;
 
 export interface AppState {

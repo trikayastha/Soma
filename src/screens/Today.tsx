@@ -10,7 +10,10 @@ import {
   phaseNameToLabel,
   toISODate,
 } from '../lib/lunar';
-import { computeTithi, tithiLabel } from '../lib/tithi';
+import { computeTithiAtSunrise, tithiLabel } from '../lib/tithi';
+import { ekadashiNameForDate } from '../lib/ekadashiNames';
+import { paranaWindow } from '../lib/parana';
+import { ComputedAtBanner } from '../components/ComputedAtBanner';
 import { getWhyCopy } from '../lib/whyThisDay';
 import type { SomaDay } from '../lib/types';
 import { findActiveSession } from '../lib/scheduler';
@@ -44,7 +47,11 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
   );
   const phaseName = elongationToPhaseName(elongation);
   const waxing = elongation < 180;
-  const tithi = useMemo(() => computeTithi(selectedDateNoonUtc), [selectedDateNoonUtc]);
+  const location = state.profile?.location ?? null;
+  const tithi = useMemo(
+    () => computeTithiAtSunrise(selectedDateNoonUtc, location),
+    [selectedDateNoonUtc, location],
+  );
 
   const scheduleByDate = useMemo(() => {
     const m = new Map<string, SomaDay>();
@@ -91,6 +98,13 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
           <p className="text-soma-mist text-[11px] mt-0.5">
             Tithi {tithi.index} · {tithiLabel(tithi)}
           </p>
+          <div className="mt-2">
+            <ComputedAtBanner
+              accuracy={tithi.accuracy}
+              sunriseAt={tithi.anchor === 'sunrise' ? tithi.anchorAt : null}
+              location={location}
+            />
+          </div>
         </header>
 
         <div className="shrink-0 mt-4 px-0">
@@ -117,6 +131,21 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
               whyOpen={whyOpen}
               toggleWhy={() => setWhyOpen((v) => !v)}
               onStart={() => onStartFast(selectedSomaDay)}
+              ekadashiTitle={
+                selectedSomaDay.kind === 'ekadashi' && location
+                  ? ekadashiNameForDate(
+                      selectedDateNoonUtc,
+                      tithi.paksha,
+                      location,
+                    )
+                  : null
+              }
+              parana={
+                selectedSomaDay.kind === 'ekadashi'
+                  ? paranaWindow(selectedDateNoonUtc, location)
+                  : null
+              }
+              tz={location?.tz ?? state.profile?.timezone}
             />
           ) : (
             <RegularDayCard
@@ -155,6 +184,9 @@ function SelectedDayCard({
   whyOpen,
   toggleWhy,
   onStart,
+  ekadashiTitle,
+  parana,
+  tz,
 }: {
   day: SomaDay;
   isToday: boolean;
@@ -162,18 +194,29 @@ function SelectedDayCard({
   whyOpen: boolean;
   toggleWhy: () => void;
   onStart: () => void;
+  ekadashiTitle?: string | null;
+  parana?: { earliest: Date; latest: Date; paranaDay: Date } | null;
+  tz?: string;
 }) {
   const why = getWhyCopy(day.kind);
   const when = formatWhen(isToday, daysFromToday, day.date);
   const isPast = daysFromToday < 0;
+  const headline = ekadashiTitle
+    ? `${ekadashiTitle} Ekadashi`
+    : day.title;
 
   return (
     <div className="soma-card p-5 animate-rise">
       <div className="text-xs text-soma-accent uppercase tracking-wider">{when}</div>
-      <h2 className="display-serif text-2xl text-soma-glow mt-1">{day.title}</h2>
+      <h2 className="display-serif text-2xl text-soma-glow mt-1">{headline}</h2>
       <p className="text-soma-mist text-xs mt-2">
         {day.intensityHours}-hour fast · paired with a 10-minute meditation
       </p>
+      {parana && (
+        <p className="text-soma-mist text-[11px] mt-2">
+          Parana: break fast between {formatTimeRange(parana, tz)}
+        </p>
+      )}
 
       <button
         onClick={toggleWhy}
@@ -250,6 +293,23 @@ function RegularDayCard({
       </p>
     </div>
   );
+}
+
+function formatTimeRange(
+  range: { earliest: Date; latest: Date },
+  tz?: string,
+): string {
+  const fmt: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: tz,
+  };
+  try {
+    return `${range.earliest.toLocaleTimeString([], fmt)} – ${range.latest.toLocaleTimeString([], fmt)}`;
+  } catch {
+    return `${range.earliest.toISOString().slice(11, 16)} – ${range.latest.toISOString().slice(11, 16)} UTC`;
+  }
 }
 
 function formatWhen(isToday: boolean, daysFromToday: number, iso: string): string {

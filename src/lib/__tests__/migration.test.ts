@@ -13,7 +13,7 @@ import {
 } from '../types';
 
 const LEGACY_KEY = 'soma.state.v1';
-const STORAGE_KEY = 'soma.state.v2';
+const STORAGE_KEY = 'soma.state.v3';
 
 const sampleProfile = {
   name: 'Beta User',

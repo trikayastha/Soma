@@ -3,13 +3,29 @@ import { MoonPhase } from '../components/MoonPhase';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { evaluateSafety, emptySafetyFlags } from '../lib/safety';
 import { generateSchedule } from '../lib/lunar';
-import { defaultRemindersPrefs, type Intensity, type SafetyFlags, type UserProfile } from '../lib/types';
+import {
+  defaultRemindersPrefs,
+  type Intensity,
+  type Location,
+  type SafetyFlags,
+  type UserProfile,
+} from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
 import { IntentRouter } from './onboarding/IntentRouter';
+import { LocationStep } from './onboarding/LocationStep';
 
-// Intent step inserted ahead of welcome (S1). Unwinding in reverse is
-// handled by `back()` so flow remains symmetrical.
-const STEPS = ['intent', 'welcome', 'you', 'experience', 'safety', 'intensity'] as const;
+// Intent step inserted ahead of welcome (S1). Location step inserted
+// after `you` (S2). Unwinding in reverse is handled by `back()` so flow
+// remains symmetrical.
+const STEPS = [
+  'intent',
+  'welcome',
+  'you',
+  'location',
+  'experience',
+  'safety',
+  'intensity',
+] as const;
 type Step = (typeof STEPS)[number];
 
 export function Onboarding() {
@@ -23,6 +39,7 @@ export function Onboarding() {
   const [experience, setExperience] = useState<UserProfile['experience']>('some');
   const [intensity, setIntensity] = useState<Intensity>('16h');
   const [safety, setSafety] = useState<SafetyFlags>(emptySafetyFlags());
+  const [location, setLocation] = useState<Location | null>(null);
 
   const verdict = useMemo(() => evaluateSafety(safety), [safety]);
   const idx = STEPS.indexOf(step);
@@ -40,15 +57,17 @@ export function Onboarding() {
     if (!verdict.allowed) return;
     const profile: UserProfile = {
       name: name.trim() || 'Seeker',
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezone:
+        location?.tz ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
       experience,
       goal,
       defaultIntensity: intensity,
       onboardedAt: new Date().toISOString(),
       safetyFlags: safety,
       reminders: defaultRemindersPrefs(),
+      location,
     };
-    const schedule = generateSchedule(new Date(), 60, intensity);
+    const schedule = generateSchedule(new Date(), 60, intensity, location);
     setProfile(profile);
     setSchedule(schedule);
     completeOnboarding();
@@ -72,6 +91,14 @@ export function Onboarding() {
             setName={setName}
             goal={goal}
             setGoal={setGoal}
+            onNext={next}
+            onBack={back}
+          />
+        )}
+        {step === 'location' && (
+          <LocationStep
+            value={location}
+            onChange={setLocation}
             onNext={next}
             onBack={back}
           />

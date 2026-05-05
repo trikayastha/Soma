@@ -56,16 +56,20 @@ describe('Regression: full P0 flow', () => {
       'Maya',
     );
     await user.click(screen.getByRole('button', { name: /Sharper focus/i }));
-    await user.click(screen.getByRole('button', { name: /Continue/i }));
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
+
+    // Location step (optional) — skip
+    expect(screen.getByText(/Where are you/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Skip$/i }));
 
     // Experience step
     expect(screen.getByText(/Your experience/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
-    await user.click(screen.getByRole('button', { name: /Continue/i }));
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
 
     // Safety step — all defaults false, should allow continue
     expect(screen.getByText(/A few safety checks/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /Continue/i }));
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
 
     // Intensity
     expect(screen.getByText(/Pick your intensity/i)).toBeInTheDocument();
@@ -85,14 +89,16 @@ describe('Regression: full P0 flow', () => {
     await user.click(screen.getByRole('button', { name: /Begin/i }));
     await user.type(screen.getByPlaceholderText(/call you/i), 'Test');
     await user.click(screen.getByRole('button', { name: /Sharper focus/i }));
-    await user.click(screen.getByRole('button', { name: /Continue/i }));
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
+    // Skip optional location step
+    await user.click(screen.getByRole('button', { name: /^Skip$/i }));
     await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
-    await user.click(screen.getByRole('button', { name: /Continue/i }));
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
 
     // Toggle under-18
     await user.click(screen.getByRole('button', { name: /under 18/i }));
     expect(screen.getByText(/Soma cannot support/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /^Continue$/i })).toBeDisabled();
   });
 
   it('renders the bottom nav and all tabs after onboarding', async () => {
@@ -201,9 +207,9 @@ describe('Regression: full P0 flow', () => {
 
     // Directly advance: simulate completion by manipulating localStorage and re-rendering.
     // After v1→v2 migration, the running app persists to soma.state.v2.
-    const raw = JSON.parse(localStorage.getItem('soma.state.v2')!);
+    const raw = JSON.parse(localStorage.getItem('soma.state.v3')!);
     raw.sessions[0].startedAt = new Date(Date.now() - 13 * 3600 * 1000).toISOString();
-    localStorage.setItem('soma.state.v2', JSON.stringify(raw));
+    localStorage.setItem('soma.state.v3', JSON.stringify(raw));
   });
 
   it.each([
@@ -241,10 +247,12 @@ describe('Regression: full P0 flow', () => {
         'Maya',
       );
       await user.click(screen.getByRole('button', { name: /Sharper focus/i }));
-      await user.click(screen.getByRole('button', { name: /Continue/i }));
+      await user.click(screen.getByRole('button', { name: /^Continue$/i }));
+      // Skip optional location step
+      await user.click(screen.getByRole('button', { name: /^Skip$/i }));
       await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
-      await user.click(screen.getByRole('button', { name: /Continue/i }));
-      await user.click(screen.getByRole('button', { name: /Continue/i }));
+      await user.click(screen.getByRole('button', { name: /^Continue$/i }));
+      await user.click(screen.getByRole('button', { name: /^Continue$/i }));
       await user.click(screen.getByRole('button', { name: /Enter Soma/i }));
 
       // Today renders
@@ -254,7 +262,7 @@ describe('Regression: full P0 flow', () => {
       expect(document.documentElement.getAttribute('data-theme')).toBe(theme);
 
       // Persisted preferences match the chosen card
-      const persisted = JSON.parse(localStorage.getItem('soma.state.v2')!);
+      const persisted = JSON.parse(localStorage.getItem('soma.state.v3')!);
       expect(persisted.preferences.intent).toBe(intent);
       expect(persisted.preferences.theme).toBe(theme);
       expect(persisted.preferences.voice).toBe(voice);

@@ -61,7 +61,7 @@ describe('storage / persistence', () => {
   });
 
   it('loadState falls back to emptyState on corrupt JSON', () => {
-    localStorage.setItem('soma.state.v2', '{not json');
+    localStorage.setItem('soma.state.v3', '{not json');
     expect(loadState()).toEqual(emptyState());
   });
 

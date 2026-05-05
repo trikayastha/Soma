@@ -1,20 +1,58 @@
+import { useMemo, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { ReminderSettings } from '../components/ReminderSettings';
 import { generateSchedule } from '../lib/lunar';
-import type { Intensity, Theme, Voice } from '../lib/types';
+import { searchCities } from '../lib/cities';
+import type { City, Intensity, Location, Theme, Voice } from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
 import { VOICES } from '../i18n/voices';
 import { THEMES } from '../themes/themes';
 
 export function Settings() {
-  const { state, setSchedule, reset, setProfile, setPreferences } = useAppState();
+  const {
+    state,
+    setSchedule,
+    reset,
+    setProfile,
+    setPreferences,
+    setLocation,
+  } = useAppState();
   const profile = state.profile;
   const prefs = state.preferences;
+  const [locQuery, setLocQuery] = useState('');
+  const matches = useMemo(() => searchCities(locQuery, 6), [locQuery]);
+
+  function pickCity(c: City) {
+    const loc: Location = {
+      lat: c.lat,
+      lon: c.lon,
+      label: c.label,
+      slug: c.slug,
+      tz: c.tz,
+      countryCode: c.countryCode,
+    };
+    setLocation(loc);
+    setLocQuery('');
+    if (profile) {
+      setSchedule(
+        generateSchedule(new Date(), 60, profile.defaultIntensity, loc),
+      );
+    }
+  }
+
+  function clearLocation() {
+    setLocation(null);
+    if (profile) {
+      setSchedule(
+        generateSchedule(new Date(), 60, profile.defaultIntensity, null),
+      );
+    }
+  }
 
   function setIntensity(i: Intensity) {
     if (!profile) return;
     setProfile({ ...profile, defaultIntensity: i });
-    setSchedule(generateSchedule(new Date(), 60, i));
+    setSchedule(generateSchedule(new Date(), 60, i, profile.location ?? null));
   }
 
   function setVoice(v: Voice) {
@@ -155,6 +193,54 @@ export function Settings() {
           <p className="text-[11px] text-soma-mist mt-2">
             Clears your stated intent so the picker shows on next visit.
           </p>
+        </section>
+
+        <section className="soma-card p-5 mt-4">
+          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
+            Location
+          </div>
+          <p className="text-[11px] text-soma-mist mt-1">
+            Anchors tithi at your local sunrise. Stays on this device.
+          </p>
+          {profile?.location ? (
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className="text-soma-glow">{profile.location.label}</span>
+              <button
+                type="button"
+                onClick={clearLocation}
+                className="text-xs text-soma-mist underline hover:text-soma-glow"
+              >
+                Clear
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-soma-mist text-xs">No location set</p>
+          )}
+          <input
+            value={locQuery}
+            onChange={(e) => setLocQuery(e.target.value)}
+            placeholder="Search city…"
+            autoComplete="off"
+            className="mt-3 w-full bg-transparent border-b border-white/20 text-soma-moon py-2 text-sm outline-none focus:border-soma-glow"
+          />
+          {locQuery.length >= 2 && matches.length > 0 && (
+            <ul role="listbox" className="mt-2 flex flex-col gap-1">
+              {matches.map((c) => (
+                <li key={c.slug}>
+                  <button
+                    type="button"
+                    onClick={() => pickCity(c)}
+                    className="w-full text-left soma-card px-3 py-2 hover:border-soma-glow/40"
+                  >
+                    <div className="text-soma-moon text-sm">{c.label}</div>
+                    <div className="text-soma-mist text-[11px]">
+                      {c.countryCode} · {c.tz}
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <ReminderSettings />

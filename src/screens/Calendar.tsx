@@ -3,7 +3,7 @@ import { AmbientBackground } from '../components/AmbientBackground';
 import { Calendar as CalendarGrid } from '../components/Calendar';
 import { useAppState } from '../state/AppStateContext';
 import { toISODate } from '../lib/lunar';
-import { computeTithi, tithiLabel } from '../lib/tithi';
+import { computeTithiAtSunrise, tithiLabel } from '../lib/tithi';
 import type { SomaDay } from '../lib/types';
 
 interface CalendarScreenProps {
@@ -27,9 +27,11 @@ export function CalendarScreen({ onStartFast }: CalendarScreenProps) {
   }, [state.schedule]);
 
   const selectedSomaDay = scheduleByDate.get(selectedIso) ?? null;
+  const location = state.profile?.location ?? null;
   const selectedTithi = useMemo(
-    () => computeTithi(new Date(selectedIso + 'T12:00:00Z')),
-    [selectedIso],
+    () =>
+      computeTithiAtSunrise(new Date(selectedIso + 'T12:00:00Z'), location),
+    [selectedIso, location],
   );
   const isSelectedToday = selectedIso === todayIso;
 
@@ -62,6 +64,7 @@ export function CalendarScreen({ onStartFast }: CalendarScreenProps) {
             sessions={state.sessions}
             onSelect={setSelectedIso}
             onMonthChange={setMonth}
+            location={location}
           />
         </div>
 

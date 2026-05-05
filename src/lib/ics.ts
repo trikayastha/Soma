@@ -61,9 +61,19 @@ function buildVevent(
   const uid = `soma-${day.date}-${day.kind}@soma.app`;
   const summary = `Soma — ${day.title} (${day.intensityHours}h fast)`;
   const why = getWhyCopy(day.kind);
-  const description = escapeText(
-    `A ${day.intensityHours}-hour lunar-aligned fast paired with a 10-minute meditation.\nWhy this day: ${why.plain}`,
-  );
+  const parts = [
+    `A ${day.intensityHours}-hour lunar-aligned fast paired with a 10-minute meditation.`,
+    `Why this day: ${why.plain}`,
+  ];
+  if (day.sunriseAt) {
+    parts.push(
+      `Computed at sunrise (${day.sunriseAt}) — source: astronomy-engine.`,
+    );
+  }
+  if (day.kind === 'ekadashi' && day.ekadashiName) {
+    parts.push(`Named: ${day.ekadashiName} Ekadashi.`);
+  }
+  const description = escapeText(parts.join('\n'));
 
   return [
     'BEGIN:VEVENT',

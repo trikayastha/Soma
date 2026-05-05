@@ -44,6 +44,33 @@ const COPY: Record<SomaDayKind, WhyCopy> = {
     science:
       'Included for users who want additional structure. Optional in Soma — never prescribed by default.',
   },
+  pradosh: {
+    heading: 'Pradosh — Trayodashi observance to Shiva',
+    plain:
+      'The 13th lunar day, observed at twilight (pradosh kala) twice per lunar month. A short evening fast with meditation, traditionally for surrender and steadiness.',
+    tradition:
+      'In Sanatan Dharma, Pradosh Vrata is dedicated to Shiva and Parvati. The Skanda Purana describes its mahatmya across both pakshas; the practice anchors the evening hour rather than the full day.',
+    science:
+      'Brief late-day caloric pause aligns with the natural drop in metabolic rate before sleep, and the meditative framing provides a parasympathetic cue distinct from sleep itself.',
+  },
+  'sankashti-chaturthi': {
+    heading: 'Sankashti Chaturthi — Krishna Chaturthi to Ganesha',
+    plain:
+      'The 19th tithi (Krishna Paksha Chaturthi), observed monthly with a fast broken after moonrise. Traditionally a day for clearing obstacles and releasing what blocks momentum.',
+    tradition:
+      'The Ganesha Purana places Sankashti Chaturthi as Ganapati\'s most cherished monthly observance. Practice typically pairs fasting with chanting and offering to Ganesha.',
+    science:
+      'A predictable monthly fast cue — like Ekadashi — trains metabolic flexibility and creates a recurring marker for reflection. The moonrise break-fast adds a circadian touchpoint.',
+  },
+  shivaratri: {
+    heading: 'Shivaratri — the night of Shiva',
+    plain:
+      'Krishna Chaturdashi observed monthly as a night-long vigil and fast. Once per year, the Phalguna observance is Maha Shivaratri — the great night of Shiva.',
+    tradition:
+      'The Ishana Samhita and other Shaiva texts frame Shivaratri as a night of inner stillness. Devotees keep awake, chant, and fast through the night, breaking the fast at sunrise.',
+    science:
+      'Sustained nighttime wakefulness and food restriction is intense and not for everyone. Treated as an option, not a default, with safety guards in Soma.',
+  },
 };
 
 export function getWhyCopy(kind: SomaDayKind): WhyCopy {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { addDays, toISODate } from '../lib/lunar';
-import { computeTithi, tithiShort } from '../lib/tithi';
-import type { FastSession, SomaDay } from '../lib/types';
+import { computeTithiAtSunrise, tithiShort } from '../lib/tithi';
+import type { FastSession, Location, SomaDay } from '../lib/types';
 
 interface CalendarProps {
   /** Any date within the month to display. */
@@ -12,6 +12,8 @@ interface CalendarProps {
   sessions: FastSession[];
   onSelect: (iso: string) => void;
   onMonthChange: (next: Date) => void;
+  /** Optional location used to anchor each cell's tithi at sunrise. */
+  location?: Location | null;
 }
 
 interface CellData {
@@ -38,6 +40,7 @@ export function Calendar({
   sessions,
   onSelect,
   onMonthChange,
+  location = null,
 }: CalendarProps) {
   const monthLabel = useMemo(
     () =>
@@ -67,7 +70,7 @@ export function Calendar({
       const d = addDays(gridStart, i);
       const iso = toISODate(d);
       const noonUtc = new Date(iso + 'T12:00:00Z');
-      const t = computeTithi(noonUtc);
+      const t = computeTithiAtSunrise(noonUtc, location);
       const somaDay = scheduleByDate.get(iso) ?? null;
       return {
         iso,
@@ -79,7 +82,7 @@ export function Calendar({
         hasSession: sessionDates.has(iso),
       };
     });
-  }, [month, scheduleByDate, sessionDates]);
+  }, [month, scheduleByDate, sessionDates, location]);
 
   function step(delta: number) {
     const next = new Date(
@@ -170,12 +173,120 @@ export function Calendar({
                   aria-hidden="true"
                 />
               )}
+              <CellDecoration somaDay={c.somaDay} />
             </button>
           );
         })}
       </div>
     </div>
   );
+}
+
+/**
+ * Per-kind decoration painted on top of each cell. All glyphs use
+ * `currentColor` so they pick up the cell's text color (theme-aware) and
+ * `aria-hidden` because the cell's `aria-label` already carries the
+ * SomaDay title for screen readers.
+ *
+ * Decoration map (S2 spec §J):
+ *  - ekadashi             gold ring around the cell
+ *  - full-moon (Purnima)  filled radial glow
+ *  - new-moon (Amavasya)  small dark dot center
+ *  - pradosh              upward triangle bottom-right
+ *  - sankashti-chaturthi  filled square bottom-right
+ *  - shivaratri           cross/plus glyph bottom-right
+ *  - chaturthi (Vinayaka) hollow circle bottom-right
+ */
+function CellDecoration({ somaDay }: { somaDay: SomaDay | null }) {
+  if (!somaDay) return null;
+  const a11y = decorationLabel(somaDay.kind);
+  switch (somaDay.kind) {
+    case 'ekadashi':
+      return (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-amber-400/70"
+          aria-label={a11y}
+          role="img"
+        />
+      );
+    case 'full-moon':
+      return (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-xl bg-soma-glow/15 shadow-[inset_0_0_18px_rgba(255,236,189,0.3)]"
+          aria-label={a11y}
+          role="img"
+        />
+      );
+    case 'new-moon':
+      return (
+        <span
+          className="pointer-events-none absolute h-1.5 w-1.5 rounded-full bg-soma-ink/80 left-1 bottom-1"
+          aria-label={a11y}
+          role="img"
+        />
+      );
+    case 'pradosh':
+      return (
+        <span
+          className="pointer-events-none absolute right-1 bottom-1 text-[9px] leading-none text-soma-accent"
+          aria-label={a11y}
+          role="img"
+        >
+          ▲
+        </span>
+      );
+    case 'sankashti-chaturthi':
+      return (
+        <span
+          className="pointer-events-none absolute right-1 bottom-1 text-[9px] leading-none text-soma-accent"
+          aria-label={a11y}
+          role="img"
+        >
+          ◼
+        </span>
+      );
+    case 'shivaratri':
+      return (
+        <span
+          className="pointer-events-none absolute right-1 bottom-1 text-[10px] leading-none text-soma-accent"
+          aria-label={a11y}
+          role="img"
+        >
+          ✚
+        </span>
+      );
+    case 'chaturthi':
+      return (
+        <span
+          className="pointer-events-none absolute right-1 bottom-1 h-1.5 w-1.5 rounded-full border border-soma-accent"
+          aria-label={a11y}
+          role="img"
+        />
+      );
+    default:
+      return null;
+  }
+}
+
+function decorationLabel(kind: SomaDay['kind']): string {
+  switch (kind) {
+    case 'ekadashi':
+      return 'Ekadashi — major fast';
+    case 'full-moon':
+      return 'Purnima — full moon';
+    case 'new-moon':
+      return 'Amavasya — new moon';
+    case 'pradosh':
+      return 'Pradosh — Trayodashi observance';
+    case 'sankashti-chaturthi':
+      return 'Sankashti Chaturthi';
+    case 'shivaratri':
+      return 'Shivaratri';
+    case 'chaturthi':
+      return 'Vinayaka Chaturthi';
+    default:
+      return '';
+  }
 }
 
 function Chevron({ dir }: { dir: 'left' | 'right' }) {

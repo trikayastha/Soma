@@ -10,6 +10,7 @@ import {
 import type {
   AppState,
   FastSession,
+  Location,
   Preferences,
   SomaDay,
   UserProfile,
@@ -18,6 +19,7 @@ import {
   emptyState,
   loadState,
   saveState,
+  withLocation,
   withOnboardingComplete,
   withPreferences,
   withProfile,
@@ -33,6 +35,7 @@ interface AppStateContextValue {
   upsertSession: (session: FastSession) => void;
   completeOnboarding: () => void;
   setPreferences: (prefs: Partial<Preferences>) => void;
+  setLocation: (location: Location | null) => void;
   reset: () => void;
 }
 
@@ -81,6 +84,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setState((s) => withPreferences(s, prefs)),
     [],
   );
+  const setLocation = useCallback(
+    (location: Location | null) => setState((s) => withLocation(s, location)),
+    [],
+  );
   const reset = useCallback(() => setState(emptyState()), []);
 
   const value = useMemo(
@@ -91,6 +98,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       upsertSession,
       completeOnboarding,
       setPreferences,
+      setLocation,
       reset,
     }),
     [
@@ -100,6 +108,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       upsertSession,
       completeOnboarding,
       setPreferences,
+      setLocation,
       reset,
     ],
   );

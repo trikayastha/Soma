@@ -3,6 +3,7 @@ import {
   defaultPreferences,
   type AppState,
   type FastSession,
+  type Location,
   type Preferences,
   type SomaDay,
   type UserProfile,
@@ -15,12 +16,15 @@ import {
  * localStorage. The schema is versioned via {@link APP_STATE_VERSION}.
  *
  * Beta users have data under `soma.state.v1` (no `version` field, no
- * `preferences`). On load we read v2 first; if absent, we read v1 and
- * migrate. Save is non-destructive: the v1 blob is left in place for one
- * release so users can roll back if needed.
+ * `preferences`). v2 added preferences (S1). v3 adds optional
+ * `profile.location` and per-day `sunriseAt` / `tithi.accuracy` (S2).
+ *
+ * On load we prefer the latest key. Older blobs are migrated additively;
+ * we never delete them so users can roll back during a release window.
  */
-const LEGACY_KEY = 'soma.state.v1';
-const STORAGE_KEY = 'soma.state.v2';
+const LEGACY_V1_KEY = 'soma.state.v1';
+const V2_KEY = 'soma.state.v2';
+const STORAGE_KEY = 'soma.state.v3';
 
 interface UnknownState {
   version?: unknown;
@@ -46,15 +50,23 @@ export function emptyState(): AppState {
 /**
  * Migrate any legacy state blob into a valid v2 {@link AppState}. Idempotent:
  * passing a v2 state through migrateToV2 returns an equivalent v2 state.
+ *
+ * @deprecated S2: prefer {@link migrateToCurrent}. Kept for tests + back-compat.
  */
 export function migrateToV2(raw: UnknownState): AppState {
-  const profile =
-    raw.profile && typeof raw.profile === 'object'
-      ? (raw.profile as UserProfile)
-      : null;
+  return migrateToCurrent(raw);
+}
+
+/**
+ * Migrate any legacy state blob into a valid current {@link AppState}.
+ * Additive across versions: v1 → v2 (preferences) → v3 (profile.location,
+ * per-day sunriseAt + tithi.accuracy). Idempotent.
+ */
+export function migrateToCurrent(raw: UnknownState): AppState {
+  const profile = sanitizeProfile(raw.profile);
 
   const schedule = Array.isArray(raw.schedule)
-    ? (raw.schedule as SomaDay[])
+    ? (raw.schedule as SomaDay[]).map(sanitizeSomaDay)
     : [];
 
   const sessions = Array.isArray(raw.sessions)
@@ -72,6 +84,46 @@ export function migrateToV2(raw: UnknownState): AppState {
     onboardingComplete,
     preferences,
     version: APP_STATE_VERSION,
+  };
+}
+
+function sanitizeProfile(raw: unknown): UserProfile | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const p = raw as UserProfile & { location?: unknown };
+  // Coerce malformed location to null; preserve well-formed locations.
+  const location = sanitizeLocation(p.location);
+  return { ...p, location };
+}
+
+function sanitizeLocation(raw: unknown): Location | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const l = raw as Partial<Location>;
+  if (
+    typeof l.lat !== 'number' ||
+    typeof l.lon !== 'number' ||
+    typeof l.label !== 'string' ||
+    typeof l.slug !== 'string' ||
+    typeof l.tz !== 'string'
+  ) {
+    return null;
+  }
+  return {
+    lat: l.lat,
+    lon: l.lon,
+    label: l.label,
+    slug: l.slug,
+    tz: l.tz,
+    countryCode: typeof l.countryCode === 'string' ? l.countryCode : undefined,
+  };
+}
+
+/** v3 SomaDay sanitizer: backfills accuracy='approximate' for legacy rows. */
+function sanitizeSomaDay(raw: SomaDay): SomaDay {
+  if (!raw.tithi) return raw;
+  const accuracy = raw.tithi.accuracy ?? 'approximate';
+  return {
+    ...raw,
+    tithi: { ...raw.tithi, accuracy },
   };
 }
 
@@ -108,17 +160,23 @@ function mergePreferences(raw: unknown): Preferences {
 
 export function loadState(): AppState {
   try {
-    // Prefer v2.
-    const v2Raw = localStorage.getItem(STORAGE_KEY);
+    // Prefer the current schema key.
+    const v3Raw = localStorage.getItem(STORAGE_KEY);
+    if (v3Raw) {
+      const parsed = JSON.parse(v3Raw) as UnknownState;
+      return migrateToCurrent(parsed);
+    }
+    // Fall back to v2 (S1 beta) — preferences exist, location does not.
+    const v2Raw = localStorage.getItem(V2_KEY);
     if (v2Raw) {
       const parsed = JSON.parse(v2Raw) as UnknownState;
-      return migrateToV2(parsed);
+      return migrateToCurrent(parsed);
     }
-    // Fall back to v1 for beta users.
-    const v1Raw = localStorage.getItem(LEGACY_KEY);
+    // Fall back to v1 (pre-S1 beta).
+    const v1Raw = localStorage.getItem(LEGACY_V1_KEY);
     if (v1Raw) {
       const parsed = JSON.parse(v1Raw) as UnknownState;
-      return migrateToV2(parsed);
+      return migrateToCurrent(parsed);
     }
     return emptyState();
   } catch {
@@ -127,14 +185,15 @@ export function loadState(): AppState {
 }
 
 export function saveState(state: AppState): void {
-  // Always persist as v2; we intentionally do NOT touch the v1 key so that
-  // beta users can roll back during this release window (see H6).
+  // Always persist to current schema key. Legacy keys are left in place so
+  // users can roll back during a release window (additive migration).
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 export function clearState(): void {
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(LEGACY_KEY);
+  localStorage.removeItem(V2_KEY);
+  localStorage.removeItem(LEGACY_V1_KEY);
 }
 
 /* ------------------------------------------------------------------------
@@ -172,5 +231,20 @@ export function withPreferences(
   return {
     ...state,
     preferences: { ...state.preferences, ...prefs },
+  };
+}
+
+/**
+ * Update {@link UserProfile.location}. No-op when there is no profile.
+ * Pass `null` to clear an existing location.
+ */
+export function withLocation(
+  state: AppState,
+  location: Location | null,
+): AppState {
+  if (!state.profile) return state;
+  return {
+    ...state,
+    profile: { ...state.profile, location },
   };
 }
