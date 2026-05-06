@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PhoneFrame } from './components/PhoneFrame';
 import { BottomNav, type TabId } from './components/BottomNav';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppStateProvider, useAppState } from './state/AppStateContext';
 import { Onboarding } from './screens/Onboarding';
 import { Today } from './screens/Today';
@@ -10,6 +11,7 @@ import { Meditation } from './screens/Meditation';
 import { CalendarScreen } from './screens/Calendar';
 import { Rhythm } from './screens/Rhythm';
 import { Learn } from './screens/Learn';
+import { Wisdom } from './screens/Wisdom';
 import { Settings } from './screens/Settings';
 import type { FastSession, SomaDay, SubjectiveLog } from './lib/types';
 import { completeSession, findActiveSession, startSession } from './lib/scheduler';
@@ -131,6 +133,7 @@ function Shell() {
         )}
         {tab === 'calendar' && <CalendarScreen onStartFast={handleStartFast} />}
         {tab === 'rhythm' && <Rhythm />}
+        {tab === 'wisdom' && <Wisdom />}
         {tab === 'learn' && <Learn />}
         {tab === 'settings' && <Settings />}
       </div>
@@ -143,7 +146,9 @@ export default function App() {
   return (
     <AppStateProvider>
       <PhoneFrame>
-        <Shell />
+        <ErrorBoundary>
+          <Shell />
+        </ErrorBoundary>
       </PhoneFrame>
     </AppStateProvider>
   );

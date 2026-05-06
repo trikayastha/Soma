@@ -198,6 +198,17 @@ function mergePreferences(raw: unknown): Preferences {
       p.notificationPhilosophy === 'detailed'
         ? p.notificationPhilosophy
         : defaults.notificationPhilosophy,
+    // S4 additive: archetype defaults to null, wisdomCardCount to 0.
+    archetype:
+      p.archetype === 'wind' || p.archetype === 'fire' || p.archetype === 'earth'
+        ? p.archetype
+        : defaults.archetype,
+    wisdomCardCount:
+      typeof p.wisdomCardCount === 'number' &&
+      Number.isFinite(p.wisdomCardCount) &&
+      p.wisdomCardCount >= 0
+        ? Math.floor(p.wisdomCardCount)
+        : defaults.wisdomCardCount,
   };
 }
 

@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { MoonPhase } from '../components/MoonPhase';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { evaluateSafety, emptySafetyFlags } from '../lib/safety';
 import { generateSchedule } from '../lib/lunar';
 import {
   defaultRemindersPrefs,
+  type Archetype,
   type Intensity,
   type Location,
   type SafetyFlags,
@@ -13,12 +13,16 @@ import {
 import { useAppState } from '../state/AppStateContext';
 import { IntentRouter } from './onboarding/IntentRouter';
 import { LocationStep } from './onboarding/LocationStep';
+import { OnboardingCarousel } from './onboarding/OnboardingCarousel';
+import { EnergyArchetype } from './EnergyArchetype';
 
 // Intent step inserted ahead of welcome (S1). Location step inserted
-// after `you` (S2). Unwinding in reverse is handled by `back()` so flow
-// remains symmetrical.
+// after `you` (S2). Archetype step inserted between intent and welcome
+// (S4) — optional, skip-able. Unwinding in reverse is handled by
+// `back()` so flow remains symmetrical.
 const STEPS = [
   'intent',
+  'archetype',
   'welcome',
   'you',
   'location',
@@ -29,7 +33,8 @@ const STEPS = [
 type Step = (typeof STEPS)[number];
 
 export function Onboarding() {
-  const { state, setProfile, setSchedule, completeOnboarding } = useAppState();
+  const { state, setProfile, setPreferences, setSchedule, completeOnboarding } =
+    useAppState();
   // If the user has already chosen an intent (e.g. resumable session), skip
   // straight to the existing welcome step. Resuming preserves their pick.
   const initialStep: Step = state.preferences.intent ? 'welcome' : 'intent';
@@ -40,6 +45,9 @@ export function Onboarding() {
   const [intensity, setIntensity] = useState<Intensity>('16h');
   const [safety, setSafety] = useState<SafetyFlags>(emptySafetyFlags());
   const [location, setLocation] = useState<Location | null>(null);
+  // Stage archetype locally — persist only when finish() runs so abandoned
+  // onboardings don't pollute preferences (R14).
+  const [archetype, setArchetypeLocal] = useState<Archetype | null>(null);
 
   const verdict = useMemo(() => evaluateSafety(safety), [safety]);
   const idx = STEPS.indexOf(step);
@@ -70,6 +78,9 @@ export function Onboarding() {
     const schedule = generateSchedule(new Date(), 60, intensity, location);
     setProfile(profile);
     setSchedule(schedule);
+    if (archetype) {
+      setPreferences({ archetype });
+    }
     completeOnboarding();
   }
 
@@ -82,8 +93,18 @@ export function Onboarding() {
         {step === 'intent' && (
           <IntentRouter onSelected={next} />
         )}
+        {step === 'archetype' && (
+          <EnergyArchetype
+            onComplete={(a) => {
+              setArchetypeLocal(a);
+              next();
+            }}
+            onSkip={next}
+            finishLabel="Continue"
+          />
+        )}
         {step === 'welcome' && (
-          <WelcomeStep onNext={next} />
+          <OnboardingCarousel onComplete={next} />
         )}
         {step === 'you' && (
           <YouStep
@@ -146,31 +167,6 @@ function Progress({ current, total }: { current: number; total: number }) {
           }`}
         />
       ))}
-    </div>
-  );
-}
-
-function WelcomeStep({ onNext }: { onNext: () => void }) {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-between text-center">
-      <div className="flex-1 flex flex-col items-center justify-center gap-6">
-        <MoonPhase illumination={0.72} waxing size={180} />
-        <div>
-          <h1 className="display-serif text-4xl leading-tight text-soma-glow">
-            Moon for Mental Performance
-          </h1>
-          <p
-            className="mt-4 text-soma-mist text-sm leading-relaxed max-w-[90%]"
-            style={{ textWrap: 'balance' }}
-          >
-            A thousand-year-old lunar practice, translated for the modern mind.
-            Fast with the moon. Think with clarity.
-          </p>
-        </div>
-      </div>
-      <button className="soma-btn-primary w-full" onClick={onNext}>
-        Begin
-      </button>
     </div>
   );
 }

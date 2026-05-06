@@ -45,9 +45,15 @@ describe('Regression: full P0 flow', () => {
     expect(screen.getByText(/Why are you here/i)).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
 
-    // Welcome
-    expect(screen.getByText(/Moon for Mental Performance/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /Begin/i }));
+    // Archetype quiz (S4) — skip
+    expect(screen.getByText(/Your energy/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Skip for now/i }));
+
+    // Welcome carousel (S4) — advance through all 3 slides to Begin
+    expect(screen.getByText(/A rhythm, not a regimen/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Next$/i }));
+    await user.click(screen.getByRole('button', { name: /^Next$/i }));
+    await user.click(screen.getByRole('button', { name: /^Begin$/i }));
 
     // You step
     expect(screen.getByText(/Tell us who you are/i)).toBeInTheDocument();
@@ -86,7 +92,13 @@ describe('Regression: full P0 flow', () => {
     // Intent step (S1)
     await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
 
-    await user.click(screen.getByRole('button', { name: /Begin/i }));
+    // Archetype quiz (S4) — skip
+    await user.click(screen.getByRole('button', { name: /Skip for now/i }));
+
+    // Welcome carousel (S4) — advance to Begin
+    await user.click(screen.getByRole('button', { name: /^Next$/i }));
+    await user.click(screen.getByRole('button', { name: /^Next$/i }));
+    await user.click(screen.getByRole('button', { name: /^Begin$/i }));
     await user.type(screen.getByPlaceholderText(/call you/i), 'Test');
     await user.click(screen.getByRole('button', { name: /Sharper focus/i }));
     await user.click(screen.getByRole('button', { name: /^Continue$/i }));
@@ -244,8 +256,13 @@ describe('Regression: full P0 flow', () => {
       // Intent
       await user.click(screen.getByRole('radio', { name: new RegExp(label, 'i') }));
 
-      // Walk through the rest of onboarding using the minimum viable path.
-      await user.click(screen.getByRole('button', { name: /Begin/i }));
+      // Archetype quiz (S4) — skip
+      await user.click(screen.getByRole('button', { name: /Skip for now/i }));
+
+      // Welcome carousel (S4) — advance to Begin
+      await user.click(screen.getByRole('button', { name: /^Next$/i }));
+      await user.click(screen.getByRole('button', { name: /^Next$/i }));
+      await user.click(screen.getByRole('button', { name: /^Begin$/i }));
       await user.type(
         screen.getByPlaceholderText(/What should we call you/i),
         'Maya',

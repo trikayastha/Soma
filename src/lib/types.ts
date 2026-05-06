@@ -151,11 +151,19 @@ export type Intent = 'optimize' | 'tradition' | 'tired' | 'curious';
 /** How loudly Soma reminds the user. */
 export type NotificationPhilosophy = 'quiet' | 'standard' | 'detailed';
 
+/** Energy archetype (S4) — derived from a 3-question quiz. Plain-English
+ *  surrogate for the Vata/Pitta/Kapha triad with no Sanskrit required. */
+export type Archetype = 'wind' | 'fire' | 'earth';
+
 export interface Preferences {
   voice: Voice;
   theme: Theme;
   intent: Intent | null;
   notificationPhilosophy: NotificationPhilosophy;
+  /** Energy archetype (S4). Null until the user completes the quiz. */
+  archetype: Archetype | null;
+  /** Local count of WisdomCards generated/shared (S4). Never uploaded. */
+  wisdomCardCount: number;
 }
 
 export function defaultPreferences(): Preferences {
@@ -164,6 +172,8 @@ export function defaultPreferences(): Preferences {
     theme: 'performance',
     intent: null,
     notificationPhilosophy: 'quiet',
+    archetype: null,
+    wisdomCardCount: 0,
   };
 }
 

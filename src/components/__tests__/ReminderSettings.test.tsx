@@ -30,6 +30,8 @@ function seedProfile(): AppState {
       theme: 'performance',
       intent: null,
       notificationPhilosophy: 'quiet',
+      archetype: null,
+      wisdomCardCount: 0,
     },
     mandalaAnchor: { firstObservedFastDate: null, manualResetDate: null },
     version: 3,

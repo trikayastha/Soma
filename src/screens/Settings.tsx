@@ -3,11 +3,22 @@ import { AmbientBackground } from '../components/AmbientBackground';
 import { ReminderSettings } from '../components/ReminderSettings';
 import { generateSchedule } from '../lib/lunar';
 import { searchCities } from '../lib/cities';
-import type { City, Intensity, Location, Theme, Voice } from '../lib/types';
+import type {
+  Archetype,
+  City,
+  Intensity,
+  Location,
+  Theme,
+  Voice,
+} from '../lib/types';
 import { useAppState } from '../state/AppStateContext';
 import { VOICES } from '../i18n/voices';
 import { THEMES } from '../themes/themes';
 import { useVoice } from '../i18n/useVoice';
+import { ARCHETYPE_LABEL } from '../lib/archetype';
+import { EnergyArchetype } from './EnergyArchetype';
+import { ResetSomaDialog } from '../components/ResetSomaDialog';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 export function Settings() {
   const {
@@ -24,6 +35,9 @@ export function Settings() {
   const prefs = state.preferences;
   const [locQuery, setLocQuery] = useState('');
   const matches = useMemo(() => searchCities(locQuery, 6), [locQuery]);
+  const [archetypeOpen, setArchetypeOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetRhythmOpen, setResetRhythmOpen] = useState(false);
 
   function pickCity(c: City) {
     const loc: Location = {
@@ -82,16 +96,41 @@ export function Settings() {
     URL.revokeObjectURL(url);
   }
 
-  function handleReset() {
-    const msg =
-      'Reset Soma completely? This deletes all local data, including your voice, theme, and intent.';
-    if (!confirm(msg)) return;
+  function handleResetConfirmed() {
     reset();
+    try {
+      // Best-effort: also clear localStorage so any stale legacy keys are
+      // wiped. The reducer-level reset() already flips state to emptyState.
+      window.localStorage.clear();
+    } catch {
+      /* storage unavailable — silently continue */
+    }
+    setResetOpen(false);
   }
 
   function handleResetRhythm() {
-    if (!confirm(t('mandala.reset.confirm'))) return;
+    setResetRhythmOpen(true);
+  }
+
+  function confirmResetRhythm() {
+    setResetRhythmOpen(false);
     manualResetMandala();
+  }
+
+  function setArchetype(a: Archetype) {
+    setPreferences({ archetype: a });
+    setArchetypeOpen(false);
+  }
+
+  if (archetypeOpen) {
+    return (
+      <EnergyArchetype
+        onComplete={setArchetype}
+        onSkip={() => setArchetypeOpen(false)}
+        finishLabel="Save"
+        hideSkip={false}
+      />
+    );
   }
 
   return (
@@ -180,6 +219,27 @@ export function Settings() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className="soma-card p-5 mt-4">
+          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
+            Energy archetype
+          </div>
+          <p className="text-[11px] text-soma-mist mt-1">
+            A 3-question quiz Soma uses to tune copy. Plain-English, optional.
+          </p>
+          <div className="mt-3 text-soma-moon text-sm">
+            {prefs.archetype
+              ? ARCHETYPE_LABEL[prefs.archetype]
+              : 'Not set'}
+          </div>
+          <button
+            type="button"
+            className="soma-btn-ghost w-full mt-3"
+            onClick={() => setArchetypeOpen(true)}
+          >
+            {prefs.archetype ? 'Retake quiz' : 'Take quiz'}
+          </button>
         </section>
 
         <section className="soma-card p-5 mt-4">
@@ -277,11 +337,27 @@ export function Settings() {
           </button>
           <button
             className="w-full mt-2 py-3 rounded-full border border-soma-crimson/40 text-soma-crimson text-sm"
-            onClick={handleReset}
+            onClick={() => setResetOpen(true)}
           >
             Reset Soma
           </button>
         </section>
+
+        <ResetSomaDialog
+          open={resetOpen}
+          onCancel={() => setResetOpen(false)}
+          onConfirm={handleResetConfirmed}
+        />
+
+        <ConfirmDialog
+          open={resetRhythmOpen}
+          title={t('mandala.reset.cta')}
+          body={t('mandala.reset.confirm')}
+          confirmLabel={t('mandala.reset.cta')}
+          variant="destructive"
+          onConfirm={confirmResetRhythm}
+          onCancel={() => setResetRhythmOpen(false)}
+        />
 
         <p className="text-[10px] text-soma-mist text-center mt-6 leading-relaxed">
           Soma is wellness, not medicine. We make no medical claims.

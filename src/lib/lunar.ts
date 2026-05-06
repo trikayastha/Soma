@@ -87,6 +87,7 @@ interface PhaseTarget {
  * derived from that instant + a small forward offset so we sit firmly
  * inside the tithi (not on the boundary).
  *
+ * - Tithi index 4  (Shukla Chaturthi → Vinayaka) starts at 36°
  * - Tithi index 11 (Shukla Ekadashi) starts at 120°
  * - Tithi index 13 (Shukla Trayodashi → Pradosh) starts at 144°
  * - Tithi index 15 (Purnima) starts at 168°; we sample +6 h to land in

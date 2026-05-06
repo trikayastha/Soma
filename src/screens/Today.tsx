@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useVoice } from '../i18n/useVoice';
 import { MoonPhase } from '../components/MoonPhase';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { DaySwitcher } from '../components/DaySwitcher';
@@ -16,8 +17,8 @@ import { paranaWindow } from '../lib/parana';
 import { ComputedAtBanner } from '../components/ComputedAtBanner';
 import { MandalaChip } from '../components/MandalaChip';
 import { SyncedNowPill } from '../components/SyncedNowPill';
-import { getWhyCopy } from '../lib/whyThisDay';
-import type { SomaDay } from '../lib/types';
+import { archetypeNudge, getWhyCopy } from '../lib/whyThisDay';
+import type { Archetype, SomaDay } from '../lib/types';
 import { findActiveSession } from '../lib/scheduler';
 import { currentMandala } from '../lib/mandala';
 
@@ -28,6 +29,7 @@ interface TodayProps {
 
 export function Today({ onStartFast, onResumeActive }: TodayProps) {
   const { state } = useAppState();
+  const { t } = useVoice();
   const now = new Date();
   const todayIso = toISODate(now);
 
@@ -76,13 +78,12 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
 
   const greeting = useMemo(() => {
     const h = now.getHours();
-    if (h < 5) return 'Peace of the night';
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    if (h < 21) return 'Good evening';
-    return 'Quiet night';
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (h < 5) return t('today.greeting.lateNight');
+    if (h < 12) return t('today.greeting.morning');
+    if (h < 17) return t('today.greeting.afternoon');
+    if (h < 21) return t('today.greeting.evening');
+    return t('today.greeting.night');
+  }, [now.getHours(), t]);
 
   return (
     <div className="relative h-full flex flex-col">
@@ -145,6 +146,7 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
               whyOpen={whyOpen}
               toggleWhy={() => setWhyOpen((v) => !v)}
               onStart={() => onStartFast(selectedSomaDay)}
+              archetype={state.preferences.archetype}
               ekadashiTitle={
                 selectedSomaDay.kind === 'ekadashi' && location
                   ? ekadashiNameForDate(
@@ -198,6 +200,7 @@ function SelectedDayCard({
   whyOpen,
   toggleWhy,
   onStart,
+  archetype,
   ekadashiTitle,
   parana,
   tz,
@@ -208,11 +211,13 @@ function SelectedDayCard({
   whyOpen: boolean;
   toggleWhy: () => void;
   onStart: () => void;
+  archetype: Archetype | null;
   ekadashiTitle?: string | null;
   parana?: { earliest: Date; latest: Date; paranaDay: Date } | null;
   tz?: string;
 }) {
   const why = getWhyCopy(day.kind);
+  const nudge = archetypeNudge(day.kind, archetype);
   const when = formatWhen(isToday, daysFromToday, day.date);
   const isPast = daysFromToday < 0;
   const headline = ekadashiTitle
@@ -258,6 +263,11 @@ function SelectedDayCard({
             </summary>
             <p className="text-soma-mist text-xs leading-relaxed mt-2">{why.science}</p>
           </details>
+          {nudge && (
+            <p className="text-soma-glow/80 text-xs leading-relaxed mt-3 italic border-t border-white/5 pt-3">
+              {nudge}
+            </p>
+          )}
         </div>
       )}
 

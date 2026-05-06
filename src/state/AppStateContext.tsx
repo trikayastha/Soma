@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -50,14 +51,18 @@ const Ctx = createContext<AppStateContextValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => emptyState());
+  const hydrated = useRef(false);
 
   // Hydrate on mount (client-only localStorage).
   useEffect(() => {
     setState(loadState());
+    hydrated.current = true;
   }, []);
 
-  // Persist on every change (except the very first hydration).
+  // Persist on every change, but never before hydration completes so we don't
+  // overwrite real user data with the initial emptyState() on first render.
   useEffect(() => {
+    if (!hydrated.current) return;
     saveState(state);
   }, [state]);
 

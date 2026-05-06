@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SyncedNowPill } from '../components/SyncedNowPill';
+import { PhaseGlyph } from '../components/PhaseGlyph';
 import {
   abortSession,
   formatCountdown,
@@ -9,6 +11,7 @@ import {
   sessionTimeRemainingMs,
 } from '../lib/scheduler';
 import { syncedNowCount } from '../lib/syncedNow';
+import { moonElongation, moonIllumination } from '../lib/lunar';
 import { useAppState } from '../state/AppStateContext';
 import { useVoice } from '../i18n/useVoice';
 import type { FastSession, SomaDay } from '../lib/types';
@@ -29,6 +32,7 @@ export function FastTimer({
   const { state, upsertSession } = useAppState();
   const { t, tFormat } = useVoice();
   const [now, setNow] = useState(new Date());
+  const [endEarlyOpen, setEndEarlyOpen] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -44,9 +48,17 @@ export function FastTimer({
   const remainingMs = sessionTimeRemainingMs(session, now);
   const done = remainingMs === 0;
   const synced = syncedNowCount({ date: now, kind: day?.kind ?? null });
+  // Live moon math — drives the PhaseGlyph riding the timer ring.
+  const elongation = useMemo(() => moonElongation(now), [now]);
+  const illumination = useMemo(() => moonIllumination(now), [now]);
+  const waxing = elongation < 180;
 
   function endEarly() {
-    if (!confirm(t('fast.endEarly.confirm.gentle'))) return;
+    setEndEarlyOpen(true);
+  }
+
+  function confirmEndEarly() {
+    setEndEarlyOpen(false);
     const aborted = abortSession(session, new Date());
     upsertSession(aborted);
     onExit();
@@ -92,6 +104,8 @@ export function FastTimer({
             progress={progress}
             remainingMs={remainingMs}
             kind={day?.kind ?? null}
+            illumination={illumination}
+            waxing={waxing}
           />
         </div>
 
@@ -135,6 +149,16 @@ export function FastTimer({
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={endEarlyOpen}
+        title={t('fast.endEarly.cta')}
+        body={t('fast.endEarly.confirm.gentle')}
+        confirmLabel={t('fast.endEarly.cta')}
+        cancelLabel="Stay with it"
+        variant="gentle"
+        onConfirm={confirmEndEarly}
+        onCancel={() => setEndEarlyOpen(false)}
+      />
     </div>
   );
 }
@@ -142,25 +166,30 @@ export function FastTimer({
 function ProgressRing({
   progress,
   remainingMs,
-  kind,
+  illumination,
+  waxing,
 }: {
   progress: number;
   remainingMs: number;
   kind: SomaDay['kind'] | null;
+  illumination: number;
+  waxing: boolean;
 }) {
   const stroke = 6;
   const size = 260;
   const r = size / 2 - stroke;
   const c = 2 * Math.PI * r;
-  const offset = c * (1 - progress);
+  // Clamp progress to [0,1] so the glyph never overshoots on late completion.
+  const clamped = Math.min(Math.max(progress, 0), 1);
+  const offset = c * (1 - clamped);
   // Position the phase glyph at the ring head — angle = -90deg + (progress * 360).
-  const angleDeg = -90 + progress * 360;
+  const angleDeg = -90 + clamped * 360;
   const rad = (angleDeg * Math.PI) / 180;
   const cx = size / 2;
   const cy = size / 2;
-  const glyphX = cx + r * Math.cos(rad);
-  const glyphY = cy + r * Math.sin(rad);
-  const glyph = phaseGlyph(kind);
+  const glyphSize = 24;
+  const glyphX = cx + r * Math.cos(rad) - glyphSize / 2;
+  const glyphY = cy + r * Math.sin(rad) - glyphSize / 2;
 
   return (
     <div
@@ -192,16 +221,13 @@ function ProgressRing({
           transform={`rotate(-90 ${cx} ${cy})`}
           style={{ transition: 'stroke-dashoffset 1s linear' }}
         />
-        {glyph && (
-          <circle
-            cx={glyphX}
-            cy={glyphY}
-            r={stroke + 2}
-            fill="#F4EFD9"
-            opacity="0.95"
-            aria-label={glyph.label}
+        <g transform={`translate(${glyphX} ${glyphY})`}>
+          <PhaseGlyph
+            illumination={illumination}
+            waxing={waxing}
+            size={glyphSize}
           />
-        )}
+        </g>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {/* Demoted countdown — no longer the hero number. */}
@@ -214,22 +240,4 @@ function ProgressRing({
       </div>
     </div>
   );
-}
-
-function phaseGlyph(
-  kind: SomaDay['kind'] | null,
-): { label: string } | null {
-  if (!kind) return null;
-  switch (kind) {
-    case 'full-moon':
-      return { label: 'Full moon' };
-    case 'new-moon':
-      return { label: 'New moon' };
-    case 'ekadashi':
-      return { label: 'Ekadashi' };
-    case 'shivaratri':
-      return { label: 'Shivaratri' };
-    default:
-      return null;
-  }
 }

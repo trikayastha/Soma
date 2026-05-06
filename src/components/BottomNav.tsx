@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
 
-export type TabId = 'today' | 'calendar' | 'rhythm' | 'learn' | 'settings';
+export type TabId =
+  | 'today'
+  | 'calendar'
+  | 'rhythm'
+  | 'wisdom'
+  | 'learn'
+  | 'settings';
 
 interface BottomNavProps {
   active: TabId;
@@ -12,6 +18,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
     { id: 'today', label: 'Today', icon: <MoonIcon /> },
     { id: 'calendar', label: 'Calendar', icon: <CalendarIcon /> },
     { id: 'rhythm', label: 'Rhythm', icon: <RhythmIcon /> },
+    { id: 'wisdom', label: 'Wisdom', icon: <WisdomIcon /> },
     { id: 'learn', label: 'Learn', icon: <BookIcon /> },
     { id: 'settings', label: 'Settings', icon: <GearIcon /> },
   ];
@@ -31,7 +38,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
                 onClick={() => onChange(t.id)}
                 aria-current={on ? 'page' : undefined}
                 aria-label={t.label}
-                className={`flex flex-col items-center gap-1 px-4 py-2 min-h-[44px] min-w-[44px] rounded-xl transition-colors duration-200 ${
+                className={`flex flex-col items-center gap-1 px-2 py-2 min-h-[44px] min-w-[44px] rounded-xl transition-colors duration-200 ${
                   on ? 'text-soma-glow' : 'text-soma-mist hover:text-soma-moon'
                 }`}
               >
@@ -70,6 +77,22 @@ function RhythmIcon() {
       <circle cx="12" cy="12" r="9" />
       <circle cx="12" cy="12" r="5" />
       <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+function WisdomIcon() {
+  // Crescent moon framed by a soft halo — reads as "share-worthy moment".
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 3.5a8.5 8.5 0 1 0 4.5 11.5A6.5 6.5 0 0 1 16 3.5Z" />
+      <circle cx="12" cy="12" r="10.5" opacity="0.25" />
     </svg>
   );
 }

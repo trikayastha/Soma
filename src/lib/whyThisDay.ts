@@ -1,4 +1,4 @@
-import type { SomaDayKind } from './types';
+import type { Archetype, SomaDayKind } from './types';
 
 export interface WhyCopy {
   heading: string;
@@ -75,4 +75,62 @@ const COPY: Record<SomaDayKind, WhyCopy> = {
 
 export function getWhyCopy(kind: SomaDayKind): WhyCopy {
   return COPY[kind];
+}
+
+/**
+ * Archetype-conditional copy nudge (S4 §T08).
+ *
+ * Returns a single short sentence appended at the end of the "Why this day?"
+ * panel when the user has completed the Energy Archetype quiz. Plain English,
+ * no Sanskrit. Tone is supportive — never prescriptive — and respects the
+ * underlying day's energy (rising / peak / falling / still).
+ *
+ * Layout: 7 kinds × 3 archetypes = 21 entries. (Spec calls for 12; we cover
+ * every kind to avoid silent gaps when new kinds were added in S2.)
+ */
+const ARCHETYPE_NUDGES: Record<SomaDayKind, Record<Archetype, string>> = {
+  ekadashi: {
+    wind: 'Wind types: keep the body warm and grounded — sip warm water, soft slippers, no fussing.',
+    fire: 'Fire types: cool the edges today — shade, slow walks, stay off late-day debates.',
+    earth: 'Earth types: a brisk morning walk paired with the fast often clears the heaviness.',
+  },
+  'full-moon': {
+    wind: 'Wind types: sleep may be lighter near Purnima. Lower lights an hour before bed.',
+    fire: 'Fire types: bright nights amplify intensity — favour stillness over more output.',
+    earth: 'Earth types: the brightness lifts dullness. Lean into a longer reflection tonight.',
+  },
+  'new-moon': {
+    wind: 'Wind types: rest more than you think you need. Quiet rooms beat busy ones today.',
+    fire: 'Fire types: a good day to soften. Less doing, more receiving.',
+    earth: 'Earth types: the dark night invites stillness — you already know how to stay.',
+  },
+  chaturthi: {
+    wind: 'Wind types: keep the meal warm and oily; avoid raw or cold foods this evening.',
+    fire: 'Fire types: keep dinner light and not too spicy — steady is the goal.',
+    earth: 'Earth types: a smaller, warmer dinner suits this day better than a heavy one.',
+  },
+  pradosh: {
+    wind: 'Wind types: the twilight pause grounds an active mind — sit at the same time each Pradosh.',
+    fire: 'Fire types: pradosh evenings cool the day cleanly. Step outside if you can.',
+    earth: 'Earth types: a short evening fast pairs well with light movement before twilight.',
+  },
+  'sankashti-chaturthi': {
+    wind: 'Wind types: a moonrise break-fast steadies a long day — make the meal slow and warm.',
+    fire: 'Fire types: keep the fast gentle, break it before you tip into hangry.',
+    earth: 'Earth types: the long fast clears stagnation — go for a short walk between work blocks.',
+  },
+  shivaratri: {
+    wind: 'Wind types: night vigils are heavy on Wind — keep it short, warm, and well-cushioned.',
+    fire: 'Fire types: stay cool and unhurried; this is a night for stillness, not striving.',
+    earth: 'Earth types: the wakefulness clears the system — pair with light movement and warm water.',
+  },
+};
+
+/** Lookup the archetype-specific nudge for a SomaDay kind. */
+export function archetypeNudge(
+  kind: SomaDayKind,
+  archetype: Archetype | null,
+): string | null {
+  if (!archetype) return null;
+  return ARCHETYPE_NUDGES[kind]?.[archetype] ?? null;
 }

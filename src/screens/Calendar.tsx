@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { Calendar as CalendarGrid } from '../components/Calendar';
+import { PhaseRhythmStrip } from '../components/PhaseRhythmStrip';
 import { useAppState } from '../state/AppStateContext';
 import { toISODate } from '../lib/lunar';
 import { computeTithiAtSunrise, tithiLabel } from '../lib/tithi';
@@ -53,6 +54,12 @@ export function CalendarScreen({ onStartFast }: CalendarScreenProps) {
         <header className="px-6 pt-6 shrink-0">
           <p className="text-soma-mist text-xs tracking-widest uppercase">Calendar</p>
           <h1 className="display-serif text-3xl text-soma-glow mt-1">Lunar month</h1>
+          <div className="mt-3" style={{ contain: 'layout' }}>
+            <PhaseRhythmStrip
+              index={selectedTithi.index}
+              onTap={() => setSelectedIso(todayIso)}
+            />
+          </div>
         </header>
 
         <div className="shrink-0">
