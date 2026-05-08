@@ -21,8 +21,8 @@ export function PhoneFrame({ children }: PhoneFrameProps) {
   }, []);
 
   return (
-    <div className="min-h-[100dvh] w-full bg-[#05060A] flex items-stretch justify-center">
-      <div className="w-full max-w-[430px] min-h-[100dvh] bg-soma-ink flex flex-col relative lg:my-4 lg:min-h-[calc(100dvh-32px)] lg:rounded-[40px] lg:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.05)] lg:overflow-hidden">
+    <div className="h-[100dvh] w-full bg-[#05060A] flex items-center justify-center overflow-hidden">
+      <div className="w-full max-w-[430px] h-[100dvh] bg-soma-ink flex flex-col relative lg:h-[calc(100dvh-32px)] lg:rounded-[40px] lg:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.05)] lg:overflow-hidden">
         <MobileStatusBar now={now} />
         <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden no-scrollbar">
           {children}
