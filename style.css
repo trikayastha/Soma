@@ -6,7 +6,7 @@
    ============================================================ */
 
 :root {
-  --bg:      #010206;   /* pitch dark — lets the moon carry the light */
+  --bg:      #000;      /* pure black — matches the moon photo, so it bleeds edge-to-edge */
   --bg-2:    #06070d;
   --panel:   #0e0f18;
   --ink:     #f3f0e7;   /* moonlight */
@@ -155,17 +155,42 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .nav-links .nav-cta:hover { border-color: var(--gold); }
 
 /* ============================================================
-   Hero
+   Hero — the moon photo IS the background, full bleed.
+   The photo's sky is pure black, so it dissolves into --bg.
    ============================================================ */
 .hero {
-  max-width: var(--wide);
-  padding-top: 4rem;
-  padding-bottom: 5rem;
-  display: grid;
-  grid-template-columns: 1.05fr .95fr;
+  position: relative;
+  max-width: none;
+  padding-inline: 0;
+  min-height: calc(100svh - 4.2rem); /* viewport minus sticky nav */
+  display: flex;
   align-items: center;
-  gap: 2.5rem;
 }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 42%;  /* keeps the moon right-of-center, clear of the copy */
+  animation: moonfade 1.9s ease both;
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.3) 34%, transparent 55%),
+    linear-gradient(180deg, transparent 72%, var(--bg) 98%);
+}
+.hero-copy {
+  position: relative;
+  width: 100%;
+  max-width: var(--wide);
+  margin-inline: auto;
+  padding: 4rem 1.5rem 5rem;
+  animation: rise 1.7s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes moonfade { from { opacity: 0; } to { opacity: 1; } }
 .kicker {
   display: inline-flex;
   align-items: center;
@@ -191,32 +216,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 .hero-cta { display: flex; flex-wrap: wrap; gap: .85rem; }
 
-.hero-moon {
-  position: relative;
-  justify-self: center;
-  margin: 0;
-  width: 100%;
-  max-width: 500px;
-  aspect-ratio: 1;
-}
-.hero-moon img {
-  position: relative;
-  z-index: 1;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 58%, transparent 71%);
-          mask-image: radial-gradient(circle at 50% 50%, #000 58%, transparent 71%);
-  animation: rise 1.7s cubic-bezier(.16,1,.3,1) both;
-}
-.hero-moon .halo {
-  position: absolute; inset: -20%; z-index: 0; border-radius: 50%;
-  background: radial-gradient(circle, rgba(224,226,240,.26) 0%, rgba(190,196,235,.09) 40%, transparent 66%);
-  filter: blur(8px);
-  animation: breathe 8s ease-in-out infinite;
-}
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.94); } to { opacity: 1; transform: none; } }
-@keyframes breathe { 0%,100% { opacity:.7; transform: scale(1); } 50% { opacity:1; transform: scale(1.05); } }
 
 /* ============================================================
    Tonight — real, live computation
@@ -345,13 +345,14 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
    ============================================================ */
 @media (max-width: 860px) {
   :root { --huge: 5rem; }
-  .hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 1.5rem;
-    padding-top: 2.5rem;
+  /* portrait: moon rides the top of the frame, copy settles under it on black */
+  .hero { align-items: flex-end; }
+  .hero-bg { height: 62svh; object-position: 52% 30%; }
+  .hero-scrim {
+    height: 62svh;
+    background: linear-gradient(180deg, transparent 42%, rgba(0,0,0,.5) 72%, var(--bg) 96%);
   }
-  .hero-moon { order: -1; max-width: min(72vw, 380px); }
+  .hero-copy { text-align: center; padding-top: 52svh; padding-bottom: 3.5rem; }
   .hero .lede { margin-inline: auto; }
   .kicker, .hero-cta { justify-content: center; }
 }
@@ -365,6 +366,6 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-moon img, .hero-moon .halo, .phase-img { animation: none; }
+  .hero-bg, .hero-copy, .phase-img { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
