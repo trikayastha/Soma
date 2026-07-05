@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soma — Fast with the moon</title>
+  <meta name="description" content="Soma is an idea for a fasting companion that follows the lunar cycle — Ekadashi, Purnima, Amavasya — rooted in Hindu tradition. Not built yet." />
+  <meta name="author" content="Tribesh Kayastha" />
+  <meta name="theme-color" content="#05060a" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Soma — Fast with the moon" />
+  <meta property="og:description" content="An idea for a fasting companion that follows the lunar cycle, rooted in Hindu tradition." />
+  <meta property="og:image" content="assets/moon.jpg" />
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305060a'/%3E%3Cpath d='M21 7a10 10 0 1 0 0 18 8 8 0 0 1 0-18z' fill='%23e2c98f'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="veil" aria-hidden="true"></div>
+
+  <!-- ============ Nav ============ -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">Soma<span class="deva">सोम</span></a>
+      <nav class="nav-links">
+        <a href="#tonight">tonight</a>
+        <a href="#tradition">the tradition</a>
+        <a href="#fasts">the fasts</a>
+        <a class="nav-cta" href="/app/">open the app</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ Hero ============ -->
+    <section class="hero">
+      <img class="hero-bg" src="assets/moon.jpg" alt="" width="2400" height="1601" fetchpriority="high" />
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <p class="kicker"><span class="dot"></span>सोम · a lunar fast · now in beta</p>
+        <h1 class="display">
+          Fast with<br />the <span class="italic">moon.</span>
+        </h1>
+        <p class="lede">
+          <strong>Soma</strong> is an idea I&rsquo;ve been building: a quiet
+          companion for keeping the Hindu lunar fasts, from Ekadashi to Purnima.
+          There&rsquo;s an early version you can try now. This page is the moon,
+          the tradition, and the thinking behind it.
+        </p>
+        <div class="hero-cta">
+          <a class="btn" href="/app/">Open the app</a>
+          <a class="btn ghost" href="#tonight">See tonight&rsquo;s moon</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Tonight (real, live) ============ -->
+    <section class="tonight" id="tonight" aria-labelledby="tonight-h">
+      <p class="eyebrow" id="tonight-h">The moon, right now</p>
+      <h2 class="section-title">What the sky is<br />doing tonight.</h2>
+      <p class="section-lede">
+        This isn&rsquo;t a mockup. The panel below is worked out in your browser
+        right now, from today&rsquo;s date: the moon&rsquo;s phase, the lunar day,
+        and the next fast coming up. It&rsquo;s the kind of thing Soma would do.
+      </p>
+      <div class="tonight-grid" id="tonight-grid">
+        <noscript><p class="ns">Enable JavaScript to compute tonight&rsquo;s moon.</p></noscript>
+      </div>
+    </section>
+
+    <!-- ============ The tradition ============ -->
+    <section class="prose reveal" id="tradition" aria-labelledby="tradition-h">
+      <p class="eyebrow" id="tradition-h">The tradition</p>
+      <h2 class="section-title">A month measured<br />by the moon.</h2>
+      <p>
+        In the Hindu calendar, the month follows the moon: waxing from new to full
+        (the <em>Shukla Paksha</em>), then waning back to dark (the
+        <em>Krishna Paksha</em>). Each lunar day, or <em>tithi</em>, has its own
+        character, and a few of them have long been set aside for <em>vrata</em> &mdash;
+        the vow to fast, reflect, and eat lightly.
+      </p>
+      <p>
+        These fasts were never about going without for its own sake. They&rsquo;re a
+        standing appointment with yourself: a way to let the stomach rest, the mind
+        settle, and the day slow down. All Soma would do is help me keep that
+        appointment when life gets busy.
+      </p>
+    </section>
+
+    <!-- ============ The fasts ============ -->
+    <section class="fasts reveal" id="fasts" aria-labelledby="fasts-h">
+      <p class="eyebrow" id="fasts-h">The fasts it would follow</p>
+      <h2 class="section-title">Four turnings<br />of the month.</h2>
+      <ul class="cards">
+        <li class="card">
+          <span class="card-deva">एकादशी</span>
+          <h3>Ekadashi</h3>
+          <p>The eleventh day of each fortnight, so twice a month. The most widely
+             kept fast, traditionally observed without grains.</p>
+        </li>
+        <li class="card">
+          <span class="card-deva">पूर्णिमा</span>
+          <h3>Purnima</h3>
+          <p>The full moon. A night of fullness and offering, when the month tips
+             over and begins to wane.</p>
+        </li>
+        <li class="card">
+          <span class="card-deva">अमावस्या</span>
+          <h3>Amavasya</h3>
+          <p>The new moon. The dark, quiet turn of the month &mdash; a time for
+             stillness, remembrance, and starting again.</p>
+        </li>
+        <li class="card">
+          <span class="card-deva">प्रदोष</span>
+          <h3>Pradosh</h3>
+          <p>The thirteenth tithi, kept at dusk. A short evening fast in the soft
+             hour between day and night.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============ Follow along ============ -->
+    <section class="follow reveal" id="follow" aria-labelledby="follow-h">
+      <span class="crescent" aria-hidden="true"></span>
+      <p class="eyebrow" id="follow-h">Now in beta</p>
+      <h2 class="get-title">An idea,<br />out in the open.</h2>
+      <p class="section-lede">
+        Soma is still early, and I&rsquo;m building it in the open. There&rsquo;s a
+        working beta you can open right now. If a lunar fasting companion sounds
+        like something you&rsquo;d use, take it for a spin and tell me what you
+        think.
+      </p>
+      <div class="hero-cta follow-cta">
+        <a class="btn" href="/app/">Open the app</a>
+        <a class="btn ghost" href="mailto:trikayastha@gmail.com?subject=Soma%20—%20feedback">Email me</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="foot-brand">Soma <span class="deva">सोम</span></p>
+    <nav class="foot-links">
+      <a href="https://trikayastha.vercel.app" target="_blank" rel="noopener">by Tribesh Kayastha</a>
+      <a href="https://unsplash.com/photos/a-close-up-of-the-moon-in-the-dark-sky-cGhUvtSfiPk" target="_blank" rel="noopener">hero moon · Unsplash</a>
+      <a href="https://commons.wikimedia.org/wiki/File:FullMoon2010.jpg" target="_blank" rel="noopener">phases · G.&nbsp;H.&nbsp;Revera / CC&nbsp;BY-SA</a>
+    </nav>
+  </footer>
+
+  <script src="moon.js" defer></script>
+</body>
+</html>

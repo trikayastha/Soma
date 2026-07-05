@@ -2,6 +2,10 @@
 node_modules
 dist
 *.tsbuildinfo
+.DS_Store
+*.log
+.vite
+coverage
 
 # large source image used only to regenerate assets/phases/* (see assets/_src/render_phases.py)
 assets/_src/fullmoon.jpg
