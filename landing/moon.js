@@ -173,11 +173,45 @@
     items.forEach(function (el) { io.observe(el); });
   }
 
+  // ---- hero moon parallax + whisper of rotation ----------------------------
+
+  function setupParallax() {
+    var moon = document.querySelector(".hero-bg");
+    if (!moon) return;
+    if (window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    moon.style.willChange = "transform";
+    var ticking = false;
+
+    // The moon lags the scroll (drifts down) and turns a hair. No overscan is
+    // needed: the photo's sky and the page background are both black, so any
+    // edge revealed while the hero is on screen is invisible.
+    function update() {
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var shift = y * 0.22;               // gentle downward parallax
+      var rot = Math.min(y * 0.006, 3);   // slight rotation, capped at 3deg
+      moon.style.transform =
+        "translateY(" + shift.toFixed(1) + "px) rotate(" + rot.toFixed(2) + "deg)";
+      ticking = false;
+    }
+
+    window.addEventListener("scroll", function () {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    update();
+  }
+
   // ---- init ----------------------------------------------------------------
 
   function init() {
     renderTonight();
     setupReveal();
+    setupParallax();
   }
 
   if (document.readyState === "loading") {

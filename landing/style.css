@@ -219,6 +219,28 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 @keyframes rise { from { opacity: 0; transform: translateY(28px) scale(.94); } to { opacity: 1; transform: none; } }
 
 /* ============================================================
+   Heritage — passed down for generations
+   ============================================================ */
+.heritage {
+  padding-top: var(--huge);
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+}
+.heritage .eyebrow { color: var(--gold); }
+.heritage-lede {
+  max-width: 44rem;
+  margin: 0 0 1.5rem;
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--silver);
+}
+.heritage-lede:last-child { margin-bottom: 0; }
+.heritage-lede em { color: var(--gold-dim); font-style: italic; }
+.heritage-lede strong { color: var(--ink); }
+
+/* ============================================================
    Tonight — real, live computation
    ============================================================ */
 .tonight { padding-top: var(--huge); }
