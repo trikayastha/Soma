@@ -1,0 +1,87 @@
+{
+  "_note": "Drik Panchang parity fixture. Each entry is a sample tithi observation cross-checked against drikpanchang.com on 2026-04-28, then locked to the astronomy-engine v2.1.19 output as the regression baseline. Tolerances: tithi index ±1, paksha exact, sunrise ±5 minutes. Cities chosen to span timezones; dates chosen to include boundary days. When astronomy-engine is upgraded and a boundary shifts, only the fixtures need adjustment — not the assertion logic.",
+  "_source": "https://www.drikpanchang.com/",
+  "fixtures": [
+    {
+      "city": "varanasi",
+      "lat": 25.3176,
+      "lon": 82.9739,
+      "tz": "Asia/Kolkata",
+      "date": "2026-04-28",
+      "expectedTithiIndex": 13,
+      "expectedPaksha": "shukla"
+    },
+    {
+      "city": "varanasi",
+      "lat": 25.3176,
+      "lon": 82.9739,
+      "tz": "Asia/Kolkata",
+      "date": "2026-05-12",
+      "expectedTithiIndex": 26,
+      "expectedPaksha": "krishna"
+    },
+    {
+      "city": "varanasi",
+      "lat": 25.3176,
+      "lon": 82.9739,
+      "tz": "Asia/Kolkata",
+      "date": "2026-06-10",
+      "expectedTithiIndex": 26,
+      "expectedPaksha": "krishna"
+    },
+    {
+      "city": "kathmandu",
+      "lat": 27.7172,
+      "lon": 85.324,
+      "tz": "Asia/Kathmandu",
+      "date": "2026-04-28",
+      "expectedTithiIndex": 13,
+      "expectedPaksha": "shukla"
+    },
+    {
+      "city": "kathmandu",
+      "lat": 27.7172,
+      "lon": 85.324,
+      "tz": "Asia/Kathmandu",
+      "date": "2026-05-12",
+      "expectedTithiIndex": 26,
+      "expectedPaksha": "krishna"
+    },
+    {
+      "city": "kathmandu",
+      "lat": 27.7172,
+      "lon": 85.324,
+      "tz": "Asia/Kathmandu",
+      "date": "2026-06-10",
+      "expectedTithiIndex": 26,
+      "expectedPaksha": "krishna"
+    },
+    {
+      "city": "los-angeles",
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "tz": "America/Los_Angeles",
+      "date": "2026-04-28",
+      "expectedTithiIndex": 12,
+      "expectedPaksha": "shukla"
+    },
+    {
+      "city": "los-angeles",
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "tz": "America/Los_Angeles",
+      "date": "2026-05-12",
+      "expectedTithiIndex": 26,
+      "expectedPaksha": "krishna"
+    },
+    {
+      "city": "los-angeles",
+      "lat": 34.0522,
+      "lon": -118.2437,
+      "tz": "America/Los_Angeles",
+      "date": "2026-06-10",
+      "expectedTithiIndex": 25,
+      "expectedPaksha": "krishna"
+    }
+  ]
+}
