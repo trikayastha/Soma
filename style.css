@@ -165,6 +165,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   min-height: calc(100svh - 4.2rem); /* viewport minus sticky nav */
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 .hero-bg {
   position: absolute;
@@ -172,8 +173,9 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 62% 42%;  /* keeps the moon right-of-center, clear of the copy */
-  animation: moonfade 1.9s ease both;
+  object-position: 72% 42%;  /* moon sits right-of-center, clear of copy */
+  animation: moonfade 1.9s ease both, moonFloat 24s ease-in-out 2s infinite;
+  transform-origin: 72% 42%;
 }
 .hero-scrim {
   position: absolute;
@@ -191,6 +193,71 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   animation: rise 1.7s cubic-bezier(.16,1,.3,1) both;
 }
 @keyframes moonfade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes moonFloat {
+  0%, 100% { transform: scale(1.02) translateY(0) rotate(0deg); }
+  30%       { transform: scale(1.02) translateY(-12px) rotate(.4deg); }
+  65%       { transform: scale(1.02) translateY(8px) rotate(-.3deg); }
+}
+
+/* ============================================================
+   Heritage — tradition teaser, right after hero
+   ============================================================ */
+.heritage { padding-top: var(--huge); }
+.heritage-inner {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 3.5rem 4rem;
+  align-items: center;
+  padding: 3rem 3.5rem;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background:
+    radial-gradient(90% 110% at 95% 0%, rgba(226,201,143,.08), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+}
+.heritage-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.5vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  margin: 0 0 1.1rem;
+}
+.heritage-body {
+  color: var(--silver);
+  font-size: 1.05rem;
+  line-height: 1.72;
+  max-width: 38rem;
+  margin: 0;
+}
+.heritage-stats { display: flex; flex-direction: column; gap: 1.75rem; }
+.hstat {
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--line);
+}
+.hstat:first-child { border-left-color: var(--gold-dim); }
+.hstat-num {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.hstat-plus { font-size: 55%; vertical-align: super; color: var(--gold); }
+.hstat-label {
+  display: block;
+  margin-top: .3rem;
+  font-size: .9rem;
+  color: var(--muted);
+}
+.hstat-q {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--silver);
+  line-height: 1.5;
+}
 .kicker {
   display: inline-flex;
   align-items: center;
@@ -347,7 +414,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   :root { --huge: 5rem; }
   /* portrait: moon rides the top of the frame, copy settles under it on black */
   .hero { align-items: flex-end; }
-  .hero-bg { height: 62svh; object-position: 52% 30%; }
+  .hero-bg { height: 62svh; object-position: 52% 30%; animation: moonfade 1.9s ease both; }
   .hero-scrim {
     height: 62svh;
     background: linear-gradient(180deg, transparent 42%, rgba(0,0,0,.5) 72%, var(--bg) 96%);
@@ -355,6 +422,13 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .hero-copy { text-align: center; padding-top: 52svh; padding-bottom: 3.5rem; }
   .hero .lede { margin-inline: auto; }
   .kicker, .hero-cta { justify-content: center; }
+  .heritage-inner {
+    grid-template-columns: 1fr;
+    padding: 2.25rem 1.75rem;
+    gap: 2.5rem;
+  }
+  .heritage-stats { flex-direction: row; flex-wrap: wrap; gap: 1.25rem; }
+  .hstat { flex: 1 1 40%; }
 }
 @media (max-width: 620px) {
   body { font-size: 16px; }
@@ -362,6 +436,8 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .nav-links a:not(.nav-cta) { display: none; }
   .cards { grid-template-columns: 1fr; }
   .tonight-grid { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .heritage-stats { flex-direction: column; }
+  .hstat { flex: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
