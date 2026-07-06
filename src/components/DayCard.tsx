@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { ekadashiNameForDate } from '../lib/ekadashiNames';
 import { paranaWindow } from '../lib/parana';
 import { useLunarDay } from '../lib/useLunarDay';
-import { archetypeNudge, getWhyCopy } from '../lib/whyThisDay';
+import { getTithiMeta } from '../lib/tithiMeta';
+import { WhyThisDay } from './WhyThisDay';
 import type { Archetype, Location, SomaDay } from '../lib/types';
 
 interface DayCardProps {
@@ -34,7 +34,6 @@ export function DayCard({
   onStart,
 }: DayCardProps) {
   const { illum, phaseLabel, tithi, noonUtc } = useLunarDay(iso, location);
-  const [whyOpen, setWhyOpen] = useState(false);
 
   const isToday = iso === todayIso;
   const daysFromToday = Math.round(
@@ -57,8 +56,6 @@ export function DayCard({
     );
   }
 
-  const why = getWhyCopy(day.kind);
-  const nudge = archetypeNudge(day.kind, archetype);
   const when = formatWhen(isToday, daysFromToday, day.date);
   const isPast = daysFromToday < 0;
   const ekadashiTitle =
@@ -82,39 +79,12 @@ export function DayCard({
         </p>
       )}
 
-      <button
-        onClick={() => setWhyOpen((v) => !v)}
-        className="mt-4 flex items-center justify-between w-full text-left text-soma-moon text-sm border-t border-white/10 pt-4 min-h-[44px] hover:text-soma-glow transition-colors duration-200"
-        aria-expanded={whyOpen}
-      >
-        <span>Why this day?</span>
-        <ChevronIcon open={whyOpen} />
-      </button>
-      {whyOpen && (
-        <div className="mt-3 animate-fade-in">
-          <h3 className="text-soma-glow text-sm font-semibold">{why.heading}</h3>
-          <p className="text-soma-mist text-xs leading-relaxed mt-2">{why.plain}</p>
-          <details className="mt-3 group">
-            <summary className="list-none cursor-pointer text-xs text-soma-accent min-h-[44px] flex items-center justify-between border-t border-white/5 pt-3">
-              <span className="uppercase tracking-wider">Tradition</span>
-              <ChevronIcon size={12} />
-            </summary>
-            <p className="text-soma-mist text-xs leading-relaxed mt-2">{why.tradition}</p>
-          </details>
-          <details className="mt-1 group">
-            <summary className="list-none cursor-pointer text-xs text-soma-accent min-h-[44px] flex items-center justify-between border-t border-white/5 pt-3">
-              <span className="uppercase tracking-wider">Science</span>
-              <ChevronIcon size={12} />
-            </summary>
-            <p className="text-soma-mist text-xs leading-relaxed mt-2">{why.science}</p>
-          </details>
-          {nudge && (
-            <p className="text-soma-glow/80 text-xs leading-relaxed mt-3 italic border-t border-white/5 pt-3">
-              {nudge}
-            </p>
-          )}
-        </div>
-      )}
+      <WhyThisDay
+        kind={day.kind}
+        archetype={archetype}
+        citationIds={getTithiMeta(tithi.index).citationIds}
+        variant="full"
+      />
 
       <button
         className="soma-btn-primary w-full mt-5"
@@ -206,23 +176,4 @@ function formatWhen(isToday: boolean, daysFromToday: number, iso: string): strin
   if (daysFromToday === -1) return `Yesterday · ${pretty}`;
   if (daysFromToday > 0) return `In ${daysFromToday} days · ${pretty}`;
   return `${Math.abs(daysFromToday)} days ago · ${pretty}`;
-}
-
-export function ChevronIcon({ open = false, size = 14 }: { open?: boolean; size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 14 14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-      aria-hidden="true"
-    >
-      <path d="M3 5l4 4 4-4" />
-    </svg>
-  );
 }

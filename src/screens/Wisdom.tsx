@@ -1,6 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { WisdomCard } from '../components/WisdomCard';
+import { WhyThisDay } from '../components/WhyThisDay';
+import { DeltaCard } from '../components/DeltaCard';
+import { ReceiptChip } from '../components/ReceiptChip';
+import { SegmentedControl, type Segment } from '../components/SegmentedControl';
 import { useAppState } from '../state/AppStateContext';
 import {
   elongationToPhaseName,
@@ -10,97 +14,35 @@ import {
   toISODate,
 } from '../lib/lunar';
 import { computeTithiAtSunrise, tithiLabel } from '../lib/tithi';
-import { getWhyCopy } from '../lib/whyThisDay';
-import type { SomaDayKind } from '../lib/types';
+import { resolveWisdom } from '../lib/wisdomContent';
+import { computeDeltas } from '../lib/delta';
+import { READS, READ_KINDS, type ReadKind } from '../lib/data/reads';
 
-/**
- * Per-kind one-word benefit + wisdom line. Plain English; no Sanskrit in
- * the body copy. The label used on the card itself comes from the live
- * tithi label (e.g. "Shukla Ekadashi") — these are the prose payload.
- */
-const WISDOM_BY_KIND: Record<
-  SomaDayKind,
-  { benefit: string; line: string }
-> = {
-  ekadashi: {
-    benefit: 'Focus',
-    line: 'A short fast steadies the mind for the work that matters tomorrow.',
-  },
-  'full-moon': {
-    benefit: 'Stillness',
-    line: 'The brightest night asks for less doing — sit, watch, soften the day.',
-  },
-  'new-moon': {
-    benefit: 'Reset',
-    line: 'A quiet night is a clean slate. Match the dark sky, then begin again.',
-  },
-  chaturthi: {
-    benefit: 'Rhythm',
-    line: 'A small skipped meal becomes a steady cue — show up the same way next month.',
-  },
-  pradosh: {
-    benefit: 'Surrender',
-    line: 'Twilight pauses the day. A short evening fast lets it land before sleep.',
-  },
-  'sankashti-chaturthi': {
-    benefit: 'Clearing',
-    line: 'A long fast broken at moonrise marks the end of one rhythm and the start of another.',
-  },
-  shivaratri: {
-    benefit: 'Vigil',
-    line: 'A long night of stillness is its own teaching. Keep it short, keep it warm.',
-  },
-  custom: {
-    benefit: 'Resolve',
-    line: 'A vow you set yourself is the quietest kind of strength. Keep it simply.',
-  },
-};
+type WisdomSegment = 'today' | 'reads' | 'you';
 
-/**
- * Short reads previously housed on the standalone Learn tab, now folded
- * into Wisdom so the nav stays lean.
- */
-const ARTICLES = [
-  {
-    kind: 'Tradition',
-    title: 'Why the moon became the calendar',
-    body: 'For most of human history, the moon was the only reliable long-interval clock. Ekadashi and Purnima built rhythm into lives without wristwatches — rhythm is the point, not the moon itself.',
-  },
-  {
-    kind: 'Science',
-    title: 'Full moon and sleep — Cajochen 2013',
-    body: 'A 2013 study in Current Biology found measurable reductions in sleep efficiency and melatonin around the full moon, independent of light exposure. A rare case of traditional observation matching instrumented evidence.',
-  },
-  {
-    kind: 'Practice',
-    title: 'The "weak moon" reframe',
-    body: "Newa Buddhist teaching suggests that on certain lunar phases the mind is more reactive — not weaker in a mystical sense, but more in need of support. Fasting + meditation on those days is protective, not punishing.",
-  },
-  {
-    kind: 'Caution',
-    title: 'Soma is wellness, not medicine',
-    body: 'We share practices and observations. We do not make medical claims. If a fast feels wrong for your body, end it. Talk to a physician before changing your relationship with food.',
-  },
+const SEGMENTS: readonly Segment<WisdomSegment>[] = [
+  { id: 'today', label: 'Today' },
+  { id: 'reads', label: 'Reads' },
+  { id: 'you', label: 'You' },
 ];
 
 /**
- * Wisdom screen (S4 §T14) — a per-tithi shareable lunar card.
+ * Wisdom screen (S4 §T14, expanded) — three segments behind one tab:
  *
- * Renders the live moon math for today (or the active selected day) and a
- * one-word benefit + wisdom line drawn from the per-kind table above.
- * Falls back to a generic phase-only card when the user is not on a
- * scheduled SomaDay. The Learn articles render below the card in the
- * same scroll.
+ * - **Today**: the live per-tithi shareable card + a compact "Why this day".
+ * - **Reads**: the filterable, citation-linked explainer library.
+ * - **You**: personal deltas surfaced from logged fasts.
+ *
+ * The card's benefit + wisdom line + citations come from `resolveWisdom`,
+ * which draws on the 30-tithi `tithiMeta` seed rather than a per-screen table.
  */
 export function Wisdom() {
   const { state } = useAppState();
+  const [segment, setSegment] = useState<WisdomSegment>('today');
+
   const now = useMemo(() => new Date(), []);
   const todayIso = toISODate(now);
-
-  const noonUtc = useMemo(
-    () => new Date(`${todayIso}T12:00:00Z`),
-    [todayIso],
-  );
+  const noonUtc = useMemo(() => new Date(`${todayIso}T12:00:00Z`), [todayIso]);
 
   const elongation = useMemo(() => moonElongation(noonUtc), [noonUtc]);
   const illum = useMemo(() => moonIllumination(noonUtc), [noonUtc]);
@@ -119,16 +61,13 @@ export function Wisdom() {
   );
 
   const cardLabel = todaysSomaDay
-    ? // SomaDay carries a pretty title (e.g. "Shukla Ekadashi").
-      todaysSomaDay.title
+    ? todaysSomaDay.title
     : `${phaseNameToLabel(phaseName)} · ${tithiLabel(tithi)}`;
 
-  const wisdom = todaysSomaDay
-    ? WISDOM_BY_KIND[todaysSomaDay.kind]
-    : {
-        benefit: 'Notice',
-        line: 'The moon is a slow hand on a quiet clock. Step outside; look up.',
-      };
+  const wisdom = useMemo(
+    () => resolveWisdom(tithi.index, todaysSomaDay?.kind ?? null),
+    [tithi.index, todaysSomaDay],
+  );
 
   return (
     <div className="relative h-full flex flex-col">
@@ -137,47 +76,155 @@ export function Wisdom() {
         <header className="px-6 pt-6 shrink-0">
           <h1 className="display-serif text-3xl text-soma-glow">Wisdom</h1>
           <p className="text-soma-mist text-xs mt-1">
-            A small card for today's lunar day. Yours to keep or share.
+            A card for today, short reads, and the patterns in your own practice.
           </p>
+          <div className="mt-4">
+            <SegmentedControl
+              segments={SEGMENTS}
+              active={segment}
+              onChange={setSegment}
+              ariaLabel="Wisdom sections"
+            />
+          </div>
         </header>
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 pt-6 pb-8">
-          <WisdomCard
-            date={now}
-            tithiLabel={cardLabel}
-            oneWordBenefit={wisdom.benefit}
-            wisdomLine={wisdom.line}
-            illumination={illum}
-            waxing={waxing}
-          />
 
-          {todaysSomaDay && (
-            <details className="soma-card p-4 mt-4">
-              <summary className="cursor-pointer text-soma-moon text-sm">
-                Why this day?
-              </summary>
-              <p className="text-soma-mist text-xs leading-relaxed mt-2">
-                {getWhyCopy(todaysSomaDay.kind).plain}
-              </p>
-            </details>
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 pt-6 pb-8">
+          {segment === 'today' && (
+            <div role="tabpanel" aria-label="Today">
+              {/* The moon itself lives on the Today tab — Wisdom leads with
+                  the prose. The rendered share card (which carries its own
+                  moon art) sits collapsed below so the screens don't repeat
+                  each other. */}
+              <section className="soma-card p-5" aria-label="Today's wisdom">
+                <div className="text-[10px] uppercase tracking-wider text-soma-accent">
+                  {wisdom.benefit}
+                </div>
+                <h2 className="display-serif text-2xl text-soma-glow mt-1">
+                  {cardLabel}
+                </h2>
+                <p className="text-soma-moon text-sm leading-relaxed mt-3">
+                  {wisdom.line}
+                </p>
+              </section>
+
+              <details className="soma-card p-4 mt-4">
+                <summary className="cursor-pointer text-soma-moon text-sm">
+                  Preview &amp; share today's card
+                </summary>
+                <div className="mt-3">
+                  <WisdomCard
+                    date={now}
+                    tithiLabel={cardLabel}
+                    oneWordBenefit={wisdom.benefit}
+                    wisdomLine={wisdom.line}
+                    illumination={illum}
+                    waxing={waxing}
+                  />
+                </div>
+              </details>
+
+              {todaysSomaDay && (
+                <WhyThisDay
+                  kind={todaysSomaDay.kind}
+                  archetype={state.preferences.archetype}
+                  citationIds={wisdom.citationIds}
+                  variant="compact"
+                />
+              )}
+            </div>
           )}
 
-          <section className="mt-8" aria-label="Learn">
-            <h2 className="display-serif text-xl text-soma-glow">Learn</h2>
-            <p className="text-soma-mist text-xs mt-1">Short, honest, optional.</p>
-            <div className="mt-4 space-y-3">
-              {ARTICLES.map((a) => (
-                <article key={a.title} className="soma-card p-4">
-                  <div className="text-[10px] uppercase tracking-wider text-soma-accent">
-                    {a.kind}
-                  </div>
-                  <h3 className="text-soma-moon text-sm font-medium mt-1">{a.title}</h3>
-                  <p className="text-soma-mist text-xs leading-relaxed mt-2">{a.body}</p>
-                </article>
-              ))}
+          {segment === 'reads' && <ReadsSegment />}
+
+          {segment === 'you' && (
+            <div role="tabpanel" aria-label="You">
+              <DeltaCard deltas={computeDeltas(state)} />
+              <p className="text-[11px] text-soma-mist mt-4 leading-relaxed">
+                Patterns appear once you have at least three logged fasts in a
+                context. Everything here stays on your device.
+              </p>
+              {state.preferences.wisdomCardCount > 0 && (
+                <p className="text-[11px] text-soma-mist mt-2">
+                  You've kept or shared {state.preferences.wisdomCardCount}{' '}
+                  {state.preferences.wisdomCardCount === 1 ? 'card' : 'cards'}.
+                </p>
+              )}
             </div>
-          </section>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+/** Filterable, citation-linked explainer library. */
+function ReadsSegment() {
+  const [filter, setFilter] = useState<ReadKind | 'all'>('all');
+  const visible = READS.filter((r) => filter === 'all' || r.kind === filter);
+
+  return (
+    <div role="tabpanel" aria-label="Reads">
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter reads by kind"
+      >
+        <FilterChip
+          label="All"
+          active={filter === 'all'}
+          onClick={() => setFilter('all')}
+        />
+        {READ_KINDS.map((k) => (
+          <FilterChip
+            key={k}
+            label={k}
+            active={filter === k}
+            onClick={() => setFilter(k)}
+          />
+        ))}
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {visible.map((a) => (
+          <article key={a.id} className="soma-card p-4">
+            <div className="text-[10px] uppercase tracking-wider text-soma-accent">
+              {a.kind}
+            </div>
+            <h3 className="text-soma-moon text-sm font-medium mt-1">
+              {a.title}
+              {a.citationId && <ReceiptChip citationId={a.citationId} />}
+            </h3>
+            <p className="text-soma-mist text-xs leading-relaxed mt-2">
+              {a.body}
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FilterChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`min-h-[36px] rounded-full px-3 text-[11px] font-medium tracking-wide border transition-colors duration-200 ${
+        active
+          ? 'bg-soma-glow/10 text-soma-glow border-soma-glow/30'
+          : 'text-soma-mist border-white/10 hover:text-soma-moon'
+      }`}
+    >
+      {label}
+    </button>
   );
 }
