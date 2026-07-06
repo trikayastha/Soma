@@ -2,9 +2,8 @@ import type { ReactNode } from 'react';
 
 export type TabId =
   | 'today'
-  | 'rhythm'
   | 'wisdom'
-  | 'settings';
+  | 'rhythm';
 
 interface BottomNavProps {
   active: TabId;
@@ -12,11 +11,12 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ active, onChange }: BottomNavProps) {
+  // Rhythm sits far right — it's the "you" tab (personal history, and
+  // Settings nests behind the gear in its header).
   const tabs: Array<{ id: TabId; label: string; icon: ReactNode }> = [
     { id: 'today', label: 'Today', icon: <MoonIcon /> },
-    { id: 'rhythm', label: 'Rhythm', icon: <RhythmIcon /> },
     { id: 'wisdom', label: 'Wisdom', icon: <WisdomIcon /> },
-    { id: 'settings', label: 'Settings', icon: <GearIcon /> },
+    { id: 'rhythm', label: 'Rhythm', icon: <RhythmIcon /> },
   ];
 
   return (
@@ -87,14 +87,6 @@ function WisdomIcon() {
     >
       <path d="M16 3.5a8.5 8.5 0 1 0 4.5 11.5A6.5 6.5 0 0 1 16 3.5Z" />
       <circle cx="12" cy="12" r="10.5" opacity="0.25" />
-    </svg>
-  );
-}
-function GearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
     </svg>
   );
 }

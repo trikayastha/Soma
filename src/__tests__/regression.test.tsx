@@ -138,6 +138,12 @@ describe('Regression: full P0 flow', () => {
     expect(await screen.findByText(/Shukla Ekadashi/i)).toBeInTheDocument();
 
     const nav = screen.getByRole('navigation', { name: /Primary/i });
+    await user.click(within(nav).getByRole('button', { name: /Wisdom/i }));
+    // Wisdom opens on the Today segment (the shareable card); the explainer
+    // library now lives behind the Reads segment.
+    await user.click(screen.getByRole('tab', { name: /Reads/i }));
+    expect(screen.getByText(/Why the moon became the calendar/i)).toBeInTheDocument();
+
     await user.click(within(nav).getByRole('button', { name: /Rhythm/i }));
     // Rhythm screen renders. With no sessions yet, the empty mandala
     // copy is shown.
@@ -145,10 +151,12 @@ describe('Regression: full P0 flow', () => {
       screen.getByText(/Sessions by paksha/i),
     ).toBeInTheDocument();
 
-    await user.click(within(nav).getByRole('button', { name: /Wisdom/i }));
-    expect(screen.getByText(/Why the moon became the calendar/i)).toBeInTheDocument();
-
-    await user.click(within(nav).getByRole('button', { name: /Settings/i }));
+    // Settings is no longer a tab — it opens from the gear in Rhythm's
+    // header as a full-screen overlay (no bottom nav).
+    expect(
+      within(nav).queryByRole('button', { name: /Settings/i }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Settings/i }));
     expect(screen.getByText(/Default intensity/i)).toBeInTheDocument();
     expect(screen.getByText(/Export my data/i)).toBeInTheDocument();
     expect(screen.getByText(/Reminders/i)).toBeInTheDocument();
@@ -156,7 +164,10 @@ describe('Regression: full P0 flow', () => {
       screen.getByRole('button', { name: /Download calendar/i }),
     ).toBeInTheDocument();
 
-    await user.click(within(nav).getByRole('button', { name: /Today/i }));
+    // Back returns to the tab shell.
+    await user.click(screen.getByRole('button', { name: /Back/i }));
+    const navAgain = screen.getByRole('navigation', { name: /Primary/i });
+    await user.click(within(navAgain).getByRole('button', { name: /Today/i }));
     expect(screen.getByText(/Shukla Ekadashi/i)).toBeInTheDocument();
   });
 

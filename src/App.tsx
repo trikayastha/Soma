@@ -20,7 +20,8 @@ type Overlay =
   | { kind: 'pre-log'; day: SomaDay }
   | { kind: 'timer' }
   | { kind: 'meditation' }
-  | { kind: 'post-log'; session: FastSession };
+  | { kind: 'post-log'; session: FastSession }
+  | { kind: 'settings' };
 
 function Shell() {
   const { state, upsertSession, setPreferences } = useAppState();
@@ -111,6 +112,10 @@ function Shell() {
     return <Meditation onExit={() => setOverlay({ kind: 'timer' })} />;
   }
 
+  if (overlay.kind === 'settings') {
+    return <Settings onClose={() => setOverlay({ kind: 'none' })} />;
+  }
+
   if (overlay.kind === 'post-log') {
     return (
       <LogForm
@@ -129,9 +134,10 @@ function Shell() {
         {tab === 'today' && (
           <Today onStartFast={handleStartFast} onResumeActive={handleOpenTimer} />
         )}
-        {tab === 'rhythm' && <Rhythm />}
         {tab === 'wisdom' && <Wisdom />}
-        {tab === 'settings' && <Settings />}
+        {tab === 'rhythm' && (
+          <Rhythm onOpenSettings={() => setOverlay({ kind: 'settings' })} />
+        )}
       </div>
       <BottomNav active={tab} onChange={setTab} />
     </div>

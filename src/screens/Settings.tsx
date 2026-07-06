@@ -20,7 +20,11 @@ import { EnergyArchetype } from './EnergyArchetype';
 import { ResetSomaDialog } from '../components/ResetSomaDialog';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 
-export function Settings() {
+interface SettingsProps {
+  onClose: () => void;
+}
+
+export function Settings({ onClose }: SettingsProps) {
   const {
     state,
     setSchedule,
@@ -137,7 +141,25 @@ export function Settings() {
     <div className="relative h-full flex flex-col">
       <AmbientBackground />
       <div className="relative flex-1 min-h-0 flex flex-col animate-fade-in">
-        <header className="px-6 pt-6 shrink-0">
+        <header className="px-6 pt-6 shrink-0 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Back"
+            className="-ml-2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-soma-mist hover:text-soma-moon transition-colors duration-200"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
           <h1 className="display-serif text-3xl text-soma-glow">Settings</h1>
         </header>
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 pt-5 pb-8">
