@@ -18,9 +18,12 @@
 
   --wide:    74rem;     /* section frame */
   --huge:    8rem;      /* section rhythm */
+  /* pull a framed element out to the right edge of the viewport ("the wall") */
+  --wall-pull: calc(-1 * (max(0px, (100vw - var(--wide)) / 2) + 1.5rem));
 
-  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
-  --sans:  "Inter", system-ui, -apple-system, sans-serif;
+  --serif: "Sen", system-ui, -apple-system, sans-serif;   /* headings (geometric sans) */
+  --body:  "Lora", Georgia, "Times New Roman", serif;     /* paragraphs (humanist serif) */
+  --sans:  "Inter", system-ui, -apple-system, sans-serif; /* UI: nav, buttons, labels */
   --deva:  "Tiro Devanagari Sanskrit", var(--serif);
 
   --z-nav: 50;
@@ -56,6 +59,8 @@ body {
     radial-gradient(50% 38% at 12% 96%, #08080f 0%, var(--bg) 66%);
 }
 
+main { overflow-x: clip; }   /* contain graphics that bleed to the wall */
+
 section {
   width: 100%;
   max-width: var(--wide);
@@ -88,6 +93,7 @@ strong { font-weight: 600; color: var(--ink); }
 .section-lede {
   max-width: 36rem;
   margin: 0 0 2rem;
+  font-family: var(--body);
   font-size: 1.1rem;
   color: var(--silver);
 }
@@ -165,6 +171,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   min-height: calc(100svh - 4.2rem); /* viewport minus sticky nav */
   display: flex;
   align-items: center;
+  overflow: hidden;   /* clip the parallax moon as it drifts */
 }
 .hero-bg {
   position: absolute;
@@ -204,15 +211,15 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 .display {
   font-family: var(--serif);
-  font-weight: 800;
+  font-weight: 500;   /* Sen medium — lighter, more elegant at display size */
   font-size: clamp(3.2rem, 9vw, 7rem);
   line-height: .95;
   letter-spacing: -.035em;
   margin: 0 0 1.75rem;
 }
-.display .italic { font-style: italic; font-weight: 500; color: var(--gold); }
+.display .italic { font-family: var(--body); font-style: italic; font-weight: 500; color: var(--gold); }
 
-.lede { max-width: 32rem; margin: 0 0 2.25rem; font-size: 1.12rem; color: var(--silver); }
+.lede { max-width: 32rem; margin: 0 0 2.25rem; font-family: var(--body); font-size: 1.12rem; color: var(--silver); }
 
 .hero-cta { display: flex; flex-wrap: wrap; gap: .85rem; }
 
@@ -225,12 +232,16 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   padding-top: var(--huge);
   border-top: 1px solid var(--line);
   margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1.35fr .65fr;
+  align-items: center;
+  gap: 3rem;
 }
 .heritage .eyebrow { color: var(--gold); }
 .heritage-lede {
   max-width: 44rem;
   margin: 0 0 1.5rem;
-  font-family: var(--serif);
+  font-family: var(--body);
   font-size: clamp(1.3rem, 2.6vw, 1.7rem);
   font-weight: 400;
   line-height: 1.5;
@@ -239,6 +250,41 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .heritage-lede:last-child { margin-bottom: 0; }
 .heritage-lede em { color: var(--gold-dim); font-style: italic; }
 .heritage-lede strong { color: var(--ink); }
+
+/* Lineage graphic — the full moon echoed down through generations */
+.lineage {
+  position: relative;
+  margin: 0;
+  margin-right: var(--wall-pull);         /* moons hug the wall */
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.15rem;
+  padding: 1rem 0;
+}
+.lineage::before {                       /* the thread that connects them */
+  content: "";
+  position: absolute;
+  top: 8%; bottom: 8%; left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, var(--gold-dim), transparent);
+  opacity: .45;
+  z-index: 0;
+}
+.lineage-moon {
+  position: relative;
+  z-index: 1;
+  border-radius: 50%;
+  background: #000 center / cover no-repeat url("assets/phases/full.webp");
+  box-shadow: 0 0 22px rgba(190, 196, 235, .18);
+  flex: none;
+}
+.lineage-moon.m1 { width: 92px; height: 92px; opacity: 1; }
+.lineage-moon.m2 { width: 66px; height: 66px; opacity: .7; }
+.lineage-moon.m3 { width: 47px; height: 47px; opacity: .48; }
+.lineage-moon.m4 { width: 33px; height: 33px; opacity: .3; }
 
 /* ============================================================
    Tonight — real, live computation
@@ -281,8 +327,75 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 /* ============================================================
    Prose (tradition)
    ============================================================ */
-.prose { padding-top: var(--huge); }
-.prose p { margin: 0 0 1.25rem; color: var(--silver); font-size: 1.1rem; max-width: 42rem; }
+.prose {
+  padding-top: var(--huge);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 3.5rem;
+}
+.prose p { margin: 0 0 1.25rem; font-family: var(--body); color: var(--silver); font-size: 1.1rem; max-width: 42rem; }
+
+/* Lunar-month arc — real moon photos on a vertical semicircle, right-aligned.
+   New at top & bottom, full moon bulging out to the right at the apex. */
+.lunar-arc {
+  position: relative;
+  height: min(70vh, 30rem);
+  aspect-ratio: 1 / 2;                    /* width = height / 2 */
+  justify-self: end;
+  margin: 0;
+  margin-right: var(--wall-pull);         /* flat side flush to the wall */
+}
+.lunar-arc::before {                      /* the semicircle the moons ride */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--gold-dim);
+  border-right: 0;                        /* flat side on the right, bulge left */
+  border-radius: 100% 0 0 100% / 50% 0 0 50%;
+  opacity: .38;
+  z-index: 0;
+}
+.lunar-arc .lm {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, -50%);       /* center the moon on its point */
+}
+.lunar-arc img {
+  display: block;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #000;
+  filter: drop-shadow(0 0 10px rgba(190, 196, 235, .14));
+}
+.lunar-arc .full img {
+  width: 72px; height: 72px;
+  filter: drop-shadow(0 0 24px rgba(226, 201, 143, .4));
+}
+.lm-label {
+  position: absolute;
+  top: calc(100% + .55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: var(--muted);
+}
+/* labels for the edge moons sit beside them, not below */
+.lunar-arc .full .lm-label {
+  top: 50%; left: calc(100% + .7rem); right: auto;
+  transform: translateY(-50%);
+  text-align: left;
+}
+.lunar-arc .start .lm-label {
+  top: 50%; right: calc(100% + .7rem); left: auto;
+  transform: translateY(-50%);
+  text-align: right;
+}
 
 /* ============================================================
    Fasts
@@ -304,7 +417,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); }
 .card-deva { display: block; font-family: var(--deva); font-size: 1.7rem; color: var(--gold); margin-bottom: .6rem; line-height: 1; }
 .card h3 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; margin: 0 0 .5rem; }
-.card p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.6; }
+.card p { margin: 0; font-family: var(--body); color: var(--muted); font-size: .98rem; line-height: 1.6; }
 
 /* ============================================================
    Follow along
@@ -378,6 +491,27 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .hero-copy { text-align: center; padding-top: 52svh; padding-bottom: 3.5rem; }
   .hero .lede { margin-inline: auto; }
   .kicker, .hero-cta { justify-content: center; }
+
+  /* tradition: text over the arc, arc centered */
+  .prose { grid-template-columns: 1fr; gap: 2rem; }
+  .lunar-arc { justify-self: center; height: 24rem; margin: 1rem auto 0; }
+
+  /* heritage: text over graphic, lineage laid out as a row */
+  .heritage { grid-template-columns: 1fr; gap: 2.5rem; }
+  .lineage {
+    flex-direction: row;
+    gap: 1.25rem;
+    justify-self: center;
+    justify-content: center;
+    align-items: center;
+    margin-right: 0;
+  }
+  .lineage::before {
+    top: 50%; bottom: auto; left: 6%; right: 6%;
+    width: auto; height: 1px;
+    transform: translateY(-50%);
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
 }
 @media (max-width: 620px) {
   body { font-size: 16px; }
@@ -385,6 +519,12 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .nav-links a:not(.nav-cta) { display: none; }
   .cards { grid-template-columns: 1fr; }
   .tonight-grid { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+
+  /* phase arc: shrink so the right-bulging full moon stays on screen */
+  .lunar-arc { height: 20rem; }
+  .lunar-arc img { width: 30px; height: 30px; }
+  .lunar-arc .full img { width: 46px; height: 46px; }
+  .lm-label { font-size: .54rem; letter-spacing: .1em; }
 }
 
 @media (prefers-reduced-motion: reduce) {

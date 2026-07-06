@@ -173,7 +173,7 @@
     items.forEach(function (el) { io.observe(el); });
   }
 
-  // ---- hero moon parallax + whisper of rotation ----------------------------
+  // ---- hero moon: ambient rotation + zoom, plus scroll parallax ------------
 
   function setupParallax() {
     var moon = document.querySelector(".hero-bg");
@@ -182,28 +182,39 @@
         window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     moon.style.willChange = "transform";
-    var ticking = false;
+    moon.style.transformOrigin = "62% 42%"; // pivot on the disc, not the frame
 
-    // The moon lags the scroll (drifts down) and turns a hair. No overscan is
+    var ROT_AMP = 15;       // rotation sways to +/-15deg, then reverses back
+    var ROT_PERIOD = 200;   // seconds for one full sway out-and-back
+    var ZOOM_MID = 1.12;    // resting zoom
+    var ZOOM_AMP = 0.12;    // breathe between 1.00x and 1.24x
+    var ZOOM_PERIOD = 120;  // seconds for a full in-and-out breath
+    var MOON_X = 0.20;      // nudge the moon right (fraction of viewport width)
+
+    // One continuous loop. It reads scroll each frame, so parallax and the
+    // ambient motion share a single transform and never fight. No overscan is
     // needed: the photo's sky and the page background are both black, so any
-    // edge revealed while the hero is on screen is invisible.
-    function update() {
+    // edge revealed by the rotation/zoom is invisible.
+    var start = null;
+    function frame(ts) {
+      if (start === null) start = ts;
+      var t = (ts - start) / 1000; // seconds elapsed
       var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-      var shift = y * 0.22;               // gentle downward parallax
-      var rot = Math.min(y * 0.006, 3);   // slight rotation, capped at 3deg
+
+      var shift = y * 0.42;                       // scroll parallax drift
+      var rot = ROT_AMP * Math.sin(t * (2 * Math.PI) / ROT_PERIOD); // sway +/-15deg
+      var zoom = ZOOM_MID + ZOOM_AMP * Math.sin(t * (2 * Math.PI) / ZOOM_PERIOD);
+
+      var dx = (moon.clientWidth || window.innerWidth) * MOON_X;
+
       moon.style.transform =
-        "translateY(" + shift.toFixed(1) + "px) rotate(" + rot.toFixed(2) + "deg)";
-      ticking = false;
+        "translate(" + dx.toFixed(1) + "px, " + shift.toFixed(1) + "px) " +
+        "rotate(" + rot.toFixed(2) + "deg) " +
+        "scale(" + zoom.toFixed(4) + ")";
+
+      window.requestAnimationFrame(frame);
     }
-
-    window.addEventListener("scroll", function () {
-      if (!ticking) {
-        window.requestAnimationFrame(update);
-        ticking = true;
-      }
-    }, { passive: true });
-
-    update();
+    window.requestAnimationFrame(frame);
   }
 
   // ---- init ----------------------------------------------------------------

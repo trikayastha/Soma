@@ -4,20 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Soma — Fast with the moon</title>
-  <meta name="description" content="Soma is an idea for a fasting companion that follows the lunar cycle — Ekadashi, Purnima, Amavasya — rooted in Hindu tradition. Not built yet." />
+  <meta name="description" content="Soma is an app that lets you find the rhythm of your body with the Moon — rooted in the Hindu lunar fasts, Ekadashi to Amavasya. Now in beta." />
   <meta name="author" content="Tribesh Kayastha" />
   <meta name="theme-color" content="#05060a" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Soma — Fast with the moon" />
-  <meta property="og:description" content="An idea for a fasting companion that follows the lunar cycle, rooted in Hindu tradition." />
+  <meta property="og:description" content="An app that lets you find the rhythm of your body with the Moon, rooted in Hindu lunar tradition." />
   <meta property="og:image" content="assets/moon.jpg" />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305060a'/%3E%3Cpath d='M21 7a10 10 0 1 0 0 18 8 8 0 0 1 0-18z' fill='%23e2c98f'/%3E%3C/svg%3E" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sen:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -28,7 +28,6 @@
     <div class="nav-inner">
       <a class="brand" href="/">Soma<span class="deva">सोम</span></a>
       <nav class="nav-links">
-        <a href="#tonight">tonight</a>
         <a href="#tradition">the tradition</a>
         <a href="#fasts">the fasts</a>
         <a class="nav-cta" href="/app/">open the app</a>
@@ -47,96 +46,102 @@
           Fast with<br />the <span class="italic">moon.</span>
         </h1>
         <p class="lede">
-          <strong>Soma</strong> is an idea I&rsquo;ve been building: a quiet
-          companion for keeping the Hindu lunar fasts, from Ekadashi to Purnima.
-          There&rsquo;s an early version you can try now. This page is the moon,
-          the tradition, and the thinking behind it.
+          <strong>Soma</strong> is an app that lets you find the rhythm of your
+          body with the Moon &mdash; every fast, every phase, in tune with the
+          sky above you. It&rsquo;s still early, but you can try it right now.
         </p>
         <div class="hero-cta">
           <a class="btn" href="/app/">Open the app</a>
-          <a class="btn ghost" href="#tonight">See tonight&rsquo;s moon</a>
+          <a class="btn ghost" href="#tradition">See the tradition</a>
         </div>
       </div>
     </section>
 
     <!-- ============ Passed down (heritage) ============ -->
     <section class="heritage reveal" aria-labelledby="heritage-h">
-      <p class="eyebrow" id="heritage-h">Older than any app</p>
-      <h2 class="section-title">Kept by hand,<br />for generations.</h2>
-      <p class="heritage-lede">
-        Long before phones and push notifications, families read the sky and
-        knew which days to fast. Grandmothers kept the count, the temple bell
-        marked the <em>tithi</em>, and the practice was handed down quietly &mdash;
-        one household, one whispered reminder, at a time.
-      </p>
-      <p class="heritage-lede">
-        <strong>Soma</strong> exists to carry that forward: to take wisdom that
-        lived in memory and almanacs, and share it with anyone, anywhere, who
-        wants to keep the fast.
-      </p>
-    </section>
-
-    <!-- ============ Tonight (real, live) ============ -->
-    <section class="tonight" id="tonight" aria-labelledby="tonight-h">
-      <p class="eyebrow" id="tonight-h">The moon, right now</p>
-      <h2 class="section-title">What the sky is<br />doing tonight.</h2>
-      <p class="section-lede">
-        This isn&rsquo;t a mockup. The panel below is worked out in your browser
-        right now, from today&rsquo;s date: the moon&rsquo;s phase, the lunar day,
-        and the next fast coming up. It&rsquo;s the kind of thing Soma would do.
-      </p>
-      <div class="tonight-grid" id="tonight-grid">
-        <noscript><p class="ns">Enable JavaScript to compute tonight&rsquo;s moon.</p></noscript>
+      <div class="heritage-text">
+        <p class="eyebrow" id="heritage-h">Older than any app</p>
+        <h2 class="section-title">Passed down<br />for generations.</h2>
+        <p class="heritage-lede">
+          In Hindu practice &mdash; <em>Sanatan Dharma</em>, the eternal way &mdash;
+          people have followed the Moon for generations. Long before calendars and
+          clocks, the sky told you when to fast, when to rest, and when to begin
+          again.
+        </p>
+        <p class="heritage-lede">
+          It was wisdom you learned from your parents and passed on to your
+          children. With <strong>Soma</strong>, we carry that same ancient knowledge
+          forward &mdash; so anyone, anywhere, can keep the rhythm.
+        </p>
       </div>
+      <figure class="lineage" aria-hidden="true">
+        <span class="lineage-moon m1"></span>
+        <span class="lineage-moon m2"></span>
+        <span class="lineage-moon m3"></span>
+        <span class="lineage-moon m4"></span>
+      </figure>
     </section>
 
     <!-- ============ The tradition ============ -->
     <section class="prose reveal" id="tradition" aria-labelledby="tradition-h">
-      <p class="eyebrow" id="tradition-h">The tradition</p>
-      <h2 class="section-title">A month measured<br />by the moon.</h2>
-      <p>
-        In the Hindu calendar, the month follows the moon: waxing from new to full
-        (the <em>Shukla Paksha</em>), then waning back to dark (the
-        <em>Krishna Paksha</em>). Each lunar day, or <em>tithi</em>, has its own
-        character, and a few of them have long been set aside for <em>vrata</em> &mdash;
-        the vow to fast, reflect, and eat lightly.
-      </p>
-      <p>
-        These fasts were never about going without for its own sake. They&rsquo;re a
-        standing appointment with yourself: a way to let the stomach rest, the mind
-        settle, and the day slow down. All Soma would do is help me keep that
-        appointment when life gets busy.
-      </p>
+      <div class="prose-text">
+        <p class="eyebrow" id="tradition-h">The tradition</p>
+        <h2 class="section-title">A month that runs<br />with the Moon.</h2>
+        <p>
+          In the Hindu calendar, the month runs with the Moon. It grows from the
+          new moon to the full, then fades back into darkness &mdash; and every turn
+          begins a new cycle.
+        </p>
+        <p>
+          Each lunar day, or <em>tithi</em>, carries its own energy. On certain days
+          we meet that energy with a fast &mdash; a <em>vrat</em> &mdash; bringing
+          the body into synergy with the sky, and giving it a moment to reset.
+        </p>
+      </div>
+
+      <figure class="lunar-arc" aria-label="The phases of the lunar month arranged in a vertical arc, from new moon out to full and back to dark">
+        <span class="lm start" style="left:100%;top:100%"><img src="assets/phases/new.webp" width="44" height="44" loading="lazy" alt="" />
+          <span class="lm-label">अमावस्या<br />new</span></span>
+        <span class="lm" style="left:61.7%;top:96.2%"><img src="assets/phases/waxing-crescent.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm" style="left:29.3%;top:85.4%"><img src="assets/phases/first-quarter.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm" style="left:7.6%;top:69.1%"><img src="assets/phases/waxing-gibbous.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm full" style="left:0%;top:50%"><img src="assets/phases/full.webp" width="72" height="72" loading="lazy" alt="" />
+          <span class="lm-label">पूर्णिमा<br />full</span></span>
+        <span class="lm" style="left:7.6%;top:30.9%"><img src="assets/phases/waning-gibbous.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm" style="left:29.3%;top:14.6%"><img src="assets/phases/last-quarter.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm" style="left:61.7%;top:3.8%"><img src="assets/phases/waning-crescent.webp" width="44" height="44" loading="lazy" alt="" /></span>
+        <span class="lm" style="left:100%;top:0%"><img src="assets/phases/new.webp" width="44" height="44" loading="lazy" alt="" /></span>
+      </figure>
     </section>
 
     <!-- ============ The fasts ============ -->
     <section class="fasts reveal" id="fasts" aria-labelledby="fasts-h">
-      <p class="eyebrow" id="fasts-h">The fasts it would follow</p>
-      <h2 class="section-title">Four turnings<br />of the month.</h2>
+      <p class="eyebrow" id="fasts-h">What Soma follows</p>
+      <h2 class="section-title">The four<br />main fasts.</h2>
       <ul class="cards">
         <li class="card">
           <span class="card-deva">एकादशी</span>
           <h3>Ekadashi</h3>
-          <p>The eleventh day of each fortnight, so twice a month. The most widely
-             kept fast, traditionally observed without grains.</p>
+          <p>Comes twice a month, on the eleventh day of each half of the lunar
+             cycle. It&rsquo;s the one most people keep, usually without grains.</p>
         </li>
         <li class="card">
           <span class="card-deva">पूर्णिमा</span>
           <h3>Purnima</h3>
-          <p>The full moon. A night of fullness and offering, when the month tips
-             over and begins to wane.</p>
+          <p>The full Moon. A day for offering, right as the month turns from
+             growing to fading.</p>
         </li>
         <li class="card">
           <span class="card-deva">अमावस्या</span>
           <h3>Amavasya</h3>
-          <p>The new moon. The dark, quiet turn of the month &mdash; a time for
-             stillness, remembrance, and starting again.</p>
+          <p>The new Moon. The dark, quiet end of the month &mdash; a good time
+             to slow down and start over.</p>
         </li>
         <li class="card">
           <span class="card-deva">प्रदोष</span>
           <h3>Pradosh</h3>
-          <p>The thirteenth tithi, kept at dusk. A short evening fast in the soft
-             hour between day and night.</p>
+          <p>The thirteenth day, kept in the evening. A short one, right before
+             nightfall.</p>
         </li>
       </ul>
     </section>
@@ -145,12 +150,13 @@
     <section class="follow reveal" id="follow" aria-labelledby="follow-h">
       <span class="crescent" aria-hidden="true"></span>
       <p class="eyebrow" id="follow-h">Now in beta</p>
-      <h2 class="get-title">An idea,<br />out in the open.</h2>
+      <h2 class="get-title">Still early.<br />Take a look.</h2>
       <p class="section-lede">
-        Soma is still early, and I&rsquo;m building it in the open. There&rsquo;s a
-        working beta you can open right now. If a lunar fasting companion sounds
-        like something you&rsquo;d use, take it for a spin and tell me what you
-        think.
+        Soma is still early, and I&rsquo;m building it out in the open &mdash; one
+        fast, one phase at a time. There&rsquo;s a working version you can open
+        right now: find tonight&rsquo;s <em>tithi</em>, see the next fast, and
+        start keeping the rhythm. If it speaks to you, give it a go &mdash; and
+        tell me what you think, good or bad.
       </p>
       <div class="hero-cta follow-cta">
         <a class="btn" href="/app/">Open the app</a>
