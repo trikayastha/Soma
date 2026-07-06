@@ -149,6 +149,10 @@ export function Settings() {
           </div>
         </section>
 
+        <h2 className="display-serif text-xl text-soma-moon mt-8 mb-1">
+          Practice
+        </h2>
+
         <section className="soma-card p-5 mt-4">
           <div className="text-[10px] uppercase tracking-wider text-soma-mist">
             Default intensity
@@ -172,6 +176,60 @@ export function Settings() {
             Changing this regenerates your 60-day schedule.
           </p>
         </section>
+
+        <section className="soma-card p-5 mt-4">
+          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
+            Location
+          </div>
+          <p className="text-[11px] text-soma-mist mt-1">
+            Anchors tithi at your local sunrise. Stays on this device.
+          </p>
+          {profile?.location ? (
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className="text-soma-glow">{profile.location.label}</span>
+              <button
+                type="button"
+                onClick={clearLocation}
+                className="text-xs text-soma-mist underline hover:text-soma-glow"
+              >
+                Clear
+              </button>
+            </div>
+          ) : (
+            <p className="mt-3 text-soma-mist text-xs">No location set</p>
+          )}
+          <input
+            value={locQuery}
+            onChange={(e) => setLocQuery(e.target.value)}
+            placeholder="Search city…"
+            autoComplete="off"
+            className="mt-3 w-full bg-transparent border-b border-white/20 text-soma-moon py-2 text-sm outline-none focus:border-soma-glow"
+          />
+          {locQuery.length >= 2 && matches.length > 0 && (
+            <ul role="listbox" className="mt-2 flex flex-col gap-1">
+              {matches.map((c) => (
+                <li key={c.slug}>
+                  <button
+                    type="button"
+                    onClick={() => pickCity(c)}
+                    className="w-full text-left soma-card px-3 py-2 hover:border-soma-glow/40"
+                  >
+                    <div className="text-soma-moon text-sm">{c.label}</div>
+                    <div className="text-soma-mist text-[11px]">
+                      {c.countryCode} · {c.tz}
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <ReminderSettings />
+
+        <h2 className="display-serif text-xl text-soma-moon mt-8 mb-1">
+          Personalization
+        </h2>
 
         <section className="soma-card p-5 mt-4">
           <div className="text-[10px] uppercase tracking-wider text-soma-mist">
@@ -263,55 +321,9 @@ export function Settings() {
           </p>
         </section>
 
-        <section className="soma-card p-5 mt-4">
-          <div className="text-[10px] uppercase tracking-wider text-soma-mist">
-            Location
-          </div>
-          <p className="text-[11px] text-soma-mist mt-1">
-            Anchors tithi at your local sunrise. Stays on this device.
-          </p>
-          {profile?.location ? (
-            <div className="mt-3 flex items-center justify-between text-sm">
-              <span className="text-soma-glow">{profile.location.label}</span>
-              <button
-                type="button"
-                onClick={clearLocation}
-                className="text-xs text-soma-mist underline hover:text-soma-glow"
-              >
-                Clear
-              </button>
-            </div>
-          ) : (
-            <p className="mt-3 text-soma-mist text-xs">No location set</p>
-          )}
-          <input
-            value={locQuery}
-            onChange={(e) => setLocQuery(e.target.value)}
-            placeholder="Search city…"
-            autoComplete="off"
-            className="mt-3 w-full bg-transparent border-b border-white/20 text-soma-moon py-2 text-sm outline-none focus:border-soma-glow"
-          />
-          {locQuery.length >= 2 && matches.length > 0 && (
-            <ul role="listbox" className="mt-2 flex flex-col gap-1">
-              {matches.map((c) => (
-                <li key={c.slug}>
-                  <button
-                    type="button"
-                    onClick={() => pickCity(c)}
-                    className="w-full text-left soma-card px-3 py-2 hover:border-soma-glow/40"
-                  >
-                    <div className="text-soma-moon text-sm">{c.label}</div>
-                    <div className="text-soma-mist text-[11px]">
-                      {c.countryCode} · {c.tz}
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <ReminderSettings />
+        <h2 className="display-serif text-xl text-soma-moon mt-8 mb-1">
+          Data &amp; resets
+        </h2>
 
         <section className="soma-card p-5 mt-4">
           <div className="text-[10px] uppercase tracking-wider text-soma-mist">

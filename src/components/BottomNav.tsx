@@ -2,10 +2,8 @@ import type { ReactNode } from 'react';
 
 export type TabId =
   | 'today'
-  | 'calendar'
   | 'rhythm'
   | 'wisdom'
-  | 'learn'
   | 'settings';
 
 interface BottomNavProps {
@@ -16,10 +14,8 @@ interface BottomNavProps {
 export function BottomNav({ active, onChange }: BottomNavProps) {
   const tabs: Array<{ id: TabId; label: string; icon: ReactNode }> = [
     { id: 'today', label: 'Today', icon: <MoonIcon /> },
-    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon /> },
     { id: 'rhythm', label: 'Rhythm', icon: <RhythmIcon /> },
     { id: 'wisdom', label: 'Wisdom', icon: <WisdomIcon /> },
-    { id: 'learn', label: 'Learn', icon: <BookIcon /> },
     { id: 'settings', label: 'Settings', icon: <GearIcon /> },
   ];
 
@@ -54,19 +50,17 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
 }
 
 function MoonIcon() {
+  // Canonical waning-crescent glyph (Lucide "moon").
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
-    </svg>
-  );
-}
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M3 9h18" />
-      <path d="M8 3v4" />
-      <path d="M16 3v4" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
     </svg>
   );
 }
@@ -93,14 +87,6 @@ function WisdomIcon() {
     >
       <path d="M16 3.5a8.5 8.5 0 1 0 4.5 11.5A6.5 6.5 0 0 1 16 3.5Z" />
       <circle cx="12" cy="12" r="10.5" opacity="0.25" />
-    </svg>
-  );
-}
-function BookIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22.5v-18Z" />
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
     </svg>
   );
 }

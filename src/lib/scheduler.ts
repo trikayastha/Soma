@@ -1,5 +1,19 @@
 import type { FastSession, SomaDay, SubjectiveLog } from './types';
 
+/**
+ * Synthesize a one-off, user-chosen vrat for any date. Never added to the
+ * schedule — mandala math (expected = scheduled majors) stays untouched.
+ */
+export function makePersonalVrat(date: string, intensityHours: number): SomaDay {
+  return {
+    date,
+    kind: 'custom',
+    intensityHours,
+    title: 'Personal Vrat',
+    tradition: 'personal',
+  };
+}
+
 /** Generate a short, collision-resistant id without pulling in a uuid dep. */
 export function makeId(): string {
   return (

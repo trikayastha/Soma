@@ -8,9 +8,7 @@ import { Today } from './screens/Today';
 import { FastTimer } from './screens/FastTimer';
 import { LogForm } from './screens/LogForm';
 import { Meditation } from './screens/Meditation';
-import { CalendarScreen } from './screens/Calendar';
 import { Rhythm } from './screens/Rhythm';
-import { Learn } from './screens/Learn';
 import { Wisdom } from './screens/Wisdom';
 import { Settings } from './screens/Settings';
 import type { FastSession, SomaDay, SubjectiveLog } from './lib/types';
@@ -131,10 +129,8 @@ function Shell() {
         {tab === 'today' && (
           <Today onStartFast={handleStartFast} onResumeActive={handleOpenTimer} />
         )}
-        {tab === 'calendar' && <CalendarScreen onStartFast={handleStartFast} />}
         {tab === 'rhythm' && <Rhythm />}
         {tab === 'wisdom' && <Wisdom />}
-        {tab === 'learn' && <Learn />}
         {tab === 'settings' && <Settings />}
       </div>
       <BottomNav active={tab} onChange={setTab} />

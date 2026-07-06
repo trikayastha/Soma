@@ -4,8 +4,8 @@ import { evaluateSafety, emptySafetyFlags } from '../lib/safety';
 import { generateSchedule } from '../lib/lunar';
 import {
   defaultRemindersPrefs,
-  type Archetype,
   type Intensity,
+  type Intent,
   type Location,
   type SafetyFlags,
   type UserProfile,
@@ -14,40 +14,46 @@ import { useAppState } from '../state/AppStateContext';
 import { IntentRouter } from './onboarding/IntentRouter';
 import { LocationStep } from './onboarding/LocationStep';
 import { OnboardingCarousel } from './onboarding/OnboardingCarousel';
-import { EnergyArchetype } from './EnergyArchetype';
 
-// Intent step inserted ahead of welcome (S1). Location step inserted
-// after `you` (S2). Archetype step inserted between intent and welcome
-// (S4) — optional, skip-able. Unwinding in reverse is handled by
-// `back()` so flow remains symmetrical.
+// Streamlined flow: the intent step (S1) captures both `preferences.intent`
+// and the derived `profile.goal`, so `you` is name-only. The final step
+// merges experience + intensity — picking an experience pre-selects its
+// recommended intensity. The archetype quiz now lives only in Settings.
+// Unwinding in reverse is handled by `back()` so the flow stays symmetrical.
 const STEPS = [
   'intent',
-  'archetype',
   'welcome',
   'you',
   'location',
-  'experience',
   'safety',
-  'intensity',
+  'experience',
 ] as const;
 type Step = (typeof STEPS)[number];
 
+// Intent → goal mapping. The single intent question sets both fields so
+// downstream code and Settings keep reading `profile.goal` unchanged.
+const INTENT_GOAL: Record<Intent, UserProfile['goal']> = {
+  optimize: 'metabolic',
+  tradition: 'discipline',
+  tired: 'calm',
+  curious: 'focus',
+};
+
 export function Onboarding() {
-  const { state, setProfile, setPreferences, setSchedule, completeOnboarding } =
-    useAppState();
+  const { state, setProfile, setSchedule, completeOnboarding } = useAppState();
   // If the user has already chosen an intent (e.g. resumable session), skip
-  // straight to the existing welcome step. Resuming preserves their pick.
+  // straight to the welcome step. Resuming preserves their pick and derives
+  // the matching goal so a mid-flow reload keeps profile.goal consistent.
   const initialStep: Step = state.preferences.intent ? 'welcome' : 'intent';
   const [step, setStep] = useState<Step>(initialStep);
   const [name, setName] = useState('');
-  const [goal, setGoal] = useState<UserProfile['goal']>('focus');
+  const [goal, setGoal] = useState<UserProfile['goal']>(
+    state.preferences.intent ? INTENT_GOAL[state.preferences.intent] : 'focus',
+  );
   const [experience, setExperience] = useState<UserProfile['experience']>('some');
   const [intensity, setIntensity] = useState<Intensity>('16h');
   const [safety, setSafety] = useState<SafetyFlags>(emptySafetyFlags());
   const [location, setLocation] = useState<Location | null>(null);
-  // Stage archetype locally — persist only when finish() runs so abandoned
-  // onboardings don't pollute preferences (R14).
-  const [archetype, setArchetypeLocal] = useState<Archetype | null>(null);
 
   const verdict = useMemo(() => evaluateSafety(safety), [safety]);
   const idx = STEPS.indexOf(step);
@@ -78,9 +84,6 @@ export function Onboarding() {
     const schedule = generateSchedule(new Date(), 60, intensity, location);
     setProfile(profile);
     setSchedule(schedule);
-    if (archetype) {
-      setPreferences({ archetype });
-    }
     completeOnboarding();
   }
 
@@ -91,16 +94,11 @@ export function Onboarding() {
         <Progress current={idx} total={STEPS.length} />
 
         {step === 'intent' && (
-          <IntentRouter onSelected={next} />
-        )}
-        {step === 'archetype' && (
-          <EnergyArchetype
-            onComplete={(a) => {
-              setArchetypeLocal(a);
+          <IntentRouter
+            onSelected={(intent) => {
+              setGoal(INTENT_GOAL[intent]);
               next();
             }}
-            onSkip={next}
-            finishLabel="Continue"
           />
         )}
         {step === 'welcome' && (
@@ -110,8 +108,6 @@ export function Onboarding() {
           <YouStep
             name={name}
             setName={setName}
-            goal={goal}
-            setGoal={setGoal}
             onNext={next}
             onBack={back}
           />
@@ -120,14 +116,6 @@ export function Onboarding() {
           <LocationStep
             value={location}
             onChange={setLocation}
-            onNext={next}
-            onBack={back}
-          />
-        )}
-        {step === 'experience' && (
-          <ExperienceStep
-            value={experience}
-            onChange={setExperience}
             onNext={next}
             onBack={back}
           />
@@ -141,11 +129,12 @@ export function Onboarding() {
             onBack={back}
           />
         )}
-        {step === 'intensity' && (
-          <IntensityStep
-            value={intensity}
-            onChange={setIntensity}
+        {step === 'experience' && (
+          <ExperienceIntensityStep
             experience={experience}
+            onExperienceChange={setExperience}
+            intensity={intensity}
+            onIntensityChange={setIntensity}
             onBack={back}
             onFinish={finish}
             canFinish={verdict.allowed}
@@ -174,18 +163,10 @@ function Progress({ current, total }: { current: number; total: number }) {
 interface YouStepProps {
   name: string;
   setName: (v: string) => void;
-  goal: UserProfile['goal'];
-  setGoal: (v: UserProfile['goal']) => void;
   onNext: () => void;
   onBack: () => void;
 }
-function YouStep({ name, setName, goal, setGoal, onNext, onBack }: YouStepProps) {
-  const goals: Array<{ id: UserProfile['goal']; label: string; sub: string }> = [
-    { id: 'focus', label: 'Sharper focus', sub: 'Cognitive performance, deep work' },
-    { id: 'calm', label: 'More calm', sub: 'Stress reactivity, sleep' },
-    { id: 'discipline', label: 'Ritual & discipline', sub: 'Meaningful self-care rhythm' },
-    { id: 'metabolic', label: 'Metabolic health', sub: "IF benefits, don't lose the plot" },
-  ];
+function YouStep({ name, setName, onNext, onBack }: YouStepProps) {
   return (
     <div className="flex-1 flex flex-col">
       <h2 className="display-serif text-3xl text-soma-glow">Tell us who you are</h2>
@@ -200,63 +181,6 @@ function YouStep({ name, setName, goal, setGoal, onNext, onBack }: YouStepProps)
         className="mt-2 bg-transparent border-b border-white/20 text-soma-moon py-2 text-lg outline-none focus:border-soma-glow focus-visible:outline-none"
       />
 
-      <p className="mt-8 text-xs text-soma-mist uppercase tracking-wider">What matters most?</p>
-      <div className="mt-3 flex flex-col gap-2">
-        {goals.map((g) => (
-          <button
-            key={g.id}
-            onClick={() => setGoal(g.id)}
-            className={`soma-card text-left px-4 py-3 transition-colors ${
-              goal === g.id ? 'border-soma-glow/60 bg-soma-glow/5' : ''
-            }`}
-          >
-            <div className="text-soma-moon text-sm font-medium">{g.label}</div>
-            <div className="text-soma-mist text-xs">{g.sub}</div>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-auto flex gap-3 pt-6">
-        <button className="soma-btn-ghost flex-1" onClick={onBack}>Back</button>
-        <button className="soma-btn-primary flex-1" onClick={onNext}>Continue</button>
-      </div>
-    </div>
-  );
-}
-
-function ExperienceStep({
-  value, onChange, onNext, onBack,
-}: {
-  value: UserProfile['experience'];
-  onChange: (v: UserProfile['experience']) => void;
-  onNext: () => void;
-  onBack: () => void;
-}) {
-  const opts: Array<{ id: UserProfile['experience']; label: string; sub: string }> = [
-    { id: 'none', label: 'New to fasting', sub: 'Start gently — 12 hours' },
-    { id: 'some', label: 'Some IF experience', sub: "I've tried 16:8" },
-    { id: 'experienced', label: 'Experienced', sub: '24h fasts are familiar' },
-  ];
-  return (
-    <div className="flex-1 flex flex-col">
-      <h2 className="display-serif text-3xl text-soma-glow">Your experience</h2>
-      <p className="text-soma-mist text-sm mt-2">
-        Be honest. We'll tune intensity to match.
-      </p>
-      <div className="mt-8 flex flex-col gap-2">
-        {opts.map((o) => (
-          <button
-            key={o.id}
-            onClick={() => onChange(o.id)}
-            className={`soma-card text-left px-4 py-4 transition-colors ${
-              value === o.id ? 'border-soma-glow/60 bg-soma-glow/5' : ''
-            }`}
-          >
-            <div className="text-soma-moon text-sm font-medium">{o.label}</div>
-            <div className="text-soma-mist text-xs">{o.sub}</div>
-          </button>
-        ))}
-      </div>
       <div className="mt-auto flex gap-3 pt-6">
         <button className="soma-btn-ghost flex-1" onClick={onBack}>Back</button>
         <button className="soma-btn-primary flex-1" onClick={onNext}>Continue</button>
@@ -348,46 +272,76 @@ function SafetyStep({
   );
 }
 
-function IntensityStep({
-  value, onChange, experience, onBack, onFinish, canFinish,
+// Recommended intensity per experience level. Picking an experience
+// pre-selects its recommendation; the user can still override below.
+const INTENSITY_REC: Record<UserProfile['experience'], Intensity> = {
+  none: '12h',
+  some: '16h',
+  experienced: '24h',
+};
+
+function ExperienceIntensityStep({
+  experience, onExperienceChange, intensity, onIntensityChange,
+  onBack, onFinish, canFinish,
 }: {
-  value: Intensity;
-  onChange: (v: Intensity) => void;
   experience: UserProfile['experience'];
+  onExperienceChange: (v: UserProfile['experience']) => void;
+  intensity: Intensity;
+  onIntensityChange: (v: Intensity) => void;
   onBack: () => void;
   onFinish: () => void;
   canFinish: boolean;
 }) {
-  const recs: Record<UserProfile['experience'], Intensity> = {
-    none: '12h',
-    some: '16h',
-    experienced: '24h',
-  };
-  const recommended = recs[experience];
-  const opts: Array<{ id: Intensity; label: string; sub: string }> = [
+  const expOpts: Array<{ id: UserProfile['experience']; label: string; sub: string }> = [
+    { id: 'none', label: 'New to fasting', sub: 'Start gently — 12 hours' },
+    { id: 'some', label: 'Some IF experience', sub: "I've tried 16:8" },
+    { id: 'experienced', label: 'Experienced', sub: '24h fasts are familiar' },
+  ];
+  const intensityOpts: Array<{ id: Intensity; label: string; sub: string }> = [
     { id: '12h', label: '12 hours', sub: 'Overnight — gentle start' },
     { id: '16h', label: '16 hours', sub: 'Classic 16:8 — steady' },
     { id: '24h', label: '24 hours', sub: 'Sunset to sunset — traditional' },
   ];
+  const recommended = INTENSITY_REC[experience];
+
+  // Selecting an experience level moves intensity to its recommendation.
+  function pickExperience(id: UserProfile['experience']) {
+    onExperienceChange(id);
+    onIntensityChange(INTENSITY_REC[id]);
+  }
 
   return (
     <div className="flex-1 flex flex-col">
-      <h2 className="display-serif text-3xl text-soma-glow">Pick your intensity</h2>
-      <p
-        className="text-soma-mist text-sm mt-2"
-        style={{ textWrap: 'balance' }}
-      >
-        You can change this any time. Suggested for you:{' '}
-        <span className="text-soma-glow">{recommended}</span>
+      <h2 className="display-serif text-3xl text-soma-glow">Your experience</h2>
+      <p className="text-soma-mist text-sm mt-2">
+        Be honest. We'll suggest an intensity to match — change it any time.
       </p>
 
-      <div className="mt-8 flex flex-col gap-2">
-        {opts.map((o) => (
+      <div className="mt-6 flex flex-col gap-2">
+        {expOpts.map((o) => (
           <button
             key={o.id}
-            onClick={() => onChange(o.id)}
+            onClick={() => pickExperience(o.id)}
             className={`soma-card text-left px-4 py-4 transition-colors ${
-              value === o.id ? 'border-soma-glow/60 bg-soma-glow/5' : ''
+              experience === o.id ? 'border-soma-glow/60 bg-soma-glow/5' : ''
+            }`}
+          >
+            <div className="text-soma-moon text-sm font-medium">{o.label}</div>
+            <div className="text-soma-mist text-xs">{o.sub}</div>
+          </button>
+        ))}
+      </div>
+
+      <p className="mt-8 text-xs text-soma-mist uppercase tracking-wider">
+        Fasting intensity
+      </p>
+      <div className="mt-3 flex flex-col gap-2">
+        {intensityOpts.map((o) => (
+          <button
+            key={o.id}
+            onClick={() => onIntensityChange(o.id)}
+            className={`soma-card text-left px-4 py-4 transition-colors ${
+              intensity === o.id ? 'border-soma-glow/60 bg-soma-glow/5' : ''
             }`}
           >
             <div className="flex items-center justify-between">

@@ -71,6 +71,15 @@ const COPY: Record<SomaDayKind, WhyCopy> = {
     science:
       'Sustained nighttime wakefulness and food restriction is intense and not for everyone. Treated as an option, not a default, with safety guards in Soma.',
   },
+  custom: {
+    heading: 'A vrat of your own',
+    plain:
+      'A fast you chose yourself, on a day the calendar didn\'t pick. Tradition has always made room for this — a personal vow, kept quietly, on your own terms.',
+    tradition:
+      'Personal vratas sit alongside the calendar observances in Sanatan Dharma. A vow taken for one\'s own reason — health, clarity, gratitude — carries the same discipline as a scheduled day.',
+    science:
+      'A self-chosen fast preserves the same metabolic and attentional benefits as a scheduled one. What matters is the fasting window and the intent you bring to it, not the date.',
+  },
 };
 
 export function getWhyCopy(kind: SomaDayKind): WhyCopy {
@@ -123,6 +132,11 @@ const ARCHETYPE_NUDGES: Record<SomaDayKind, Record<Archetype, string>> = {
     wind: 'Wind types: night vigils are heavy on Wind — keep it short, warm, and well-cushioned.',
     fire: 'Fire types: stay cool and unhurried; this is a night for stillness, not striving.',
     earth: 'Earth types: the wakefulness clears the system — pair with light movement and warm water.',
+  },
+  custom: {
+    wind: 'Wind types: an unscheduled fast lands best with warmth and routine — same start time, warm water.',
+    fire: 'Fire types: keep a self-chosen fast gentle; you set the terms, so set kind ones.',
+    earth: 'Earth types: a spontaneous fast cuts through heaviness — pair it with a walk.',
   },
 };
 

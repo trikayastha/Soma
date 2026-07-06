@@ -46,13 +46,14 @@ const CARDS: readonly IntentCard[] = [
 ] as const;
 
 interface IntentRouterProps {
-  onSelected: () => void;
+  onSelected: (intent: Intent) => void;
 }
 
 /**
  * 4-card 2×2 radiogroup. Selecting a card persists `intent`, `theme`,
- * `voice` to preferences and calls `onSelected` so the parent flow can
- * advance. Full keyboard support: ←↑→↓ navigate, Enter/Space activates.
+ * `voice` to preferences and calls `onSelected(intent)` so the parent flow
+ * can advance and derive the matching profile goal. Full keyboard support:
+ * ←↑→↓ navigate, Enter/Space activates.
  */
 export function IntentRouter({ onSelected }: IntentRouterProps) {
   const { setPreferences } = useAppState();
@@ -75,7 +76,7 @@ export function IntentRouter({ onSelected }: IntentRouterProps) {
       theme: card.theme,
       voice: card.voice,
     });
-    onSelected();
+    onSelected(card.intent);
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLButtonElement>, idx: number) {
