@@ -33,6 +33,9 @@ export function FastTimer({
   const { t, tFormat } = useVoice();
   const [now, setNow] = useState(new Date());
   const [endEarlyOpen, setEndEarlyOpen] = useState(false);
+  // Count-up vs count-down — Zero's research point: a countdown hitting
+  // 0:00 nudges people to eat; elapsed frames the fast as accumulation.
+  const [showElapsed, setShowElapsed] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -46,6 +49,10 @@ export function FastTimer({
 
   const progress = sessionProgress(session, now);
   const remainingMs = sessionTimeRemainingMs(session, now);
+  const elapsedMs = Math.max(
+    0,
+    now.getTime() - new Date(session.startedAt).getTime(),
+  );
   const done = remainingMs === 0;
   const synced = syncedNowCount({ date: now, kind: day?.kind ?? null });
   // Live moon math — drives the PhaseGlyph riding the timer ring.
@@ -103,6 +110,10 @@ export function FastTimer({
           <ProgressRing
             progress={progress}
             remainingMs={remainingMs}
+            elapsedMs={elapsedMs}
+            done={done}
+            showElapsed={showElapsed}
+            onToggleUnit={() => setShowElapsed((v) => !v)}
             kind={day?.kind ?? null}
             illumination={illumination}
             waxing={waxing}
@@ -163,14 +174,27 @@ export function FastTimer({
   );
 }
 
+// Neutral waypoints along the ring — quarter marks, with the halfway
+// point emphasized. Deliberately not metabolic "zones": Soma makes no
+// medical claims about what hour N does to the body.
+const MILESTONES = [0.25, 0.5, 0.75];
+
 function ProgressRing({
   progress,
   remainingMs,
+  elapsedMs,
+  done,
+  showElapsed,
+  onToggleUnit,
   illumination,
   waxing,
 }: {
   progress: number;
   remainingMs: number;
+  elapsedMs: number;
+  done: boolean;
+  showElapsed: boolean;
+  onToggleUnit: () => void;
   kind: SomaDay['kind'] | null;
   illumination: number;
   waxing: boolean;
@@ -182,6 +206,9 @@ function ProgressRing({
   // Clamp progress to [0,1] so the glyph never overshoots on late completion.
   const clamped = Math.min(Math.max(progress, 0), 1);
   const offset = c * (1 - clamped);
+  // Past the goal the ring shifts to the accent tone — status readable
+  // at a glance, no numbers needed.
+  const ringColor = done ? 'var(--accent, #7dd3fc)' : '#F4EFD9';
   // Position the phase glyph at the ring head — angle = -90deg + (progress * 360).
   const angleDeg = -90 + clamped * 360;
   const rad = (angleDeg * Math.PI) / 180;
@@ -212,15 +239,32 @@ function ProgressRing({
           cx={cx}
           cy={cy}
           r={r}
-          stroke="#F4EFD9"
+          stroke={ringColor}
           strokeWidth={stroke}
           fill="none"
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={offset}
           transform={`rotate(-90 ${cx} ${cy})`}
-          style={{ transition: 'stroke-dashoffset 1s linear' }}
+          style={{
+            transition: 'stroke-dashoffset 1s linear, stroke 600ms ease',
+          }}
         />
+        {MILESTONES.map((f) => {
+          const a = ((-90 + f * 360) * Math.PI) / 180;
+          const passed = clamped >= f;
+          return (
+            <circle
+              key={f}
+              cx={cx + r * Math.cos(a)}
+              cy={cy + r * Math.sin(a)}
+              r={f === 0.5 ? 4 : 3}
+              fill={passed ? ringColor : 'var(--surface-elev, #11182e)'}
+              stroke={passed ? 'none' : 'rgba(255,255,255,0.25)'}
+              strokeWidth={1}
+            />
+          );
+        })}
         <g transform={`translate(${glyphX} ${glyphY})`}>
           <PhaseGlyph
             illumination={illumination}
@@ -229,14 +273,27 @@ function ProgressRing({
           />
         </g>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {/* Demoted countdown — no longer the hero number. */}
-        <div className="text-soma-mist text-xs tracking-widest uppercase">
-          {Math.round(progress * 100)}% complete
-        </div>
-        <div className="text-soma-moon text-2xl tabular-nums mt-1">
-          {formatCountdown(remainingMs)}
-        </div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Demoted countdown — no longer the hero number. Tapping it flips
+            between time remaining and time elapsed. */}
+        <button
+          type="button"
+          onClick={onToggleUnit}
+          aria-label={
+            showElapsed ? 'Show time remaining' : 'Show time elapsed'
+          }
+          className="flex flex-col items-center rounded-full px-4 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-soma-accent"
+        >
+          <div className="text-soma-mist text-xs tracking-widest uppercase">
+            {Math.round(progress * 100)}% complete
+          </div>
+          <div className="text-soma-moon text-2xl tabular-nums mt-1">
+            {formatCountdown(showElapsed ? elapsedMs : remainingMs)}
+          </div>
+          <div className="text-soma-mist text-[10px] tracking-widest uppercase mt-0.5">
+            {showElapsed ? 'elapsed' : 'remaining'}
+          </div>
+        </button>
       </div>
     </div>
   );

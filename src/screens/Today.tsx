@@ -7,7 +7,8 @@ import { PhaseRhythmStrip } from '../components/PhaseRhythmStrip';
 import { DayCard } from '../components/DayCard';
 import { useAppState } from '../state/AppStateContext';
 import { phaseNameToLabel, toISODate } from '../lib/lunar';
-import { tithiLabel } from '../lib/tithi';
+import { describeTithi } from '../lib/describeTithi';
+import { TithiSheet } from '../components/TithiSheet';
 import { ComputedAtBanner } from '../components/ComputedAtBanner';
 import { MandalaChip } from '../components/MandalaChip';
 import { SyncedNowPill } from '../components/SyncedNowPill';
@@ -28,15 +29,18 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
   const todayIso = toISODate(now);
 
   const [selectedIso, setSelectedIso] = useState<string>(todayIso);
+  const [tithiSheetOpen, setTithiSheetOpen] = useState(false);
   const [month, setMonth] = useState<Date>(
     () => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
   );
 
   const location = state.profile?.location ?? null;
   const { illum, phaseName, waxing, tithi } = useLunarDay(selectedIso, location);
+  const tithiText = describeTithi(tithi.index);
   const scheduleByDate = useScheduleByDate(state.schedule);
 
   const selectedSomaDay = scheduleByDate.get(selectedIso) ?? null;
+  const todaysSomaDay = scheduleByDate.get(todayIso) ?? null;
   const active = findActiveSession(state.sessions);
   const mandala = useMemo(() => currentMandala(state, now), [state, now]);
 
@@ -74,9 +78,17 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
           <p className="text-soma-mist text-xs mt-1">
             {Math.round(illum * 100)}% illuminated · {waxing ? 'waxing' : 'waning'}
           </p>
-          <p className="text-soma-mist text-[11px] mt-0.5">
-            Tithi {tithi.index} · {tithiLabel(tithi)}
-          </p>
+          {/* Layer-0 tithi line — plain English anchored to the full/new
+              moon; the Sanskrit and tradition detail live in TithiSheet. */}
+          <button
+            type="button"
+            onClick={() => setTithiSheetOpen(true)}
+            className="text-left text-[11px] mt-0.5 text-soma-mist hover:text-soma-moon transition-colors"
+            aria-label="About this lunar day"
+          >
+            {tithiText.landmark} · {tithiText.practice}
+            <span aria-hidden="true"> ›</span>
+          </button>
           <div className="mt-2">
             <ComputedAtBanner
               accuracy={tithi.accuracy}
@@ -107,6 +119,8 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
             <div style={{ contain: 'layout' }}>
               <PhaseRhythmStrip
                 index={tithi.index}
+                illumination={illum}
+                waxing={waxing}
                 onTap={() => setSelectedIso(todayIso)}
               />
             </div>
@@ -125,7 +139,7 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
           </div>
 
           {active && isSelectedToday ? (
-            <ActiveCard onResume={onResumeActive} />
+            <ActiveCard />
           ) : (
             <DayCard
               iso={selectedIso}
@@ -139,22 +153,47 @@ export function Today({ onStartFast, onResumeActive }: TodayProps) {
             />
           )}
         </div>
+
+        {/* Elevated primary action — the day's main tap stays visible
+            without scrolling to the day card. */}
+        {active ? (
+          <div className="shrink-0 px-6 pt-2 pb-3">
+            <button
+              className="soma-btn-primary w-full"
+              onClick={onResumeActive}
+            >
+              Fast in progress · Open timer
+            </button>
+          </div>
+        ) : todaysSomaDay ? (
+          <div className="shrink-0 px-6 pt-2 pb-3">
+            <button
+              className="soma-btn-primary w-full"
+              onClick={() => onStartFast(todaysSomaDay)}
+            >
+              Begin today's fast · {todaysSomaDay.intensityHours}h
+            </button>
+          </div>
+        ) : null}
       </div>
+
+      <TithiSheet
+        index={tithi.index}
+        open={tithiSheetOpen}
+        onClose={() => setTithiSheetOpen(false)}
+      />
     </div>
   );
 }
 
-function ActiveCard({ onResume }: { onResume: () => void }) {
+function ActiveCard() {
   return (
     <div className="soma-card p-5 animate-rise">
       <div className="text-xs text-soma-accent uppercase tracking-wider">Fast in progress</div>
       <h2 className="display-serif text-2xl text-soma-glow mt-1">You're fasting</h2>
       <p className="text-soma-mist text-xs mt-2">
-        Open the timer to see your progress and the paired meditation.
+        Your progress and the paired meditation are one tap below.
       </p>
-      <button className="soma-btn-primary w-full mt-4" onClick={onResume}>
-        Open timer
-      </button>
     </div>
   );
 }
