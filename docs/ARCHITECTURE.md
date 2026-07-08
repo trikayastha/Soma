@@ -3,7 +3,7 @@
 **Purpose:** Canonical reference for auditing the project. Read this before any architecture review, dependency audit, security pass, or large refactor. Update it whenever a section stops being true.
 
 **Last verified against code:** 2026-07-08 (commit `8579ebd`)
-**App:** Lunar-fasting wellness PWA · React 18 + Vite 5 + Tailwind 3 · fully client-side, no backend
+**App:** Lunar-fasting wellness PWA · React 18 + Vite 5 + Tailwind 3 · client-side (one serverless endpoint: email capture) + PostHog analytics
 **Production:** https://somaa.vercel.app (Vercel project `somaa`) · repo `trikayastha/Soma`
 
 ---
@@ -18,11 +18,11 @@ Soma is a single deploy serving two surfaces:
 | `/app/` | React SPA (the product) | `src/` via Vite (root `app/`, base `/app/`) |
 | `/app/pitch.html` | Pitch deck | `pitch.html` at repo root, copied at assemble time |
 
-There is **no backend, no auth, no API server, and no analytics**. All user data lives in `localStorage`. The only external computation is the bundled `astronomy-engine` library (lunar math, offline). The only network requests at runtime are static asset loads.
+There is **no backend for user data and no auth** — all user data lives in `localStorage` and never leaves the device. Two deliberate exceptions to "fully client-side": **PostHog analytics** (anonymous, non-PII — see `docs/analytics.md`) and a **single serverless endpoint** `api/subscribe.js` (beta-launch email capture, landing page only). The only external computation is the bundled `astronomy-engine` library (lunar math, offline). Runtime network requests are: static asset loads, PostHog event capture, and the opt-in subscribe `POST`.
 
 ### Architectural invariants (do not break silently)
 
-1. **Privacy-first:** no user data leaves the device. Settings copy promises this ("Stays on this device").
+1. **Privacy-first:** no user *data* leaves the device. Settings copy promises this ("Stays on this device"). The only outbound data is anonymous, non-PII analytics (PostHog) and the opt-in beta email — neither carries user content or free text. See `docs/analytics.md` §5.
 2. **Additive storage migrations:** old localStorage blobs are never deleted; migration is idempotent.
 3. **Deterministic domain logic:** lunar/tithi/schedule functions are pure given (date, location) — this is what makes the 53-file test suite possible.
 4. **No streak-shaming:** the mandala engine has no "broken" status by design (see §7).
@@ -227,7 +227,7 @@ Four orthogonal personalization axes, all in `preferences`:
 
 ## 11. Dependencies & type safety
 
-**Production deps (3):** `react@18.3`, `react-dom@18.3`, `astronomy-engine@2.1.19`. That's it — no router, no state lib, no UI kit, no date lib, no CSS-in-JS, no lodash/axios. Keep it that way unless a dependency earns its weight.
+**Production deps (4):** `react@18.3`, `react-dom@18.3`, `astronomy-engine@2.1.19`, `posthog-js@1.398` (analytics — isolated behind `src/lib/posthog.ts`, see `docs/analytics.md` §2). No router, no state lib, no UI kit, no date lib, no CSS-in-JS, no lodash/axios. Keep it that way unless a dependency earns its weight.
 
 **Dev deps (12):** vite, @vitejs/plugin-react, typescript 5.6, vitest, jsdom, Testing Library (react/jest-dom/user-event), @playwright/test (unused — see §9), tailwindcss, postcss, autoprefixer.
 
@@ -248,6 +248,7 @@ Four orthogonal personalization axes, all in `preferences`:
 9. **`.claude/`, `.claude-flow/`, `.agents/`** at repo root are AI-tooling config, not app code; exclude from bundle-size or security review scope (but keep secrets out of them).
 10. **Landing and app share no code** — landing is hand-rolled static HTML/CSS/JS; tithi shown there (if added) would need its own computation or a build-time bake.
 11. **In-flight (uncommitted as of 2026-07-08):** real moon imagery per tithi (`src/lib/moonAssets.ts`, `src/assets/moon/tithi/`, `scripts/fetch-tithi-moons.mjs`) — NASA SVS-sourced; check asset weight before shipping (bundle currently tiny).
+12. **Analytics silent-no-op:** if a deploy loses `VITE_PUBLIC_POSTHOG_*`, PostHog init throws → is swallowed → the app tracks nothing and never errors. Verify events flow after any env change. No test asserts events fire on interaction, so instrumentation drift passes CI silently. Full detail in `docs/analytics.md` §10.
 
 ---
 
@@ -260,7 +261,8 @@ Run through this list on every audit; each item maps to a section above.
 - [ ] Any `AppState` change touched types.ts + emptyState + migration + migration test — §4
 - [ ] All new user-facing strings go through the voice catalog (`i18n/copy.ts`) with all 3 voices — §8
 - [ ] All new health/tradition claims have a `citations.ts` entry — §8
-- [ ] No network calls added (privacy invariant) — grep for `fetch(`/`XMLHttpRequest`/`navigator.sendBeacon` — §1
+- [ ] No *unexpected* network calls (privacy invariant) — grep `fetch(`/`XMLHttpRequest`/`navigator.sendBeacon`; sanctioned egress is only PostHog capture + `api/subscribe.js` — §1, `docs/analytics.md` §5
+- [ ] New `track()` props carry no PII — enums/booleans/indices/counts only, no user text — `docs/analytics.md` §5
 - [ ] No file crossed 800 LOC; anything over 400 flagged (`Settings.tsx` watch) — §3
 - [ ] Drik parity fixtures still pass (`drikParity.test.ts`) — §6
 - [ ] `clearState()` still clears every storage key (v1/v2/v3 + any new) — §12.8
@@ -273,4 +275,4 @@ Run through this list on every audit; each item maps to a section above.
 
 - Update **"Last verified"** date + commit hash whenever a section is re-checked.
 - Line counts are approximate snapshots; don't churn the doc for ±20 LOC drift — update when a claim becomes misleading.
-- Companion docs: product roadmap in `docs/roadmap/`, session plans in `docs/plans/`, product framing in `PRD.md` / `business_analysis.md` at repo root.
+- Companion docs: **analytics architecture in `docs/analytics.md`**, product roadmap in `docs/roadmap/`, session plans in `docs/plans/`, product framing in `PRD.md` / `business_analysis.md` at repo root.

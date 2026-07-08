@@ -85,3 +85,41 @@ Don't build a paywall. Two cheap moves:
 - **D7 return:** % of activated users back within 7 days (reminder + calendar work).
 - **Share rate:** wisdom-card shares per weekly active user (`wisdomCardCount` already tracked locally).
 - **Landing CTR:** landing view → "Open the app".
+
+---
+
+## Addendum (2026-07-08, later) — analytics is now LIVE
+
+The "Analytics: None" row above is **superseded**. PostHog is wired on both
+surfaces (shared project token → landing→app is one funnel):
+
+- **Landing** (`index.html` inline snippet + `moon.js`): `open_app_click`
+  (with `location` placement), `email_subscribed` (`source: 'landing'`).
+- **App** (`src/lib/analytics.ts` provider-agnostic wrapper → `posthog.ts`):
+  privacy-first, no PII, never throws, no-op off-browser.
+
+### Complete AARRR event map (post gap-fill)
+
+| Stage | Events |
+|---|---|
+| **Acquisition** | `app_opened` *(+ `returning` new/repeat)*, `pwa_installed`, `open_app_click`ᴸ, `email_subscribed`ᴸ |
+| **Activation** | `value_seen` ⁿ *(moon-first magic moment)*, `onboarding_step`, `intent_selected` ⁿ, `safety_gate` ⁿ *(passed/**blocked**)*, `onboarding_complete`, `first_fast_intensity_chosen`, `fast_started` *(`first`, `logged` = skip-vs-log)*, `tithi_sheet_viewed`, `meditation_started` |
+| **Retention** | `fast_completed` *(now also on late-complete path)*, `fast_aborted`, `mandala_milestone` ⁿ *(first_mark payoff)*, `tab_switched` ⁿ, `wisdom_segment_changed` ⁿ *(`you` = deltas payoff)*, `read_filter_changed` ⁿ, `reminder_scheduled`, `notification_philosophy_changed`, `calendar_exported` *(`source`)*, `archetype_completed`, `settings_*` |
+| **Referral** | `wisdom_card_shared` *(`result`, `tithi`)* |
+| **Revenue** | `email_subscribed`ᴸ *(future launch list)*, `data_exported` *(power-user proxy)* |
+
+ᴸ = landing-page event · ⁿ = added in the 2026-07-08 gap-fill.
+
+**Deliberately not added (already answered by an existing prop):** pre-log
+skip-vs-submit → `fast_started.logged`; rest-day scheduling intent →
+`calendar_exported.source: 'rest_day_first_visit'`; onboarding start →
+`onboarding_step` index 0.
+
+### Highest-value dashboards to build in PostHog
+
+1. **Activation funnel:** `app_opened` → `value_seen` → `onboarding_complete` →
+   `fast_started` (breakdown by `intent`). Isolates the magic-moment→commit drop.
+2. **Safety loss:** `safety_gate` result=`blocked` rate — users the product turns
+   away, invisible before this pass.
+3. **First-fast loop:** `fast_completed` → `mandala_milestone` → D1/D7 return.
+4. **Referral loop:** `wisdom_card_shared` → new `app_opened` (`returning:false`).
