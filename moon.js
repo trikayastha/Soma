@@ -219,11 +219,12 @@
 
   // ---- analytics -----------------------------------------------------------
 
-  // Thin wrapper over Vercel Web Analytics' global queue (defined in the
-  // <head>). No-ops gracefully if the script is blocked or absent.
+  // Thin wrapper over PostHog (initialised by the snippet in <head>). The
+  // array stub queues calls until the real library loads, so this is safe to
+  // call immediately; no-ops gracefully if the script is blocked or absent.
   function track(name, data) {
-    if (typeof window.va !== "function") return;
-    window.va("event", data ? { name: name, data: data } : { name: name });
+    if (!window.posthog || typeof window.posthog.capture !== "function") return;
+    window.posthog.capture(name, data || {});
   }
 
   // Attribute every "open the app" click to where on the page it happened, so
