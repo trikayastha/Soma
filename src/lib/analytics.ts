@@ -20,6 +20,9 @@ export type AnalyticsEvent =
   | 'pwa_installed'
   | 'onboarding_step'
   | 'onboarding_complete'
+  | 'value_seen'
+  | 'intent_selected'
+  | 'safety_gate'
   | 'fast_started'
   | 'fast_completed'
   | 'fast_aborted'
@@ -35,6 +38,10 @@ export type AnalyticsEvent =
   | 'archetype_completed'
   | 'tithi_sheet_viewed'
   | 'meditation_started'
+  | 'mandala_milestone'
+  | 'tab_switched'
+  | 'wisdom_segment_changed'
+  | 'read_filter_changed'
   | 'data_exported';
 
 /** String | number | boolean | null — PostHog-safe property values. */

@@ -89,6 +89,14 @@ export function FastTimer({
       },
       new Date(),
     );
+    // A late completion still counts toward the mandala, so it belongs in the
+    // same completion funnel as the post-log path — without this the timer's
+    // late-complete button was silently uncounted.
+    track('fast_completed', {
+      status: lc.status,
+      intensity: session.intensityHours,
+      via: 'timer_late',
+    });
     upsertSession(lc);
     onExit();
   }

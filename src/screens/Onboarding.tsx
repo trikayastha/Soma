@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { MoonPhase } from '../components/MoonPhase';
 import { identify, track } from '../lib/analytics';
@@ -59,12 +59,26 @@ export function Onboarding() {
     track('onboarding_step', { step, index: idx });
   }, [step, idx]);
 
+  // Safety gate: a blocked verdict is a lost activation. Fire once each time the
+  // checklist transitions from clear to blocked so that loss is visible in the
+  // funnel (the "passed" side is recorded in finish()).
+  const wasAllowed = useRef(verdict.allowed);
+  useEffect(() => {
+    // Inside this branch the discriminated union narrows to the blocked
+    // variant, so `reason` is present and typed.
+    if (wasAllowed.current && !verdict.allowed) {
+      track('safety_gate', { result: 'blocked', reason: verdict.reason });
+    }
+    wasAllowed.current = verdict.allowed;
+  }, [verdict]);
+
   function goto(next: Step) {
     setStep(next);
   }
 
   function finish() {
     if (!verdict.allowed) return;
+    track('safety_gate', { result: 'passed' });
     const profile: UserProfile = {
       name: DEFAULT_NAME,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -128,6 +142,15 @@ function MoonFirstStep({ onNext }: { onNext: () => void }) {
   const todayIso = toISODate(new Date());
   const { illum, waxing, phaseName, tithi } = useLunarDay(todayIso, null);
   const desc = describeTithi(tithi.index);
+
+  // Magic moment: today's real moon + tithi rendered with zero input. This is
+  // Soma's activation aha — measured on its own so we can see how many new
+  // users actually reach value before any question.
+  useEffect(() => {
+    track('value_seen', { tithi_index: tithi.index });
+    // Fire once per onboarding entry; tithi.index is stable within a session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col">

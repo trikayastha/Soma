@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useAppState } from '../../state/AppStateContext';
+import { track } from '../../lib/analytics';
 import type { Intent, Theme, Voice } from '../../lib/types';
 
 interface IntentCard {
@@ -72,6 +73,14 @@ export function IntentRouter({ onSelected }: IntentRouterProps) {
   function activate(idx: number) {
     const card = cards[idx];
     setPreferences({
+      intent: card.intent,
+      theme: card.theme,
+      voice: card.voice,
+    });
+    // Activation fork: the single load-bearing choice that sets goal, theme,
+    // and voice. Captured on its own so intent distribution and drop-off are
+    // readable without decoding the generic onboarding_step stream.
+    track('intent_selected', {
       intent: card.intent,
       theme: card.theme,
       voice: card.voice,

@@ -6,6 +6,7 @@ import { DeltaCard } from '../components/DeltaCard';
 import { ReceiptChip } from '../components/ReceiptChip';
 import { SegmentedControl, type Segment } from '../components/SegmentedControl';
 import { useAppState } from '../state/AppStateContext';
+import { track } from '../lib/analytics';
 import {
   elongationToPhaseName,
   moonElongation,
@@ -39,6 +40,14 @@ const SEGMENTS: readonly Segment<WisdomSegment>[] = [
 export function Wisdom() {
   const { state } = useAppState();
   const [segment, setSegment] = useState<WisdomSegment>('today');
+
+  // Engagement + retention: which Wisdom segment users open. "you" is the
+  // personal-deltas payoff, so this doubles as the deltas-viewed signal.
+  function handleSegment(next: WisdomSegment) {
+    if (next === segment) return;
+    track('wisdom_segment_changed', { segment: next });
+    setSegment(next);
+  }
 
   const now = useMemo(() => new Date(), []);
   const todayIso = toISODate(now);
@@ -82,7 +91,7 @@ export function Wisdom() {
             <SegmentedControl
               segments={SEGMENTS}
               active={segment}
-              onChange={setSegment}
+              onChange={handleSegment}
               ariaLabel="Wisdom sections"
             />
           </div>
@@ -162,6 +171,13 @@ function ReadsSegment() {
   const [filter, setFilter] = useState<ReadKind | 'all'>('all');
   const visible = READS.filter((r) => filter === 'all' || r.kind === filter);
 
+  // Reads-depth signal: which topics users filter to inside the library.
+  function handleFilter(next: ReadKind | 'all') {
+    if (next === filter) return;
+    track('read_filter_changed', { filter: next });
+    setFilter(next);
+  }
+
   return (
     <div role="tabpanel" aria-label="Reads">
       <div
@@ -172,14 +188,14 @@ function ReadsSegment() {
         <FilterChip
           label="All"
           active={filter === 'all'}
-          onClick={() => setFilter('all')}
+          onClick={() => handleFilter('all')}
         />
         {READ_KINDS.map((k) => (
           <FilterChip
             key={k}
             label={k}
             active={filter === k}
-            onClick={() => setFilter(k)}
+            onClick={() => handleFilter(k)}
           />
         ))}
       </div>

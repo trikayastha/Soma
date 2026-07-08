@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { MandalaRing } from '../components/MandalaRing';
 import { WisdomCard } from '../components/WisdomCard';
@@ -61,6 +61,17 @@ export function FastComplete({ onDone }: FastCompleteProps) {
   ).length;
   const remaining = Math.max(0, MANDALA_CONFIG.minExpected - completedCount);
   const mandala = useMemo(() => currentMandala(state, now), [state, now]);
+
+  // Retention aha: the first credited fast fills the first mark on the mandala.
+  // This is the reason-to-return moment — tracked distinctly from the raw
+  // fast_completed count so first-mark reach and return rate are one funnel.
+  useEffect(() => {
+    if (completedCount === 1) {
+      track('mandala_milestone', { milestone: 'first_mark' });
+    }
+    // The completion screen mounts once per fast; completedCount is fixed here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const nextFast = useMemo(() => {
     const upcoming = state.schedule

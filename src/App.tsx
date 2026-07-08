@@ -74,6 +74,14 @@ function Shell() {
   const [tab, setTab] = useState<TabId>('today');
   const [overlay, setOverlay] = useState<Overlay>({ kind: 'none' });
 
+  // Navigation funnel: which tab a user moves to and from. No-ops the redundant
+  // "tap the tab you're already on" case so the event stays meaningful.
+  function handleTabChange(next: TabId) {
+    if (next === tab) return;
+    track('tab_switched', { from: tab, to: next });
+    setTab(next);
+  }
+
   if (!state.onboardingComplete || !state.profile) {
     return <Onboarding />;
   }
@@ -240,7 +248,7 @@ function Shell() {
           <Rhythm onOpenSettings={() => setOverlay({ kind: 'settings' })} />
         )}
       </div>
-      <BottomNav active={tab} onChange={setTab} />
+      <BottomNav active={tab} onChange={handleTabChange} />
     </div>
   );
 }
