@@ -41,62 +41,37 @@ describe('Regression: full P0 flow', () => {
     const user = userEvent.setup();
     render(<App />);
 
+    // Moon-first screen (AARRR activation) — zero input, just continue.
+    await user.click(await screen.findByRole('button', { name: /^Continue$/i }));
+
     // Intent step (S1) — pick "Curious about the moon" → coach voice.
-    // This single step now also derives profile.goal (curious → focus).
+    // This single step also derives profile.goal (curious → focus) and
+    // auto-advances to the safety gate.
     expect(screen.getByText(/Why are you here/i)).toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
 
-    // Welcome carousel (S4) — advance through all 3 slides to Begin
-    expect(screen.getByText(/A rhythm, not a regimen/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /^Next$/i }));
-    await user.click(screen.getByRole('button', { name: /^Next$/i }));
-    await user.click(screen.getByRole('button', { name: /^Begin$/i }));
-
-    // You step — name only (goal captured at intent)
-    expect(screen.getByText(/Tell us who you are/i)).toBeInTheDocument();
-    await user.type(
-      screen.getByPlaceholderText(/What should we call you/i),
-      'Maya',
-    );
-    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
-
-    // Location step (optional) — skip
-    expect(screen.getByText(/Where are you/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /^Skip$/i }));
-
-    // Safety step — all defaults false, should allow continue
+    // Safety step — all defaults false, "Enter Soma" finishes onboarding.
     expect(screen.getByText(/A few safety checks/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
-
-    // Merged experience + intensity step — finishes onboarding
-    expect(screen.getByText(/Your experience/i)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
     await user.click(screen.getByRole('button', { name: /Enter Soma/i }));
 
-    // Today screen
-    expect(await screen.findByText(/Maya/)).toBeInTheDocument();
+    // Today screen — name now defaults to "Seeker"; assert the app shell.
+    expect(
+      await screen.findByRole('navigation', { name: /Primary/i }),
+    ).toBeInTheDocument();
   });
 
   it('blocks high-risk users at the safety gate', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // Intent step (S1)
+    // Moon-first screen → intent → safety.
+    await user.click(await screen.findByRole('button', { name: /^Continue$/i }));
     await user.click(screen.getByRole('radio', { name: /Curious about the moon/i }));
 
-    // Welcome carousel (S4) — advance to Begin
-    await user.click(screen.getByRole('button', { name: /^Next$/i }));
-    await user.click(screen.getByRole('button', { name: /^Next$/i }));
-    await user.click(screen.getByRole('button', { name: /^Begin$/i }));
-    await user.type(screen.getByPlaceholderText(/call you/i), 'Test');
-    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
-    // Skip optional location step
-    await user.click(screen.getByRole('button', { name: /^Skip$/i }));
-
-    // Toggle under-18 on the safety step
+    // Toggle under-18 on the safety step — gate blocks "Enter Soma".
     await user.click(screen.getByRole('button', { name: /under 18/i }));
     expect(screen.getByText(/Soma cannot support/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Continue$/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Enter Soma/i })).toBeDisabled();
   });
 
   it('renders the bottom nav and all tabs after onboarding', async () => {
@@ -254,6 +229,10 @@ describe('Regression: full P0 flow', () => {
     expect(await screen.findByText(/Purnima/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Begin fast/i }));
 
+    // First fast asks intensity once (default 12h preselected) → continue.
+    expect(screen.getByText(/How long today/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
+
     // Pre-log form shows
     expect(screen.getByText(/Before you begin/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Start fast/i }));
@@ -293,28 +272,15 @@ describe('Regression: full P0 flow', () => {
       const user = userEvent.setup();
       render(<App />);
 
-      // Intent
+      // Moon-first → intent (sets theme/voice) → safety → Today.
+      await user.click(await screen.findByRole('button', { name: /^Continue$/i }));
       await user.click(screen.getByRole('radio', { name: new RegExp(label, 'i') }));
-
-      // Welcome carousel (S4) — advance to Begin
-      await user.click(screen.getByRole('button', { name: /^Next$/i }));
-      await user.click(screen.getByRole('button', { name: /^Next$/i }));
-      await user.click(screen.getByRole('button', { name: /^Begin$/i }));
-      await user.type(
-        screen.getByPlaceholderText(/What should we call you/i),
-        'Maya',
-      );
-      await user.click(screen.getByRole('button', { name: /^Continue$/i }));
-      // Skip optional location step
-      await user.click(screen.getByRole('button', { name: /^Skip$/i }));
-      // Safety step — defaults allow continue
-      await user.click(screen.getByRole('button', { name: /^Continue$/i }));
-      // Merged experience + intensity step finishes onboarding
-      await user.click(screen.getByRole('button', { name: /Some IF experience/i }));
       await user.click(screen.getByRole('button', { name: /Enter Soma/i }));
 
-      // Today renders
-      expect(await screen.findByText(/Maya/)).toBeInTheDocument();
+      // Today renders (app shell).
+      expect(
+        await screen.findByRole('navigation', { name: /Primary/i }),
+      ).toBeInTheDocument();
 
       // <html data-theme> matches the selected theme
       expect(document.documentElement.getAttribute('data-theme')).toBe(theme);
@@ -359,6 +325,10 @@ describe('Regression: full P0 flow', () => {
       name: /Begin a personal vrat/i,
     });
     await user.click(vratBtn);
+
+    // First fast asks intensity once (default 16h preselected) → continue.
+    expect(screen.getByText(/How long today/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^Continue$/i }));
 
     // Pre-log opens; starting creates an active 16h session
     expect(screen.getByText(/Before you begin/i)).toBeInTheDocument();

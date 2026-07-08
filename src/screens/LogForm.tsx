@@ -7,9 +7,14 @@ interface LogFormProps {
   submitLabel: string;
   onCancel: () => void;
   onSubmit: (log: SubjectiveLog) => void;
+  /**
+   * When provided, a "Skip — start without logging" affordance is shown. Used
+   * on the very first fast so nothing stands between the tap and the timer.
+   */
+  onSkip?: () => void;
 }
 
-export function LogForm({ title, subtitle, submitLabel, onCancel, onSubmit }: LogFormProps) {
+export function LogForm({ title, subtitle, submitLabel, onCancel, onSubmit, onSkip }: LogFormProps) {
   const [energy, setEnergy] = useState(3);
   const [focus, setFocus] = useState(3);
   const [mood, setMood] = useState(3);
@@ -45,9 +50,19 @@ export function LogForm({ title, subtitle, submitLabel, onCancel, onSubmit }: Lo
           />
         </div>
       </div>
-      <div className="px-6 pb-6 pt-2 flex gap-3">
-        <button className="soma-btn-ghost flex-1" onClick={onCancel}>Cancel</button>
-        <button className="soma-btn-primary flex-1" onClick={submit}>{submitLabel}</button>
+      <div className="px-6 pb-6 pt-2">
+        {onSkip && (
+          <button
+            className="w-full text-center text-soma-mist text-sm py-2 mb-1 hover:text-soma-moon transition-colors"
+            onClick={onSkip}
+          >
+            Skip — start without logging
+          </button>
+        )}
+        <div className="flex gap-3">
+          <button className="soma-btn-ghost flex-1" onClick={onCancel}>Cancel</button>
+          <button className="soma-btn-primary flex-1" onClick={submit}>{submitLabel}</button>
+        </div>
       </div>
     </div>
   );

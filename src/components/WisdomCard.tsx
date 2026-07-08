@@ -7,6 +7,7 @@ import {
 } from '../lib/wisdomCard';
 import { useShareImage } from '../lib/useShareImage';
 import { useAppState } from '../state/AppStateContext';
+import { track } from '../lib/analytics';
 
 interface WisdomCardProps {
   /** Date the card represents. */
@@ -105,6 +106,7 @@ export function WisdomCard({
     if (!output) return;
     try {
       const result = await share(output);
+      track('wisdom_card_shared', { result, tithi: tithiLabel });
       if (result === 'shared' || result === 'downloaded') {
         setPreferences({
           wisdomCardCount: (state.preferences.wisdomCardCount ?? 0) + 1,

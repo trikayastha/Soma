@@ -8,6 +8,7 @@ import {
 } from '../lib/reminders';
 import type { NotificationPhilosophy, RemindersPrefs } from '../lib/types';
 import { useVoice } from '../i18n/useVoice';
+import { track } from '../lib/analytics';
 
 const TIME_OPTIONS: Array<{ value: string; label: string }> = [
   { value: '06:00', label: '6 AM' },
@@ -67,6 +68,7 @@ export function ReminderSettings() {
     setPermission(res);
     if (res === 'granted') {
       update({ liveNotifications: true });
+      track('reminder_scheduled', { channel: 'push', source: 'settings' });
       try {
         new Notification('Soma', { body: "Live reminders are on. We'll ping you on fast days." });
       } catch {
@@ -78,6 +80,10 @@ export function ReminderSettings() {
   function handleDownload() {
     if (!profile) return;
     downloadIcs(profile, state.schedule);
+    track('calendar_exported', {
+      source: 'settings',
+      event_count: state.schedule.length,
+    });
     setDownloadedAt(new Date());
   }
 
@@ -119,9 +125,12 @@ export function ReminderSettings() {
                   name="notif-philosophy"
                   value={opt.id}
                   checked={selected}
-                  onChange={() =>
-                    setNotificationPhilosophy(opt.id as NotificationPhilosophy)
-                  }
+                  onChange={() => {
+                    setNotificationPhilosophy(opt.id as NotificationPhilosophy);
+                    track('notification_philosophy_changed', {
+                      philosophy: opt.id,
+                    });
+                  }}
                   className="sr-only"
                 />
                 <div className="text-soma-moon text-sm font-medium">

@@ -3,22 +3,113 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Soma — Fast with the moon</title>
-  <meta name="description" content="Soma is an app that lets you find the rhythm of your body with the Moon — rooted in the Hindu lunar fasts, Ekadashi to Amavasya. Now in beta." />
+  <title>Soma — Lunar Fasting App | Fast with the Moon</title>
+  <meta name="description" content="Soma is a lunar fasting app that times your fasts to the moon — Ekadashi, Purnima, Amavasya. A spiritual wellness practice rooted in Hindu tradition. Free beta." />
+  <meta name="keywords" content="lunar fasting app, fasting app, spiritual app, wellness app, Ekadashi, Hindu fasting, vrat, tithi, moon fasting, intermittent fasting" />
   <meta name="author" content="Tribesh Kayastha" />
   <meta name="theme-color" content="#05060a" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://somaa.vercel.app/" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Soma — Fast with the moon" />
-  <meta property="og:description" content="An app that lets you find the rhythm of your body with the Moon, rooted in Hindu lunar tradition." />
-  <meta property="og:image" content="assets/moon.jpg" />
+  <meta property="og:url" content="https://somaa.vercel.app/" />
+  <meta property="og:site_name" content="Soma" />
+  <meta property="og:title" content="Soma — Lunar Fasting App for Spiritual Wellness" />
+  <meta property="og:description" content="Time your fasts to the moon — Ekadashi, Purnima, Amavasya. A spiritual wellness practice rooted in Hindu lunar tradition. Free beta." />
+  <meta property="og:image" content="https://somaa.vercel.app/assets/moon.jpg" />
+  <meta property="og:image:width" content="2400" />
+  <meta property="og:image:height" content="1601" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Soma — Lunar Fasting App for Spiritual Wellness" />
+  <meta name="twitter:description" content="Time your fasts to the moon — Ekadashi to Amavasya. A spiritual wellness practice rooted in Hindu tradition." />
+  <meta name="twitter:image" content="https://somaa.vercel.app/assets/moon.jpg" />
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305060a'/%3E%3Cpath d='M21 7a10 10 0 1 0 0 18 8 8 0 0 1 0-18z' fill='%23e2c98f'/%3E%3C/svg%3E" />
+
+  <!-- PWA — installable, home-screen presence for a daily-rhythm app. -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <meta name="apple-mobile-web-app-title" content="Soma" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sen:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=Tiro+Devanagari+Sanskrit&display=swap" />
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Structured data: entity graph + app + FAQ (machine-readable for search & AI engines). -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://somaa.vercel.app/#organization",
+        "name": "Soma",
+        "url": "https://somaa.vercel.app/",
+        "logo": "https://somaa.vercel.app/icon.svg",
+        "description": "Soma is a lunar fasting app rooted in the Hindu tradition of fasting with the phases of the moon.",
+        "founder": { "@type": "Person", "name": "Tribesh Kayastha", "url": "https://trikayastha.vercel.app" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://somaa.vercel.app/#website",
+        "url": "https://somaa.vercel.app/",
+        "name": "Soma",
+        "inLanguage": "en-US",
+        "publisher": { "@id": "https://somaa.vercel.app/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://somaa.vercel.app/#app",
+        "name": "Soma — Lunar Fasting App",
+        "url": "https://somaa.vercel.app/app/",
+        "applicationCategory": "HealthApplication",
+        "applicationSubCategory": "Fasting, Spiritual Wellness",
+        "operatingSystem": "Web, iOS, Android",
+        "description": "A lunar fasting app that computes tonight's tithi and times your fasts to the moon — Ekadashi, Purnima, Amavasya, and Pradosh — following the Hindu lunar calendar.",
+        "inLanguage": "en-US",
+        "publisher": { "@id": "https://somaa.vercel.app/#organization" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://somaa.vercel.app/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Soma?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Soma is a free lunar fasting app that times your fasts to the phases of the moon, following the Hindu tradition of tithis and vrats. It computes tonight's lunar day and shows you the next fast." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is lunar fasting?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Lunar fasting is the practice of fasting on specific lunar days — such as Ekadashi, Purnima, and Amavasya — to align your body's rhythm with the cycle of the moon. It is a spiritual wellness practice observed for generations in Hindu tradition." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which fasts does Soma track?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Soma follows the four main Hindu fasts: Ekadashi, Purnima, Amavasya, and Pradosh. It calculates tonight's tithi automatically and tells you when the next fast falls." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Soma free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Soma is free to use during its open beta. Open the app to find tonight's tithi, see the next fast, and start keeping the rhythm." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to be Hindu to use Soma?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Soma is rooted in Hindu lunar tradition, but anyone looking for a spiritual wellness or mindful fasting practice can follow the rhythm of the moon." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is Ekadashi?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Ekadashi is the eleventh lunar day of each half of the lunar cycle. It comes twice a month and is the fast most people keep, usually observed without grains." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <div class="veil" aria-hidden="true"></div>
@@ -54,6 +145,15 @@
           <a class="btn" href="/app/">Open the app</a>
           <a class="btn ghost" href="#tradition">See the tradition</a>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ Tonight (live computation) ============ -->
+    <section class="tonight reveal" aria-labelledby="tonight-h">
+      <p class="eyebrow" id="tonight-h">Tonight, right now</p>
+      <h2 class="section-title">Today&rsquo;s sky,<br />already computed.</h2>
+      <div id="tonight-grid" class="tonight-grid" aria-live="polite">
+        <p class="ns">Reading the sky&hellip;</p>
       </div>
     </section>
 
@@ -146,6 +246,51 @@
       </ul>
     </section>
 
+    <!-- ============ FAQ (matches FAQPage schema in <head>) ============ -->
+    <section class="faq reveal" id="faq" aria-labelledby="faq-h">
+      <p class="eyebrow" id="faq-h">Questions</p>
+      <h2 class="section-title">A little<br />about the app.</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What is Soma?</summary>
+          <p>Soma is a free lunar fasting app that times your fasts to the phases of the
+             moon, following the Hindu tradition of <em>tithis</em> and <em>vrats</em>. It
+             computes tonight&rsquo;s lunar day and shows you the next fast.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What is lunar fasting?</summary>
+          <p>Lunar fasting is the practice of fasting on specific lunar days &mdash; such as
+             Ekadashi, Purnima, and Amavasya &mdash; to align your body&rsquo;s rhythm with
+             the cycle of the moon. It&rsquo;s a spiritual wellness practice observed for
+             generations in Hindu tradition.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Which fasts does Soma track?</summary>
+          <p>Soma follows the four main Hindu fasts: Ekadashi, Purnima, Amavasya, and
+             Pradosh. It calculates tonight&rsquo;s <em>tithi</em> automatically and tells
+             you when the next fast falls.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is Soma free?</summary>
+          <p>Yes. Soma is free to use during its open beta. Open the app to find
+             tonight&rsquo;s <em>tithi</em>, see the next fast, and start keeping the
+             rhythm.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I need to be Hindu to use Soma?</summary>
+          <p>No. Soma is rooted in Hindu lunar tradition, but anyone looking for a
+             spiritual wellness or mindful fasting practice can follow the rhythm of the
+             moon.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What is Ekadashi?</summary>
+          <p>Ekadashi is the eleventh lunar day of each half of the lunar cycle. It comes
+             twice a month and is the fast most people keep, usually observed without
+             grains.</p>
+        </details>
+      </div>
+    </section>
+
     <!-- ============ Follow along ============ -->
     <section class="follow reveal" id="follow" aria-labelledby="follow-h">
       <span class="crescent" aria-hidden="true"></span>
@@ -160,8 +305,38 @@
       </p>
       <div class="hero-cta follow-cta">
         <a class="btn" href="/app/">Open the app</a>
-        <a class="btn ghost" href="mailto:trikayastha@gmail.com?subject=Soma%20—%20feedback">Email me</a>
       </div>
+
+      <form id="subscribe" class="subscribe" novalidate>
+        <p class="subscribe-label">Or get a note when Soma leaves beta:</p>
+        <div class="subscribe-row">
+          <label class="sr-only" for="sub-email">Email address</label>
+          <input
+            id="sub-email"
+            name="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            required
+            placeholder="you@example.com"
+          />
+          <!-- Honeypot: hidden from humans, catches bots. -->
+          <input
+            type="text"
+            name="company"
+            class="hp"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+          <button class="btn" type="submit">Notify me</button>
+        </div>
+        <p class="subscribe-msg" role="status" aria-live="polite"></p>
+        <p class="subscribe-fine">
+          One email, at launch. No spam ever. Or just
+          <a href="mailto:trikayastha@gmail.com?subject=Soma%20—%20feedback">email me</a>.
+        </p>
+      </form>
     </section>
   </main>
 

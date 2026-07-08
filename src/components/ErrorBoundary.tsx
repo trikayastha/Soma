@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { ResetSomaDialog } from './ResetSomaDialog';
+import { posthog } from '../lib/posthog';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -36,9 +37,12 @@ export class ErrorBoundary extends Component<
     return null;
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo): void {
-    // Production: silent. Development would log here, but we obey the
-    // no-console-in-source rule across the codebase.
+  componentDidCatch(error: Error, _info: ErrorInfo): void {
+    try {
+      posthog.captureException(error);
+    } catch {
+      // Exception capture is best-effort — never let it throw.
+    }
   }
 
   private handleRetry = () => {

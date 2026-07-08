@@ -14,6 +14,8 @@ import type { Theme, Voice } from './types';
 
 const SIZE = 1080;
 const PADDING = 96;
+/** Stamped on every card so a shared image is also an acquisition link. */
+const SHARE_URL = 'somaa.vercel.app';
 const MOON_RADIUS = 220;
 const MOON_CENTER_Y = SIZE / 2 - 80;
 
@@ -213,11 +215,12 @@ export async function renderWisdomCardCanvas(
     48,
   );
 
-  // Wordmark + date.
+  // Wordmark + URL (left) and date (right). The URL turns every shared card
+  // into a way back to Soma — the card is the referral channel.
   ctx.fillStyle = cfg.palette.mist;
   ctx.font = `500 20px ${cfg.palette.bodyFont}`;
   ctx.textAlign = 'left';
-  ctx.fillText('SOMA', PADDING, SIZE - PADDING);
+  ctx.fillText(`SOMA · ${SHARE_URL}`, PADDING, SIZE - PADDING);
   ctx.textAlign = 'right';
   ctx.fillText(formatDateStamp(cfg.date), SIZE - PADDING, SIZE - PADDING);
 

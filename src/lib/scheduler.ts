@@ -21,7 +21,10 @@ export function makeId(): string {
   );
 }
 
-export function startSession(day: SomaDay, preLog: SubjectiveLog): FastSession {
+export function startSession(
+  day: SomaDay,
+  preLog?: SubjectiveLog,
+): FastSession {
   return {
     id: makeId(),
     dayDate: day.date,

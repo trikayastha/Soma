@@ -14,7 +14,17 @@ if (!existsSync(resolve(dist, 'app'))) {
 }
 
 // Landing page lives at repo root — copy static files to dist root
-for (const f of ['index.html', 'style.css', 'moon.js', 'assets']) {
+for (const f of [
+  'index.html',
+  'style.css',
+  'moon.js',
+  'assets',
+  'manifest.webmanifest',
+  'icon.svg',
+  'icon-maskable.svg',
+  'robots.txt',
+  'sitemap.xml',
+]) {
   cpSync(resolve(root, f), resolve(dist, f), { recursive: true });
 }
 

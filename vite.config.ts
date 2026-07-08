@@ -7,6 +7,9 @@ export default defineConfig({
   // Landing page lives at repo root; React app is nested under /app/
   root: 'app',
   base: '/app/',
+  // .env lives at the repo root, but our Vite root is app/ — load env from
+  // one level up so VITE_PUBLIC_* vars (PostHog) are inlined at build time.
+  envDir: '..',
   build: {
     outDir: '../dist/app',
     emptyOutDir: true,

@@ -1,0 +1,17 @@
+# Soma — lunar fasting app
+User-agent: *
+Allow: /
+
+# AI answer engines (allow crawling for citations)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://somaa.vercel.app/sitemap.xml

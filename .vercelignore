@@ -1,1 +1,5 @@
 assets/_src
+
+# Secrets come from the Vercel dashboard, never from an uploaded file.
+.env
+.env.local

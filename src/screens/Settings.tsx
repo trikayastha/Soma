@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { track } from '../lib/analytics';
 import { AmbientBackground } from '../components/AmbientBackground';
 import { ReminderSettings } from '../components/ReminderSettings';
 import { generateSchedule } from '../lib/lunar';
@@ -42,6 +43,12 @@ export function Settings({ onClose }: SettingsProps) {
   const [archetypeOpen, setArchetypeOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetRhythmOpen, setResetRhythmOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState(profile?.name ?? '');
+
+  function commitName() {
+    if (!profile) return;
+    setProfile({ ...profile, name: nameDraft.trim() || 'Seeker' });
+  }
 
   function pickCity(c: City) {
     const loc: Location = {
@@ -59,6 +66,7 @@ export function Settings({ onClose }: SettingsProps) {
         generateSchedule(new Date(), 60, profile.defaultIntensity, loc),
       );
     }
+    track('settings_location_set', { country_code: c.countryCode, tz: c.tz });
   }
 
   function clearLocation() {
@@ -74,13 +82,16 @@ export function Settings({ onClose }: SettingsProps) {
     if (!profile) return;
     setProfile({ ...profile, defaultIntensity: i });
     setSchedule(generateSchedule(new Date(), 60, i, profile.location ?? null));
+    track('settings_intensity_changed', { intensity: i });
   }
 
   function setVoice(v: Voice) {
     setPreferences({ voice: v });
+    track('settings_voice_changed', { voice: v });
   }
   function setTheme(t: Theme) {
     setPreferences({ theme: t });
+    track('settings_theme_changed', { theme: t });
   }
   function resetIntent() {
     setPreferences({ intent: null });
@@ -98,6 +109,7 @@ export function Settings({ onClose }: SettingsProps) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    track('data_exported', { session_count: state.sessions.length });
   }
 
   function handleResetConfirmed() {
@@ -124,6 +136,7 @@ export function Settings({ onClose }: SettingsProps) {
   function setArchetype(a: Archetype) {
     setPreferences({ archetype: a });
     setArchetypeOpen(false);
+    track('archetype_completed', { archetype: a });
   }
 
   if (archetypeOpen) {
@@ -164,9 +177,25 @@ export function Settings({ onClose }: SettingsProps) {
         </header>
         <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-6 pt-5 pb-8">
         <section className="soma-card p-5">
-          <div className="text-[10px] uppercase tracking-wider text-soma-mist">Profile</div>
-          <div className="text-soma-moon text-lg mt-1">{profile?.name ?? '—'}</div>
-          <div className="text-soma-mist text-xs mt-1">
+          <label
+            htmlFor="settings-name"
+            className="text-[10px] uppercase tracking-wider text-soma-mist"
+          >
+            Your name
+          </label>
+          <input
+            id="settings-name"
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={commitName}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
+            placeholder="Seeker"
+            autoComplete="given-name"
+            className="mt-1 w-full bg-transparent border-b border-white/15 text-soma-moon text-lg py-1 outline-none focus:border-soma-glow"
+          />
+          <div className="text-soma-mist text-xs mt-2">
             Goal: {profile?.goal} · Experience: {profile?.experience}
           </div>
         </section>
@@ -397,6 +426,8 @@ export function Settings({ onClose }: SettingsProps) {
           Soma is wellness, not medicine. We make no medical claims.
           <br />
           Beta v0.1 · Built by founders with lived lineage to the source tradition.
+          <br />
+          Daily moon imagery courtesy of NASA's Scientific Visualization Studio.
         </p>
         </div>
       </div>

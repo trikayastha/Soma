@@ -119,6 +119,7 @@ export function PhaseRhythmStrip({
           waxing={waxing}
           size={MARKER_SIZE}
           glow={false}
+          tithiIndex={clamped}
         />
       </div>
     </div>

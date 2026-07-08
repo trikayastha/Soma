@@ -217,12 +217,112 @@
     window.requestAnimationFrame(frame);
   }
 
+  // ---- analytics -----------------------------------------------------------
+
+  // Thin wrapper over Vercel Web Analytics' global queue (defined in the
+  // <head>). No-ops gracefully if the script is blocked or absent.
+  function track(name, data) {
+    if (typeof window.va !== "function") return;
+    window.va("event", data ? { name: name, data: data } : { name: name });
+  }
+
+  // Attribute every "open the app" click to where on the page it happened, so
+  // the landing→app CTR can be broken down by placement.
+  function setupAnalytics() {
+    var links = document.querySelectorAll('a[href^="/app"]');
+    links.forEach(function (a) {
+      a.addEventListener("click", function () {
+        var loc = a.classList.contains("nav-cta") ? "nav"
+          : a.closest("#follow") ? "follow"
+          : a.closest(".hero") ? "hero"
+          : "other";
+        track("open_app_click", { location: loc });
+      });
+    });
+  }
+
+  // ---- email capture -------------------------------------------------------
+
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setupSubscribe() {
+    var form = document.getElementById("subscribe");
+    if (!form) return;
+    var input = form.querySelector('input[name="email"]');
+    var honeypot = form.querySelector('input[name="company"]');
+    var button = form.querySelector('button[type="submit"]');
+    var msg = form.querySelector(".subscribe-msg");
+
+    function setMsg(text, kind) {
+      if (!msg) return;
+      msg.textContent = text;
+      msg.className = "subscribe-msg" + (kind ? " is-" + kind : "");
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var email = (input && input.value ? input.value : "").trim();
+
+      // Honeypot tripped — silently pretend success so bots learn nothing.
+      if (honeypot && honeypot.value) {
+        setMsg("Thanks — you're on the list.", "ok");
+        form.reset();
+        return;
+      }
+      if (!EMAIL_RE.test(email)) {
+        setMsg("Please enter a valid email address.", "err");
+        if (input) input.focus();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Sending…";
+      }
+      setMsg("", null);
+
+      fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, source: "landing" }),
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { ok: res.ok, data: data };
+          });
+        })
+        .then(function (r) {
+          if (r.ok && r.data && r.data.ok) {
+            setMsg("Thanks — you're on the list.", "ok");
+            form.reset();
+            track("email_subscribed", { source: "landing" });
+          } else {
+            setMsg(
+              (r.data && r.data.error) || "Something went wrong. Please try again.",
+              "err",
+            );
+          }
+        })
+        .catch(function () {
+          setMsg("Network error. Please try again.", "err");
+        })
+        .finally(function () {
+          if (button) {
+            button.disabled = false;
+            button.textContent = "Notify me";
+          }
+        });
+    });
+  }
+
   // ---- init ----------------------------------------------------------------
 
   function init() {
     renderTonight();
     setupReveal();
     setupParallax();
+    setupAnalytics();
+    setupSubscribe();
   }
 
   if (document.readyState === "loading") {

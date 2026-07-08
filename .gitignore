@@ -9,3 +9,4 @@ coverage
 
 # large source image used only to regenerate assets/phases/* (see assets/_src/render_phases.py)
 assets/_src/fullmoon.jpg
+.env

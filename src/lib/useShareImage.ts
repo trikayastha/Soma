@@ -26,7 +26,10 @@ export interface UseShareImageResult {
 }
 
 const SHARE_TITLE = 'Soma — moon-paced fasting';
-const SHARE_TEXT = 'A small wisdom from today\'s lunar day.';
+const SHARE_TEXT =
+  "A small wisdom from today's lunar day. Fast with the moon — somaa.vercel.app";
+/** Canonical link shared when no image can be attached (text-share fallback). */
+const SHARE_URL = 'https://somaa.vercel.app';
 /** Web Share API rejects PNGs above ~5MB on iOS — guard up front. */
 const MAX_FILE_BYTES = 5_000_000;
 
@@ -73,14 +76,13 @@ async function tryShareFile(
 
 async function tryShareText(
   nav: ShareableNavigator,
-  output: WisdomCardOutput,
 ): Promise<ShareResult | null> {
   if (!nav.share) return null;
   try {
     await nav.share({
       title: SHARE_TITLE,
       text: SHARE_TEXT,
-      url: output.dataUrl,
+      url: SHARE_URL,
     });
     return 'shared';
   } catch (err) {
@@ -121,7 +123,7 @@ export function useShareImage(): UseShareImageResult {
             setStatus('idle');
             return fileResult;
           }
-          const textResult = await tryShareText(nav, output);
+          const textResult = await tryShareText(nav);
           if (textResult) {
             setStatus('idle');
             return textResult;

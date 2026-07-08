@@ -3,6 +3,7 @@ import { AmbientBackground } from '../components/AmbientBackground';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { SyncedNowPill } from '../components/SyncedNowPill';
 import { PhaseGlyph } from '../components/PhaseGlyph';
+import { track } from '../lib/analytics';
 import {
   abortSession,
   formatCountdown,
@@ -68,6 +69,10 @@ export function FastTimer({
     setEndEarlyOpen(false);
     const aborted = abortSession(session, new Date());
     upsertSession(aborted);
+    track('fast_aborted', {
+      intensity: session.intensityHours,
+      progress_pct: Math.round(progress * 100),
+    });
     onExit();
   }
 
