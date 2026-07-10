@@ -182,14 +182,24 @@
         window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     moon.style.willChange = "transform";
-    moon.style.transformOrigin = "62% 42%"; // pivot on the disc, not the frame
 
     var ROT_AMP = 15;       // rotation sways to +/-15deg, then reverses back
     var ROT_PERIOD = 200;   // seconds for one full sway out-and-back
     var ZOOM_MID = 1.12;    // resting zoom
     var ZOOM_AMP = 0.12;    // breathe between 1.00x and 1.24x
     var ZOOM_PERIOD = 120;  // seconds for a full in-and-out breath
-    var MOON_X = 0.20;      // nudge the moon right (fraction of viewport width)
+
+    // Portrait and landscape frame the moon differently. On desktop the copy is
+    // left-aligned, so the disc is nudged right and pivots off-center. On mobile
+    // the copy sits below the moon, so the disc is centered, pivots on its
+    // center, and drifts more gently to stay clear of the copy in the short frame.
+    var mobileMQ = window.matchMedia("(max-width: 860px)");
+    function applyOrigin() {
+      // pivot on the disc, not the frame
+      moon.style.transformOrigin = mobileMQ.matches ? "50% 34%" : "62% 42%";
+    }
+    applyOrigin();
+    if (mobileMQ.addEventListener) mobileMQ.addEventListener("change", applyOrigin);
 
     // One continuous loop. It reads scroll each frame, so parallax and the
     // ambient motion share a single transform and never fight. No overscan is
@@ -200,12 +210,15 @@
       if (start === null) start = ts;
       var t = (ts - start) / 1000; // seconds elapsed
       var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var isMobile = mobileMQ.matches;
 
-      var shift = y * 0.42;                       // scroll parallax drift
+      var shift = y * (isMobile ? 0.22 : 0.42);   // scroll parallax drift
       var rot = ROT_AMP * Math.sin(t * (2 * Math.PI) / ROT_PERIOD); // sway +/-15deg
       var zoom = ZOOM_MID + ZOOM_AMP * Math.sin(t * (2 * Math.PI) / ZOOM_PERIOD);
 
-      var dx = (moon.clientWidth || window.innerWidth) * MOON_X;
+      // Centered on mobile (copy sits below); nudged right of the copy on desktop.
+      var moonX = isMobile ? 0 : 0.20; // fraction of viewport width
+      var dx = (moon.clientWidth || window.innerWidth) * moonX;
 
       moon.style.transform =
         "translate(" + dx.toFixed(1) + "px, " + shift.toFixed(1) + "px) " +

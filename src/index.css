@@ -10,7 +10,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    font-family: 'Raleway', system-ui, sans-serif;
+    font-family: 'Manjari', system-ui, sans-serif;
     color: #E8E4D2;
     background: #05060A;
     overscroll-behavior: contain;
@@ -49,7 +49,7 @@
     @apply border border-white/15 text-soma-moon font-medium rounded-full px-6 py-3 min-h-[44px] whitespace-nowrap active:scale-[0.98] transition-transform hover:border-white/30 hover:bg-white/5;
   }
   .display-serif {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'Manjari', system-ui, sans-serif;
     letter-spacing: -0.01em;
   }
 }

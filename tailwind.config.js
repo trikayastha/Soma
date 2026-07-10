@@ -29,8 +29,8 @@ export default {
         crimson: 'var(--crimson)',
       },
       fontFamily: {
-        display: ['"Lora"', 'Georgia', 'serif'],
-        sans: ['"Raleway"', 'system-ui', 'sans-serif'],
+        display: ['"Manjari"', 'system-ui', 'sans-serif'],
+        sans: ['"Manjari"', 'system-ui', 'sans-serif'],
         'theme-display': ['var(--type-display)'],
         'theme-body': ['var(--type-body)'],
       },

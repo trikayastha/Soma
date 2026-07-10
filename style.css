@@ -1,7 +1,7 @@
 /* ============================================================
    Soma — fast with the moon
    Style: Exaggerated Minimalism × OLED Dark
-   Type:  Playfair Display (display) + Inter (ui) + Tiro Devanagari
+   Type:  Manjari (display / body / ui) + Tiro Devanagari (Sanskrit glyphs)
    An honest concept page — no shipped-product claims.
    ============================================================ */
 
@@ -21,10 +21,10 @@
   /* pull a framed element out to the right edge of the viewport ("the wall") */
   --wall-pull: calc(-1 * (max(0px, (100vw - var(--wide)) / 2) + 1.5rem));
 
-  --serif: "Sen", system-ui, -apple-system, sans-serif;   /* headings (geometric sans) */
-  --body:  "Lora", Georgia, "Times New Roman", serif;     /* paragraphs (humanist serif) */
-  --sans:  "Inter", system-ui, -apple-system, sans-serif; /* UI: nav, buttons, labels */
-  --deva:  "Tiro Devanagari Sanskrit", var(--serif);
+  --serif: "Manjari", system-ui, -apple-system, sans-serif;   /* headings */
+  --body:  "Manjari", system-ui, -apple-system, sans-serif;   /* paragraphs */
+  --sans:  "Manjari", system-ui, -apple-system, sans-serif;   /* UI: nav, buttons, labels */
+  --deva:  "Tiro Devanagari Sanskrit", var(--serif);          /* Devanagari glyphs (Manjari can't render these) */
 
   --z-nav: 50;
 }
@@ -487,6 +487,42 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 }
 
 /* ============================================================
+   Journal / Blog
+   ============================================================ */
+.blog-wrap { max-width: 48rem; margin: 0 auto; padding: 8rem 1.5rem 6rem; }
+.blog-head { margin-bottom: 3rem; }
+.blog-head .section-title { margin: .4rem 0 1rem; }
+.blog-intro { font-family: var(--body); color: var(--silver); font-size: 1.1rem; max-width: 34rem; margin: 0; }
+
+.post-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.post-list li { border-bottom: 1px solid var(--line); }
+.post-list a { display: block; padding: 1.8rem 0; }
+.post-list a:hover .post-title { color: var(--gold); }
+.post-meta { font-family: var(--sans); font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--gold-dim); margin: 0 0 .5rem; }
+.post-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--ink); margin: 0 0 .5rem; transition: color .2s ease; }
+.post-excerpt { font-family: var(--body); color: var(--muted); margin: 0; font-size: 1rem; line-height: 1.6; }
+
+.breadcrumb { font-family: var(--sans); font-size: .82rem; color: var(--muted); margin-bottom: 2rem; }
+.breadcrumb a { color: var(--gold-dim); }
+.breadcrumb a:hover { color: var(--gold); }
+.post-article h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: .6rem 0 1.2rem; letter-spacing: -.01em; }
+.post-lede { font-family: var(--body); font-size: 1.2rem; color: var(--silver); line-height: 1.6; margin: 0 0 2.5rem; font-style: italic; }
+.post-body { font-family: var(--body); font-size: 1.08rem; line-height: 1.8; color: var(--silver); }
+.post-body h2 { font-family: var(--serif); font-weight: 600; font-size: 1.7rem; color: var(--ink); margin: 2.8rem 0 1rem; }
+.post-body h2 .deva { font-family: var(--deva); color: var(--gold); font-size: 1.2rem; margin-left: .45rem; }
+.post-body h3 { font-family: var(--serif); font-weight: 600; font-size: 1.2rem; color: var(--ink); margin: 2rem 0 .6rem; }
+.post-body p { margin: 0 0 1.3rem; }
+.post-body a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--gold-dim); }
+.post-body a:hover { text-decoration-color: var(--gold); }
+.post-body ul { margin: 0 0 1.3rem; padding-left: 1.2rem; }
+.post-body li { margin-bottom: .5rem; }
+.post-body strong { color: var(--ink); }
+.post-cta { margin-top: 3.5rem; padding: 2rem; border: 1px solid var(--line); border-radius: 14px; text-align: center; background: var(--panel); }
+.post-cta p { font-family: var(--body); color: var(--silver); margin: 0 0 1.2rem; font-size: 1.05rem; }
+.post-back { display: inline-block; margin-top: 3rem; font-family: var(--sans); font-size: .9rem; color: var(--gold-dim); }
+.post-back:hover { color: var(--gold); }
+
+/* ============================================================
    Follow along
    ============================================================ */
 .follow {
@@ -550,7 +586,7 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   :root { --huge: 5rem; }
   /* portrait: moon rides the top of the frame, copy settles under it on black */
   .hero { align-items: flex-end; }
-  .hero-bg { height: 62svh; object-position: 52% 30%; }
+  .hero-bg { height: 62svh; object-position: 50% 30%; }
   .hero-scrim {
     height: 62svh;
     background: linear-gradient(180deg, transparent 42%, rgba(0,0,0,.5) 72%, var(--bg) 96%);

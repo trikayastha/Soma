@@ -19,8 +19,8 @@
   --accent: #7dd3fc;
   --moon-tint: #bae6fd;
   --crimson: #f87171;
-  --type-display: 'Inter', system-ui, sans-serif;
-  --type-body: 'Inter', system-ui, sans-serif;
+  --type-display: 'Manjari', system-ui, sans-serif;
+  --type-body: 'Manjari', system-ui, sans-serif;
   --data-emphasis: 1;
 }
 
@@ -34,8 +34,8 @@
   --accent: #f5b042;
   --moon-tint: #f0c060;
   --crimson: #c0392b;
-  --type-display: 'Cormorant Garamond', 'Lora', Georgia, serif;
-  --type-body: 'Lora', Georgia, serif;
+  --type-display: 'Manjari', system-ui, sans-serif;
+  --type-body: 'Manjari', system-ui, sans-serif;
   --data-emphasis: 0.6;
 }
 
@@ -49,7 +49,7 @@
   --accent: #ffffff;
   --moon-tint: #ffffff;
   --crimson: #d97757;
-  --type-display: 'Inter', system-ui, sans-serif;
-  --type-body: 'Inter', system-ui, sans-serif;
+  --type-display: 'Manjari', system-ui, sans-serif;
+  --type-body: 'Manjari', system-ui, sans-serif;
   --data-emphasis: 0.3;
 }

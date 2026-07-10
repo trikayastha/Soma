@@ -2,9 +2,9 @@
  * Font loading helpers (S4 §T10).
  *
  * The WisdomCard canvas renderer must wait for the active display font to
- * be available before drawing tithi labels — otherwise Cormorant Garamond
- * (devotional theme) silently falls back to the system serif, producing a
- * shareable PNG that looks nothing like the in-app preview.
+ * be available before drawing tithi labels — otherwise Manjari silently
+ * falls back to the system font, producing a shareable PNG that looks
+ * nothing like the in-app preview.
  *
  * `document.fonts.load()` returns a Promise that resolves when the requested
  * font face is ready. We race it against a short timeout (300ms) so the

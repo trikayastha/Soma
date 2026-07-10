@@ -34,8 +34,8 @@ export const DEFAULT_PALETTE: ResolvedPalette = {
   mist: '#8ea3c4',
   accent: '#7dd3fc',
   moonTint: '#bae6fd',
-  displayFont: '"Inter", system-ui, sans-serif',
-  bodyFont: '"Inter", system-ui, sans-serif',
+  displayFont: '"Manjari", system-ui, sans-serif',
+  bodyFont: '"Manjari", system-ui, sans-serif',
 };
 
 /**
