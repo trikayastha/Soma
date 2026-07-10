@@ -14,4 +14,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://somaa.vercel.app/sitemap.xml
+Sitemap: https://soma-moon.vercel.app/sitemap.xml

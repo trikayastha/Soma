@@ -15,7 +15,7 @@ import type { Theme, Voice } from './types';
 const SIZE = 1080;
 const PADDING = 96;
 /** Stamped on every card so a shared image is also an acquisition link. */
-const SHARE_URL = 'somaa.vercel.app';
+const SHARE_URL = 'soma-moon.vercel.app';
 const MOON_RADIUS = 220;
 const MOON_CENTER_Y = SIZE / 2 - 80;
 

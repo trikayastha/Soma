@@ -27,9 +27,9 @@ export interface UseShareImageResult {
 
 const SHARE_TITLE = 'Soma — moon-paced fasting';
 const SHARE_TEXT =
-  "A small wisdom from today's lunar day. Fast with the moon — somaa.vercel.app";
+  "A small wisdom from today's lunar day. Fast with the moon — soma-moon.vercel.app";
 /** Canonical link shared when no image can be attached (text-share fallback). */
-const SHARE_URL = 'https://somaa.vercel.app';
+const SHARE_URL = 'https://soma-moon.vercel.app';
 /** Web Share API rejects PNGs above ~5MB on iOS — guard up front. */
 const MAX_FILE_BYTES = 5_000_000;
 
