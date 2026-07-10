@@ -220,8 +220,11 @@
       var moonX = isMobile ? 0 : 0.20; // fraction of viewport width
       var dx = (moon.clientWidth || window.innerWidth) * moonX;
 
+      // translate3d keeps the layer in a single-texture 3D context (paired with
+      // backface-visibility:hidden in CSS); rounding the offsets to whole pixels
+      // stops sub-pixel resampling from opening a seam at the compositor tile row.
       moon.style.transform =
-        "translate(" + dx.toFixed(1) + "px, " + shift.toFixed(1) + "px) " +
+        "translate3d(" + Math.round(dx) + "px, " + Math.round(shift) + "px, 0) " +
         "rotate(" + rot.toFixed(2) + "deg) " +
         "scale(" + zoom.toFixed(4) + ")";
 

@@ -181,6 +181,12 @@ input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   object-fit: cover;
   object-position: 62% 42%;  /* keeps the moon right-of-center, clear of the copy */
   animation: moonfade 1.9s ease both;
+  /* Force the promoted layer to rasterize as a single texture. Without this,
+     Chrome tiles the tall hero layer (~512px rows) and resamples each tile
+     independently under the per-frame fractional transform, opening a 1px
+     seam at the tile boundary — a hard horizontal line across the disc. */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .hero-scrim {
   position: absolute;
