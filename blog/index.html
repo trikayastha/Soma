@@ -75,6 +75,9 @@
     <ul class="post-list">
       <li>
         <a href="/blog/the-four-hindu-lunar-fasts/">
+          <figure class="post-img">
+            <img data-nasadate="2026-07-10T12:00" alt="Full moon — Purnima" />
+          </figure>
           <p class="post-meta">Lunar Fasting 101 · Jul 2026</p>
           <p class="post-title">The four main Hindu lunar fasts, explained</p>
           <p class="post-excerpt">
@@ -84,6 +87,23 @@
         </a>
       </li>
     </ul>
+
+    <script>
+    (function () {
+      var API = 'https://svs.gsfc.nasa.gov/api/dialamoon/';
+      document.querySelectorAll('.post-img img[data-nasadate]').forEach(function (img) {
+        fetch(API + img.dataset.nasadate)
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var url = d && d.image && d.image.url;
+            if (!url) return;
+            img.src = url;
+            img.classList.add('loaded');
+          })
+          .catch(function () {});
+      });
+    }());
+    </script>
   </main>
 
   <footer class="foot">

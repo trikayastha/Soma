@@ -258,77 +258,54 @@
     });
   }
 
-  // ---- email capture -------------------------------------------------------
+  // ---- NASA Dial-A-Moon imagery --------------------------------------------
 
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // One representative date per arc position in the June–July 2026 lunar cycle.
+  var NASA_PHASE_DATES = [
+    "2026-06-25T10:00", // new moon (Amavasya)
+    "2026-06-28T12:00", // waxing crescent
+    "2026-07-02T12:00", // first quarter
+    "2026-07-06T12:00", // waxing gibbous
+    "2026-07-10T12:00", // full moon (Purnima)
+    "2026-07-14T12:00", // waning gibbous
+    "2026-07-17T12:00", // last quarter
+    "2026-07-21T12:00", // waning crescent
+    "2026-07-25T10:00", // new moon (next Amavasya)
+  ];
+  var NASA_API = "https://svs.gsfc.nasa.gov/api/dialamoon/";
 
-  function setupSubscribe() {
-    var form = document.getElementById("subscribe");
-    if (!form) return;
-    var input = form.querySelector('input[name="email"]');
-    var honeypot = form.querySelector('input[name="company"]');
-    var button = form.querySelector('button[type="submit"]');
-    var msg = form.querySelector(".subscribe-msg");
-
-    function setMsg(text, kind) {
-      if (!msg) return;
-      msg.textContent = text;
-      msg.className = "subscribe-msg" + (kind ? " is-" + kind : "");
-    }
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var email = (input && input.value ? input.value : "").trim();
-
-      // Honeypot tripped — silently pretend success so bots learn nothing.
-      if (honeypot && honeypot.value) {
-        setMsg("Thanks — you're on the list.", "ok");
-        form.reset();
-        return;
-      }
-      if (!EMAIL_RE.test(email)) {
-        setMsg("Please enter a valid email address.", "err");
-        if (input) input.focus();
-        return;
-      }
-
-      if (button) {
-        button.disabled = true;
-        button.textContent = "Sending…";
-      }
-      setMsg("", null);
-
-      fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, source: "landing" }),
+  function loadNasaImage(dateStr, onUrl) {
+    fetch(NASA_API + dateStr)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var url = d && d.image && d.image.url;
+        if (url) onUrl(url);
       })
-        .then(function (res) {
-          return res.json().then(function (data) {
-            return { ok: res.ok, data: data };
-          });
-        })
-        .then(function (r) {
-          if (r.ok && r.data && r.data.ok) {
-            setMsg("Thanks — you're on the list.", "ok");
-            form.reset();
-            track("email_subscribed", { source: "landing" });
-          } else {
-            setMsg(
-              (r.data && r.data.error) || "Something went wrong. Please try again.",
-              "err",
-            );
-          }
-        })
-        .catch(function () {
-          setMsg("Network error. Please try again.", "err");
-        })
-        .finally(function () {
-          if (button) {
-            button.disabled = false;
-            button.textContent = "Notify me";
-          }
-        });
+      .catch(function () {});
+  }
+
+  function setupNasaMoonImages() {
+    // Lunar arc — update each phase image with actual NASA LRO imagery
+    var arcImgs = document.querySelectorAll(".lunar-arc .lm img");
+    arcImgs.forEach(function (img, i) {
+      loadNasaImage(NASA_PHASE_DATES[i] || NASA_PHASE_DATES[0], function (url) {
+        img.src = url;
+      });
+    });
+
+    // Lineage moons in the heritage section — use full moon image
+    loadNasaImage(NASA_PHASE_DATES[4], function (url) {
+      document.querySelectorAll(".lineage-moon").forEach(function (el) {
+        el.style.backgroundImage = "url(" + url + ")";
+      });
+    });
+
+    // Blog post cards on index page (if present)
+    document.querySelectorAll(".post-img img[data-nasadate]").forEach(function (img) {
+      loadNasaImage(img.dataset.nasadate, function (url) {
+        img.src = url;
+        img.classList.add("loaded");
+      });
     });
   }
 
@@ -339,7 +316,7 @@
     setupReveal();
     setupParallax();
     setupAnalytics();
-    setupSubscribe();
+    setupNasaMoonImages();
   }
 
   if (document.readyState === "loading") {
