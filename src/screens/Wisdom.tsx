@@ -116,7 +116,14 @@ export function Wisdom() {
                 </p>
               </section>
 
-              <details className="soma-card p-4 mt-4">
+              <details
+                className="soma-card p-4 mt-4"
+                onToggle={(e) => {
+                  if (e.currentTarget.open) {
+                    track('content_expanded', { section: 'wisdom_card_preview' });
+                  }
+                }}
+              >
                 <summary className="cursor-pointer text-soma-moon text-sm">
                   Preview &amp; share today's card
                 </summary>
@@ -128,6 +135,7 @@ export function Wisdom() {
                     wisdomLine={wisdom.line}
                     illumination={illum}
                     waxing={waxing}
+                    source="wisdom_today"
                   />
                 </div>
               </details>

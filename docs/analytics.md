@@ -105,7 +105,7 @@ The `index.html` snippet hardcodes the same `phc_…` token and `us.i.posthog.co
 
 ## 6. Event taxonomy (canonical reference)
 
-The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **32 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **4 further events are planned** (journey-driven, P2–P3) — see §12.
+The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **34 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **2 further events are planned** (journey-driven, P3) — see §12.
 
 ### App events — `AnalyticsEvent` union (`src/lib/analytics.ts`)
 
@@ -129,6 +129,8 @@ The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/20
 | `tab_switched` | `from`, `to` | `App.tsx` | Retention |
 | `wisdom_segment_changed` | `segment` (`today\|reads\|you`) | `Wisdom.tsx` | Retention |
 | `read_filter_changed` | `filter` | `Wisdom.tsx` | Retention |
+| `content_expanded` | `section` (`why_this_day\|tithi_tradition\|tithi_science\|delta_detail\|wisdom_card_preview`) | `WhyThisDay.tsx`, `DeltaCard.tsx`, `Wisdom.tsx` (open only) | Retention |
+| `citation_opened` | `location` (`why_this_day\|tithi_sheet`), `followed_link` | `components/ReceiptChip.tsx` | Retention |
 | `calendar_day_selected` | `offset_days`, `is_fast_day` | `components/Calendar.tsx` (non-today, deduped) | Retention |
 | `calendar_month_changed` | `direction` (`prev\|next`) | `components/Calendar.tsx` (month stepper) | Retention |
 | `reminder_scheduled` | `channel`, `source?` | `FastComplete.tsx`, `ReminderSettings.tsx` | Retention |
@@ -140,7 +142,7 @@ The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/20
 | `settings_voice_changed` | `voice` | `Settings.tsx` | Retention |
 | `settings_theme_changed` | `theme` | `Settings.tsx` | Retention |
 | `archetype_completed` | `archetype` | `Settings.tsx` | Retention |
-| `wisdom_card_shared` | `result` (`shared\|downloaded`), `tithi` | `components/WisdomCard.tsx` | Referral |
+| `wisdom_card_shared` | `result` (`shared\|downloaded`), `tithi`, `source` (`wisdom_today\|fast_complete`) | `components/WisdomCard.tsx` (Wisdom preview + FastComplete) | Referral |
 | `data_reset` | `scope` (`rhythm\|all\|intent`) | `Settings.tsx` (reset flows) | Retention (near-churn signal) |
 | `data_exported` | `session_count` | `Settings.tsx` | Revenue (power-user proxy) |
 
@@ -214,15 +216,15 @@ Update this doc whenever the event vocabulary, PostHog config, or privacy postur
 
 Derived from the journey audit in `docs/user-journeys.md` §5. These are **not live** — they are the prioritised backlog to make every user journey measurable. As each ships, move its row into §6 and add its name to the `AnalyticsEvent` union. Same discipline applies (§5/§8): coarse enums/counts only, no PII, dedupe, never throw.
 
-> **Shipped:** the five P1 events (N1 `calendar_day_selected`, N2 `calendar_month_changed`, N4 `meditation_completed`, N5 `reminder_permission_denied`, N6 `data_reset`) are now live and listed in §6. The remaining P2–P3 backlog is below.
+> **Shipped:** the five P1 events (N1 `calendar_day_selected`, N2 `calendar_month_changed`, N4 `meditation_completed`, N5 `reminder_permission_denied`, N6 `data_reset`) **and both P2 events** (N7 `content_expanded`, N8 `citation_opened`) are now live and listed in §6. Only the P3 backlog remains below.
+>
+> **N7 mapping note:** the `tithi_tradition` / `tithi_science` sections fire from `WhyThisDay.tsx` (the component that actually owns the Tradition/Science disclosures), not `TithiSheet` — the sheet as a whole is already covered by `tithi_sheet_viewed`.
 
 | # | Event (planned) | Props | Fire from | Journey | AARRR | Priority |
 |---|---|---|---|---|---|---|
-| N7 | `content_expanded` | `section` (5 values) | `WhyThisDay`,`TithiSheet`,`DeltaCard`,`Wisdom` | Check-in / Reflect / Share | Retention | P2 |
-| N8 | `citation_opened` | `location`, `followed_link` | `ReceiptChip.tsx` | Check-in / Share | Retention | P2 |
 | N9 | `archetype_started` | `source` | `EnergyArchetype` begin | Personalize | Retention | P3 |
 | N10 | `location_skipped` (+ add `source` to `settings_location_set`) | `source` | `LocationStep`, `Settings` | First Light / Personalize | Activation | P3 |
 
-**Companion product fix (blocks measurement, not an event):** wire the wisdom-card share into `FastComplete` (roadmap §4.2) — emits the existing `wisdom_card_shared` with a new `source:'fast_complete'`. Highest-leverage referral change; event exists, UI does not.
+**Companion product fix — shipped:** the wisdom-card share is live in `FastComplete` (it already renders `WisdomCard`); `wisdom_card_shared` now carries `source` (`fast_complete` vs `wisdom_today`) so the referral surfaces are distinguishable.
 
 **Deliberately not tracked** (noise or already answered): progress-ring toggle, meditation pause/resume, reminder time/lead pills, terminal Done/Close/Cancel/Back taps, raw calendar dates (collapsed to coarse `offset_days`), read-only Rhythm surfaces, onboarding carousel (deferred — roadmap is collapsing it). Full rationale in `docs/user-journeys.md` §5.3.

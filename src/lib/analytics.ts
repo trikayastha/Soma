@@ -47,7 +47,9 @@ export type AnalyticsEvent =
   | 'calendar_day_selected'
   | 'calendar_month_changed'
   | 'reminder_permission_denied'
-  | 'data_reset';
+  | 'data_reset'
+  | 'content_expanded'
+  | 'citation_opened';
 
 /** String | number | boolean | null — PostHog-safe property values. */
 export type AnalyticsProps = Record<string, string | number | boolean | null>;

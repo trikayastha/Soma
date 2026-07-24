@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { archetypeNudge, getWhyCopy } from '../lib/whyThisDay';
 import { ReceiptChip } from './ReceiptChip';
 import { useVoice } from '../i18n/useVoice';
+import { track } from '../lib/analytics';
 import type { Archetype, SomaDayKind } from '../lib/types';
+
+/** Fire content_expanded only when a <details> transitions to open. */
+function trackDetailsOpen(
+  e: React.SyntheticEvent<HTMLDetailsElement>,
+  section: 'why_this_day' | 'tithi_tradition' | 'tithi_science',
+) {
+  if (e.currentTarget.open) track('content_expanded', { section });
+}
 
 interface WhyThisDayProps {
   kind: SomaDayKind;
@@ -40,11 +49,15 @@ export function WhyThisDay({
       <h3 className="text-soma-glow text-sm font-semibold">
         {why.heading}
         {citationIds?.map((id) => (
-          <ReceiptChip key={id} citationId={id} />
+          <ReceiptChip key={id} citationId={id} location="why_this_day" />
         ))}
       </h3>
       <p className="text-soma-mist text-xs leading-relaxed mt-2">{why.plain}</p>
-      <details className="mt-3 group" open={voice === 'traditional'}>
+      <details
+        className="mt-3 group"
+        open={voice === 'traditional'}
+        onToggle={(e) => trackDetailsOpen(e, 'tithi_tradition')}
+      >
         <summary className="list-none cursor-pointer text-xs text-soma-accent min-h-[44px] flex items-center justify-between border-t border-white/5 pt-3">
           <span className="uppercase tracking-wider">Tradition</span>
           <ChevronIcon size={12} />
@@ -53,7 +66,11 @@ export function WhyThisDay({
           {why.tradition}
         </p>
       </details>
-      <details className="mt-1 group" open={voice === 'scientific'}>
+      <details
+        className="mt-1 group"
+        open={voice === 'scientific'}
+        onToggle={(e) => trackDetailsOpen(e, 'tithi_science')}
+      >
         <summary className="list-none cursor-pointer text-xs text-soma-accent min-h-[44px] flex items-center justify-between border-t border-white/5 pt-3">
           <span className="uppercase tracking-wider">Science</span>
           <ChevronIcon size={12} />
@@ -72,7 +89,10 @@ export function WhyThisDay({
 
   if (variant === 'compact') {
     return (
-      <details className="soma-card p-4 mt-4">
+      <details
+        className="soma-card p-4 mt-4"
+        onToggle={(e) => trackDetailsOpen(e, 'why_this_day')}
+      >
         <summary className="cursor-pointer text-soma-moon text-sm min-h-[44px] flex items-center">
           Why this day?
         </summary>
@@ -90,7 +110,10 @@ function FullPanel({ children }: { children: React.ReactNode }) {
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open) track('content_expanded', { section: 'why_this_day' });
+          setOpen((v) => !v);
+        }}
         className="mt-4 flex items-center justify-between w-full text-left text-soma-moon text-sm border-t border-white/10 pt-4 min-h-[44px] hover:text-soma-glow transition-colors duration-200"
         aria-expanded={open}
       >

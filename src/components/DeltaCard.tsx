@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { PersonalDelta } from '../lib/types';
 import { useVoice } from '../i18n/useVoice';
+import { track } from '../lib/analytics';
 
 interface DeltaCardProps {
   deltas: PersonalDelta[];
@@ -51,7 +52,10 @@ export function DeltaCard({ deltas, initialLimit = 4 }: DeltaCardProps) {
       {canExpand && (
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => {
+            if (!expanded) track('content_expanded', { section: 'delta_detail' });
+            setExpanded((v) => !v);
+          }}
           className="text-xs text-soma-accent mt-2 underline underline-offset-4"
         >
           {expanded ? 'Show less' : `Show all (${deltas.length})`}

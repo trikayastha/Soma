@@ -22,6 +22,8 @@ interface WisdomCardProps {
   illumination: number;
   /** Whether the moon is waxing. */
   waxing: boolean;
+  /** Where this card is rendered — tags the share event for referral analysis. */
+  source?: 'wisdom_today' | 'fast_complete';
 }
 
 /**
@@ -41,6 +43,7 @@ export function WisdomCard({
   wisdomLine,
   illumination,
   waxing,
+  source = 'wisdom_today',
 }: WisdomCardProps) {
   const { state, setPreferences } = useAppState();
   const { share, status, error } = useShareImage();
@@ -106,7 +109,7 @@ export function WisdomCard({
     if (!output) return;
     try {
       const result = await share(output);
-      track('wisdom_card_shared', { result, tithi: tithiLabel });
+      track('wisdom_card_shared', { result, tithi: tithiLabel, source });
       if (result === 'shared' || result === 'downloaded') {
         setPreferences({
           wisdomCardCount: (state.preferences.wisdomCardCount ?? 0) + 1,

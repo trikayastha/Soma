@@ -175,7 +175,7 @@ export function TithiSheet({ index, open, onClose }: TithiSheetProps) {
         {meta.citationIds.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {meta.citationIds.map((id) => (
-              <ReceiptChip key={id} citationId={id} />
+              <ReceiptChip key={id} citationId={id} location="tithi_sheet" />
             ))}
           </div>
         )}

@@ -146,6 +146,7 @@ export function FastComplete({ onDone }: FastCompleteProps) {
             wisdomLine={wisdom.line}
             illumination={illum}
             waxing={waxing}
+            source="fast_complete"
           />
         </div>
 

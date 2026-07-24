@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { getCitation } from '../lib/citations';
 import { useVoice } from '../i18n/useVoice';
+import { track } from '../lib/analytics';
 
 interface ReceiptChipProps {
   citationId: string;
   /** Optional override for the visible chip label (defaults to a bookmark icon). */
   label?: string;
+  /** Surface this chip lives on — tags the citation_opened event. */
+  location?: 'why_this_day' | 'tithi_sheet';
 }
 
 const HEADER_BY_VOICE: Record<string, string> = {
@@ -23,7 +26,11 @@ const HEADER_BY_VOICE: Record<string, string> = {
  * The overlay closes on Escape, on click outside, and returns focus to
  * the trigger when dismissed. Honors `prefers-reduced-motion`.
  */
-export function ReceiptChip({ citationId, label }: ReceiptChipProps) {
+export function ReceiptChip({
+  citationId,
+  label,
+  location = 'why_this_day',
+}: ReceiptChipProps) {
   const citation = getCitation(citationId);
   const { voice } = useVoice();
   const [open, setOpen] = useState(false);
@@ -66,7 +73,12 @@ export function ReceiptChip({ citationId, label }: ReceiptChipProps) {
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open) {
+            track('citation_opened', { location, followed_link: false });
+          }
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={`Citation: ${citation.title}`}
@@ -95,6 +107,9 @@ export function ReceiptChip({ citationId, label }: ReceiptChipProps) {
             href={citation.url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              track('citation_opened', { location, followed_link: true })
+            }
             className="inline-block mt-3 text-xs text-soma-accent hover:text-soma-glow"
           >
             Read source →
