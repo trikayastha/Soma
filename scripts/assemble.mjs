@@ -24,6 +24,7 @@ for (const f of [
   'icon-maskable.svg',
   'robots.txt',
   'sitemap.xml',
+  'blog',
 ]) {
   cpSync(resolve(root, f), resolve(dist, f), { recursive: true });
 }
