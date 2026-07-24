@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { addDays, toISODate } from '../lib/lunar';
 import { computeTithiAtSunrise, tithiShort } from '../lib/tithi';
+import { track } from '../lib/analytics';
 import type { FastSession, Location, SomaDay } from '../lib/types';
 
 interface CalendarProps {
@@ -84,7 +85,24 @@ export function Calendar({
     });
   }, [month, scheduleByDate, sessionDates, location]);
 
+  // Orient-loop instrumentation. Coarse offset only (days from today), never a
+  // raw date; fires for non-today days and dedupes re-taps on the current
+  // selection. See docs/user-journeys.md §5 (N1/N2).
+  function handleSelect(iso: string) {
+    if (iso !== todayIso && iso !== selectedIso) {
+      const offsetDays = Math.round(
+        (Date.parse(iso) - Date.parse(todayIso)) / 86_400_000,
+      );
+      track('calendar_day_selected', {
+        offset_days: offsetDays,
+        is_fast_day: scheduleByDate.get(iso) != null,
+      });
+    }
+    onSelect(iso);
+  }
+
   function step(delta: number) {
+    track('calendar_month_changed', { direction: delta < 0 ? 'prev' : 'next' });
     const next = new Date(
       Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + delta, 1),
     );
@@ -138,7 +156,7 @@ export function Calendar({
               aria-selected={isSelected}
               aria-current={isToday ? 'date' : undefined}
               aria-label={`${c.iso}${c.somaDay ? ' — ' + c.somaDay.title : ''}`}
-              onClick={() => onSelect(c.iso)}
+              onClick={() => handleSelect(c.iso)}
               className={`relative aspect-square rounded-xl border flex flex-col items-center justify-center transition-colors duration-200 min-h-[44px] ${
                 isSelected
                   ? 'bg-soma-glow/15 border-soma-glow/60'

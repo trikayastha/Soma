@@ -4,6 +4,8 @@ import { AmbientBackground } from '../components/AmbientBackground';
 interface MeditationProps {
   onExit: () => void;
   durationSeconds?: number;
+  /** Fired once when the session runs to its full length. */
+  onComplete?: (durationSec: number) => void;
 }
 
 /**
@@ -11,11 +13,25 @@ interface MeditationProps {
  * ambient drone so we don't need to ship audio assets with the beta.
  * A breathing animation paces the user without narration.
  */
-export function Meditation({ onExit, durationSeconds = 600 }: MeditationProps) {
+export function Meditation({
+  onExit,
+  durationSeconds = 600,
+  onComplete,
+}: MeditationProps) {
   const [elapsed, setElapsed] = useState(0);
   const [playing, setPlaying] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const nodesRef = useRef<{ osc: OscillatorNode; gain: GainNode } | null>(null);
+  const completedRef = useRef(false);
+
+  // Completion is the "depth" signal (meditation_started → completed rate).
+  // Guarded by a ref so it fires exactly once even across re-renders.
+  useEffect(() => {
+    if (elapsed >= durationSeconds && !completedRef.current) {
+      completedRef.current = true;
+      onComplete?.(durationSeconds);
+    }
+  }, [elapsed, durationSeconds, onComplete]);
 
   useEffect(() => {
     if (!playing) return;

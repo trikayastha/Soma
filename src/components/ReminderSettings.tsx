@@ -74,6 +74,8 @@ export function ReminderSettings() {
       } catch {
         // ignore
       }
+    } else if (res === 'denied') {
+      track('reminder_permission_denied', { source: 'settings' });
     }
   }
 

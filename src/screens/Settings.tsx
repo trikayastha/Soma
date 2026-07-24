@@ -95,6 +95,7 @@ export function Settings({ onClose }: SettingsProps) {
   }
   function resetIntent() {
     setPreferences({ intent: null });
+    track('data_reset', { scope: 'intent' });
   }
 
   function exportData() {
@@ -113,6 +114,8 @@ export function Settings({ onClose }: SettingsProps) {
   }
 
   function handleResetConfirmed() {
+    // Strongest near-churn signal — the user wiped everything.
+    track('data_reset', { scope: 'all' });
     reset();
     try {
       // Best-effort: also clear localStorage so any stale legacy keys are
@@ -130,6 +133,7 @@ export function Settings({ onClose }: SettingsProps) {
 
   function confirmResetRhythm() {
     setResetRhythmOpen(false);
+    track('data_reset', { scope: 'rhythm' });
     manualResetMandala();
   }
 

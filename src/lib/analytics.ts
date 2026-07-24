@@ -38,11 +38,16 @@ export type AnalyticsEvent =
   | 'archetype_completed'
   | 'tithi_sheet_viewed'
   | 'meditation_started'
+  | 'meditation_completed'
   | 'mandala_milestone'
   | 'tab_switched'
   | 'wisdom_segment_changed'
   | 'read_filter_changed'
-  | 'data_exported';
+  | 'data_exported'
+  | 'calendar_day_selected'
+  | 'calendar_month_changed'
+  | 'reminder_permission_denied'
+  | 'data_reset';
 
 /** String | number | boolean | null — PostHog-safe property values. */
 export type AnalyticsProps = Record<string, string | number | boolean | null>;

@@ -207,7 +207,17 @@ function Shell() {
   }
 
   if (overlay.kind === 'meditation') {
-    return <Meditation onExit={() => setOverlay({ kind: 'timer' })} />;
+    return (
+      <Meditation
+        onExit={() => setOverlay({ kind: 'timer' })}
+        onComplete={(durationSec) =>
+          track('meditation_completed', {
+            duration_sec: durationSec,
+            intensity: active?.intensityHours ?? null,
+          })
+        }
+      />
+    );
   }
 
   if (overlay.kind === 'settings') {

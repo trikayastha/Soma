@@ -105,7 +105,7 @@ The `index.html` snippet hardcodes the same `phc_…` token and `us.i.posthog.co
 
 ## 6. Event taxonomy (canonical reference)
 
-The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **27 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **9 further events are planned** (journey-driven) — see §12.
+The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **32 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **4 further events are planned** (journey-driven, P2–P3) — see §12.
 
 ### App events — `AnalyticsEvent` union (`src/lib/analytics.ts`)
 
@@ -122,13 +122,17 @@ The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/20
 | `fast_started` | `kind`, `intensity`, `first`, `logged` | `App.tsx` | Activation |
 | `tithi_sheet_viewed` | `tithi_index` | `Today.tsx` | Activation |
 | `meditation_started` | `intensity` | `App.tsx` | Activation |
+| `meditation_completed` | `duration_sec`, `intensity` | `App.tsx` (via `Meditation.onComplete`) | Retention |
 | `fast_completed` | `status`, `intensity`, `via?` | `App.tsx` (post-log), `FastTimer.tsx` (`via: 'timer_late'`) | Retention |
 | `fast_aborted` | `intensity`, `progress_pct` | `FastTimer.tsx` | Retention |
 | `mandala_milestone` | `milestone: 'first_mark'` | `FastComplete.tsx` | Retention |
 | `tab_switched` | `from`, `to` | `App.tsx` | Retention |
 | `wisdom_segment_changed` | `segment` (`today\|reads\|you`) | `Wisdom.tsx` | Retention |
 | `read_filter_changed` | `filter` | `Wisdom.tsx` | Retention |
+| `calendar_day_selected` | `offset_days`, `is_fast_day` | `components/Calendar.tsx` (non-today, deduped) | Retention |
+| `calendar_month_changed` | `direction` (`prev\|next`) | `components/Calendar.tsx` (month stepper) | Retention |
 | `reminder_scheduled` | `channel`, `source?` | `FastComplete.tsx`, `ReminderSettings.tsx` | Retention |
+| `reminder_permission_denied` | `source` (`fast_complete\|settings`) | `FastComplete.tsx`, `ReminderSettings.tsx` | Retention |
 | `notification_philosophy_changed` | `philosophy` | `ReminderSettings.tsx` | Retention |
 | `calendar_exported` | `source`, `event_count?` | `Today.tsx`, `FastComplete.tsx`, `ReminderSettings.tsx` | Retention |
 | `settings_intensity_changed` | `intensity` | `Settings.tsx` | Retention |
@@ -137,6 +141,7 @@ The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/20
 | `settings_theme_changed` | `theme` | `Settings.tsx` | Retention |
 | `archetype_completed` | `archetype` | `Settings.tsx` | Retention |
 | `wisdom_card_shared` | `result` (`shared\|downloaded`), `tithi` | `components/WisdomCard.tsx` | Referral |
+| `data_reset` | `scope` (`rhythm\|all\|intent`) | `Settings.tsx` (reset flows) | Retention (near-churn signal) |
 | `data_exported` | `session_count` | `Settings.tsx` | Revenue (power-user proxy) |
 
 ### Landing-only events (not in the union — separate PostHog instance)
@@ -209,13 +214,10 @@ Update this doc whenever the event vocabulary, PostHog config, or privacy postur
 
 Derived from the journey audit in `docs/user-journeys.md` §5. These are **not live** — they are the prioritised backlog to make every user journey measurable. As each ships, move its row into §6 and add its name to the `AnalyticsEvent` union. Same discipline applies (§5/§8): coarse enums/counts only, no PII, dedupe, never throw.
 
+> **Shipped:** the five P1 events (N1 `calendar_day_selected`, N2 `calendar_month_changed`, N4 `meditation_completed`, N5 `reminder_permission_denied`, N6 `data_reset`) are now live and listed in §6. The remaining P2–P3 backlog is below.
+
 | # | Event (planned) | Props | Fire from | Journey | AARRR | Priority |
 |---|---|---|---|---|---|---|
-| N1 | `calendar_day_selected` | `offset_days`, `is_fast_day` | `Calendar.tsx` (non-today, deduped) | Daily Check-in | Retention | P1 |
-| N2 | `calendar_month_changed` | `direction` | `Calendar.tsx` stepper | Daily Check-in | Retention | P1 |
-| N4 | `meditation_completed` | `duration_sec`, `intensity` | `Meditation.tsx` (runs to end) | The Fast | Retention | P1 |
-| N5 | `reminder_permission_denied` | `source` | `FastComplete`, `ReminderSettings` | Commit to Channel | Retention | P1 |
-| N6 | `data_reset` | `scope` (`rhythm`/`all`/`intent`) | `Settings` reset flows | Personalize | Retention | P1 |
 | N7 | `content_expanded` | `section` (5 values) | `WhyThisDay`,`TithiSheet`,`DeltaCard`,`Wisdom` | Check-in / Reflect / Share | Retention | P2 |
 | N8 | `citation_opened` | `location`, `followed_link` | `ReceiptChip.tsx` | Check-in / Share | Retention | P2 |
 | N9 | `archetype_started` | `source` | `EnergyArchetype` begin | Personalize | Retention | P3 |

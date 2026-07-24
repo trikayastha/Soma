@@ -101,6 +101,9 @@ export function FastComplete({ onDone }: FastCompleteProps) {
       track('reminder_scheduled', { channel: 'push' });
       setReminderStatus('on');
     } else {
+      if (res === 'denied') {
+        track('reminder_permission_denied', { source: 'fast_complete' });
+      }
       setReminderStatus('blocked');
     }
   }
