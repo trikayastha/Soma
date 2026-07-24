@@ -105,7 +105,7 @@ The `index.html` snippet hardcodes the same `phc_…` token and `us.i.posthog.co
 
 ## 6. Event taxonomy (canonical reference)
 
-The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **34 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **2 further events are planned** (journey-driven, P3) — see §12.
+The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **36 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. The journey-driven backlog (§12) is now **fully shipped**; the only unfired variants are onboarding `source` values that await the Phase 2 onboarding surfaces.
 
 ### App events — `AnalyticsEvent` union (`src/lib/analytics.ts`)
 
@@ -138,9 +138,11 @@ The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/20
 | `notification_philosophy_changed` | `philosophy` | `ReminderSettings.tsx` | Retention |
 | `calendar_exported` | `source`, `event_count?` | `Today.tsx`, `FastComplete.tsx`, `ReminderSettings.tsx` | Retention |
 | `settings_intensity_changed` | `intensity` | `Settings.tsx` | Retention |
-| `settings_location_set` | `country_code`, `tz` | `Settings.tsx` | Retention |
+| `location_set` | `country_code`, `tz`, `source` (`onboarding\|settings`) | `Settings.tsx` (onboarding site pending Phase 2) | Retention |
+| `location_skipped` | `source` (`onboarding\|settings`) | `Settings.tsx` (clear) | Activation |
 | `settings_voice_changed` | `voice` | `Settings.tsx` | Retention |
 | `settings_theme_changed` | `theme` | `Settings.tsx` | Retention |
+| `archetype_started` | `source` (`onboarding\|settings`) | `EnergyArchetype.tsx` (Begin quiz) | Retention |
 | `archetype_completed` | `archetype` | `Settings.tsx` | Retention |
 | `wisdom_card_shared` | `result` (`shared\|downloaded`), `tithi`, `source` (`wisdom_today\|fast_complete`) | `components/WisdomCard.tsx` (Wisdom preview + FastComplete) | Referral |
 | `data_reset` | `scope` (`rhythm\|all\|intent`) | `Settings.tsx` (reset flows) | Retention (near-churn signal) |
@@ -212,18 +214,25 @@ Update this doc whenever the event vocabulary, PostHog config, or privacy postur
 
 ---
 
-## 12. Planned events (journey-driven, not yet in the union)
+## 12. Planned events (journey-driven) — backlog cleared
 
-Derived from the journey audit in `docs/user-journeys.md` §5. These are **not live** — they are the prioritised backlog to make every user journey measurable. As each ships, move its row into §6 and add its name to the `AnalyticsEvent` union. Same discipline applies (§5/§8): coarse enums/counts only, no PII, dedupe, never throw.
+Derived from the journey audit in `docs/user-journeys.md` §5. **All ten proposed events are now live** and listed in §6. This section is kept as the shipping record; the discipline it enforced still applies to any future event (§5/§8): coarse enums/counts only, no PII, dedupe, never throw.
 
-> **Shipped:** the five P1 events (N1 `calendar_day_selected`, N2 `calendar_month_changed`, N4 `meditation_completed`, N5 `reminder_permission_denied`, N6 `data_reset`) **and both P2 events** (N7 `content_expanded`, N8 `citation_opened`) are now live and listed in §6. Only the P3 backlog remains below.
->
+| # | Event | Priority | Status |
+|---|---|---|---|
+| N1 | `calendar_day_selected` | P1 | ✅ shipped |
+| N2 | `calendar_month_changed` | P1 | ✅ shipped |
+| N4 | `meditation_completed` | P1 | ✅ shipped |
+| N5 | `reminder_permission_denied` | P1 | ✅ shipped |
+| N6 | `data_reset` | P1 | ✅ shipped |
+| N7 | `content_expanded` | P2 | ✅ shipped |
+| N8 | `citation_opened` | P2 | ✅ shipped |
+| N9 | `archetype_started` | P3 | ✅ shipped |
+| N10 | `location_set` (unified) + `location_skipped` | P3 | ✅ shipped |
+
 > **N7 mapping note:** the `tithi_tradition` / `tithi_science` sections fire from `WhyThisDay.tsx` (the component that actually owns the Tradition/Science disclosures), not `TithiSheet` — the sheet as a whole is already covered by `tithi_sheet_viewed`.
-
-| # | Event (planned) | Props | Fire from | Journey | AARRR | Priority |
-|---|---|---|---|---|---|---|
-| N9 | `archetype_started` | `source` | `EnergyArchetype` begin | Personalize | Retention | P3 |
-| N10 | `location_skipped` (+ add `source` to `settings_location_set`) | `source` | `LocationStep`, `Settings` | First Light / Personalize | Activation | P3 |
+>
+> **N9/N10 surface note:** `archetype_started` and the location events currently fire only from **Settings** — the onboarding archetype quiz and location ask don't exist yet. Their `source: 'onboarding'` variants (and instrumenting the currently-unused `onboarding/LocationStep.tsx`) light up when the Phase 2 onboarding inversion lands. `settings_location_set` was **renamed** to `location_set` and gained a `source` prop as part of the N10 unification — a deliberate breaking rename on a days-old event.
 
 **Companion product fix — shipped:** the wisdom-card share is live in `FastComplete` (it already renders `WisdomCard`); `wisdom_card_shared` now carries `source` (`fast_complete` vs `wisdom_today`) so the referral surfaces are distinguishable.
 

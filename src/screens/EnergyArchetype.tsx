@@ -8,6 +8,7 @@ import {
   type ArchetypeAnswers,
   type ArchetypeQuestionId,
 } from '../lib/archetype';
+import { track } from '../lib/analytics';
 import type { Archetype } from '../lib/types';
 
 interface EnergyArchetypeProps {
@@ -19,6 +20,8 @@ interface EnergyArchetypeProps {
   finishLabel?: string;
   /** When true, hides the explicit "Skip" affordance (e.g. Settings re-take). */
   hideSkip?: boolean;
+  /** Where the quiz was launched — tags the archetype_started event. */
+  source?: 'onboarding' | 'settings';
 }
 
 type Stage = 'intro' | 'question' | 'result';
@@ -34,6 +37,7 @@ export function EnergyArchetype({
   onSkip,
   finishLabel = 'Save my archetype',
   hideSkip = false,
+  source = 'settings',
 }: EnergyArchetypeProps) {
   const [stage, setStage] = useState<Stage>('intro');
   const [questionIdx, setQuestionIdx] = useState(0);
@@ -70,6 +74,7 @@ export function EnergyArchetype({
   }
 
   function startQuiz() {
+    track('archetype_started', { source });
     setStage('question');
     setQuestionIdx(0);
   }

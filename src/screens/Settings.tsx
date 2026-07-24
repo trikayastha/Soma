@@ -66,7 +66,11 @@ export function Settings({ onClose }: SettingsProps) {
         generateSchedule(new Date(), 60, profile.defaultIntensity, loc),
       );
     }
-    track('settings_location_set', { country_code: c.countryCode, tz: c.tz });
+    track('location_set', {
+      country_code: c.countryCode,
+      tz: c.tz,
+      source: 'settings',
+    });
   }
 
   function clearLocation() {
@@ -76,6 +80,7 @@ export function Settings({ onClose }: SettingsProps) {
         generateSchedule(new Date(), 60, profile.defaultIntensity, null),
       );
     }
+    track('location_skipped', { source: 'settings' });
   }
 
   function setIntensity(i: Intensity) {
@@ -150,6 +155,7 @@ export function Settings({ onClose }: SettingsProps) {
         onSkip={() => setArchetypeOpen(false)}
         finishLabel="Save"
         hideSkip={false}
+        source="settings"
       />
     );
   }
