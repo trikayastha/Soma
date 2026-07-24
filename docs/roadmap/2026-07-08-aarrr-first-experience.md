@@ -1,7 +1,7 @@
 # Soma — AARRR Review & First-Experience Roadmap
 
 **Date:** 2026-07-08
-**Status:** Proposed
+**Status:** Implemented (2026-07-24) — see §Implementation status. One item open: dynamic OG-as-wisdom-card.
 **Owner:** Tribesh
 **Goal:** Simplify the path for a new user to try Soma and get an amazing experience on their first visit.
 
@@ -123,3 +123,21 @@ skip-vs-submit → `fast_started.logged`; rest-day scheduling intent →
    away, invisible before this pass.
 3. **First-fast loop:** `fast_completed` → `mandala_milestone` → D1/D7 return.
 4. **Referral loop:** `wisdom_card_shared` → new `app_opened` (`returning:false`).
+
+---
+
+## Implementation status (audited 2026-07-24, from code)
+
+The four execution phases are built. Verified against the current `main`:
+
+| Phase | Item | Status | Evidence |
+|---|---|---|---|
+| 1 | Analytics + funnel events | ✅ Done | PostHog wired; full journey event set (10 journey events P1–P3) shipped — see `docs/analytics.md` §6/§12. |
+| 1/4 | Wisdom-card URL watermark | ✅ Done | `src/lib/wisdomCard.ts` draws `SOMA · soma-moon.vercel.app` on every card. |
+| 2 | Moon-first onboarding, 2 gates | ✅ Done | `Onboarding.tsx` `STEPS = ['moon','intent','safety']`; name/location/experience deferred. |
+| 2 | Rest-day first-visit rescue | ✅ Done | `Today.tsx` synthesizes a next-fast CTA + `calendar_exported {source:'rest_day_first_visit'}`. |
+| 3 | First-fast payoff loop | ✅ Done | `FastComplete.tsx`: mandala first-mark, wisdom-card share, contextual reminder ask, `.ics`. |
+| 4 | PWA manifest + icons | ✅ Done | `manifest.webmanifest` + `pwa_installed` event. |
+| 4 | Live tithi on landing | ✅ Done | `index.html` / `moon.js` render today's tithi in the hero. |
+| 5 | Lightweight email capture | ✅ Done | `api/subscribe.js` (`email_subscribed {source:'landing'}`). |
+| **4** | **OG image = daily wisdom card** | ⏳ **Open** | `index.html` `og:image` is still the static `/assets/moon.jpg`. Needs a server-rendered daily card (e.g. a `@vercel/og` route) so every shared link is a live artifact. Only remaining roadmap gap. |
