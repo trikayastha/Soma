@@ -1,0 +1,18 @@
+{
+  "series": "this-months-sky",
+  "cycle": "2026-W28",
+  "channel": "instagram-card",
+  "card": {
+    "role": "body",
+    "image": "phases/waxing-gibbous.webp",
+    "imageClass": "phase",
+    "kicker": "The next fast",
+    "deva": "एकादशी",
+    "title": "Ekadashi",
+    "support": [
+      "Saturday · 25 July",
+      "Shukla paksha · kept without grains"
+    ],
+    "cta": "Tonight's tithi → link in bio"
+  }
+}

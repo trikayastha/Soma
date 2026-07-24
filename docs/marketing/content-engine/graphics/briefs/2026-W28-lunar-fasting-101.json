@@ -1,0 +1,75 @@
+{
+  "series": "lunar-fasting-101",
+  "cycle": "2026-W28",
+  "channel": "instagram-carousel",
+  "slides": [
+    {
+      "role": "cover",
+      "image": "moon.jpg",
+      "kicker": "Lunar Fasting 101",
+      "title": "The four Hindu<br/>lunar fasts."
+    },
+    {
+      "role": "promise",
+      "title": "In 60 seconds.",
+      "support": [
+        "What a <em>tithi</em> is",
+        "The four main fasts",
+        "Where to start"
+      ]
+    },
+    {
+      "role": "body",
+      "kicker": "The idea",
+      "title": "The month runs<br/>with the moon.",
+      "support": [
+        "A lunar day is a <em>tithi</em>.",
+        "On some, you fast — a <em>vrat</em>."
+      ]
+    },
+    {
+      "role": "body",
+      "image": "phases/waxing-crescent.webp",
+      "imageClass": "phase",
+      "deva": "एकादशी",
+      "title": "Ekadashi",
+      "support": ["11th day · twice a month", "Kept without grains"]
+    },
+    {
+      "role": "body",
+      "image": "phases/full.webp",
+      "imageClass": "phase",
+      "deva": "पूर्णिमा",
+      "title": "Purnima",
+      "support": ["The full moon", "Offering & gratitude"]
+    },
+    {
+      "role": "body",
+      "image": "phases/new.webp",
+      "imageClass": "phase",
+      "deva": "अमावस्या",
+      "title": "Amavasya",
+      "support": ["The new moon", "Stillness & reset"]
+    },
+    {
+      "role": "body",
+      "image": "phases/waning-gibbous.webp",
+      "imageClass": "phase",
+      "deva": "प्रदोष",
+      "title": "Pradosh",
+      "support": ["13th day · kept in the evening", "A short one"]
+    },
+    {
+      "role": "synthesis",
+      "image": "phases/full.webp",
+      "imageClass": "phase",
+      "title": "Fast. Feast.<br/>Rest. Begin again."
+    },
+    {
+      "role": "cta",
+      "title": "The date shifts<br/>every month.",
+      "support": ["Soma tracks it for you."],
+      "cta": "Free · link in bio"
+    }
+  ]
+}

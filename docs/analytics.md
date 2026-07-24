@@ -105,7 +105,7 @@ The `index.html` snippet hardcodes the same `phc_…` token and `us.i.posthog.co
 
 ## 6. Event taxonomy (canonical reference)
 
-The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`. This table is the technical *what* — the wire contract. **27 app events** (the `AnalyticsEvent` union) + **2 landing-only** events.
+The strategic *why* (AARRR mapping, funnel priorities) lives in `docs/roadmap/2026-07-08-aarrr-first-experience.md`; the *behavioural why* (which user journey each event measures, and the gaps) lives in `docs/user-journeys.md`. This table is the technical *what* — the wire contract. **27 app events** (the `AnalyticsEvent` union) + **2 landing-only** events. **9 further events are planned** (journey-driven) — see §12.
 
 ### App events — `AnalyticsEvent` union (`src/lib/analytics.ts`)
 
@@ -202,3 +202,25 @@ The **one** server-side surface in an otherwise backendless app: a Vercel server
 ## 11. Maintenance
 
 Update this doc whenever the event vocabulary, PostHog config, or privacy posture changes. Keep §6 in exact sync with the `AnalyticsEvent` union — it is the human-readable mirror of that type. When you touch it, also check `docs/ARCHITECTURE.md` §1/§11/§13 (which reference analytics) and the roadmap doc's event map.
+
+---
+
+## 12. Planned events (journey-driven, not yet in the union)
+
+Derived from the journey audit in `docs/user-journeys.md` §5. These are **not live** — they are the prioritised backlog to make every user journey measurable. As each ships, move its row into §6 and add its name to the `AnalyticsEvent` union. Same discipline applies (§5/§8): coarse enums/counts only, no PII, dedupe, never throw.
+
+| # | Event (planned) | Props | Fire from | Journey | AARRR | Priority |
+|---|---|---|---|---|---|---|
+| N1 | `calendar_day_selected` | `offset_days`, `is_fast_day` | `Calendar.tsx` (non-today, deduped) | Daily Check-in | Retention | P1 |
+| N2 | `calendar_month_changed` | `direction` | `Calendar.tsx` stepper | Daily Check-in | Retention | P1 |
+| N4 | `meditation_completed` | `duration_sec`, `intensity` | `Meditation.tsx` (runs to end) | The Fast | Retention | P1 |
+| N5 | `reminder_permission_denied` | `source` | `FastComplete`, `ReminderSettings` | Commit to Channel | Retention | P1 |
+| N6 | `data_reset` | `scope` (`rhythm`/`all`/`intent`) | `Settings` reset flows | Personalize | Retention | P1 |
+| N7 | `content_expanded` | `section` (5 values) | `WhyThisDay`,`TithiSheet`,`DeltaCard`,`Wisdom` | Check-in / Reflect / Share | Retention | P2 |
+| N8 | `citation_opened` | `location`, `followed_link` | `ReceiptChip.tsx` | Check-in / Share | Retention | P2 |
+| N9 | `archetype_started` | `source` | `EnergyArchetype` begin | Personalize | Retention | P3 |
+| N10 | `location_skipped` (+ add `source` to `settings_location_set`) | `source` | `LocationStep`, `Settings` | First Light / Personalize | Activation | P3 |
+
+**Companion product fix (blocks measurement, not an event):** wire the wisdom-card share into `FastComplete` (roadmap §4.2) — emits the existing `wisdom_card_shared` with a new `source:'fast_complete'`. Highest-leverage referral change; event exists, UI does not.
+
+**Deliberately not tracked** (noise or already answered): progress-ring toggle, meditation pause/resume, reminder time/lead pills, terminal Done/Close/Cancel/Back taps, raw calendar dates (collapsed to coarse `offset_days`), read-only Rhythm surfaces, onboarding carousel (deferred — roadmap is collapsing it). Full rationale in `docs/user-journeys.md` §5.3.
